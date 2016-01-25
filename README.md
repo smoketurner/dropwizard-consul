@@ -88,7 +88,7 @@ Content-Length: 591
         "Port": 8080
     },
     "Checks": [{
-        "Node": "9500076057A",
+        "Node": "mac",
         "CheckID": "serfHealth",
         "Name": "Serf Health Status",
         "Status": "passing",
@@ -97,7 +97,7 @@ Content-Length: 591
         "ServiceID": "",
         "ServiceName": ""
     }, {
-        "Node": "9500076057A",
+        "Node": "mac",
         "CheckID": "service:e16fc421-f430-4361-9bee-8a700a61c06f",
         "Name": "Service 'helloworld' check",
         "Status": "passing",
