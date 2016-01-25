@@ -1,7 +1,11 @@
-package com.smoketurner.dropwizard.consul.example;
+package com.example.helloworld;
 
+import com.example.helloworld.resources.HelloWorldResource;
+import com.orbitz.consul.Consul;
 import com.smoketurner.dropwizard.consul.ConsulBundle;
 import com.smoketurner.dropwizard.consul.ConsulFactory;
+import com.smoketurner.dropwizard.consul.ribbon.RibbonClient;
+import com.smoketurner.dropwizard.consul.ribbon.RibbonClientBuilder;
 import io.dropwizard.Application;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
@@ -32,8 +36,16 @@ public class HelloWorldApplication
     @Override
     public void run(HelloWorldConfiguration configuration,
             Environment environment) throws Exception {
-        final HelloWorldResource resource = new HelloWorldResource(
-                configuration.getTemplate(), configuration.getDefaultName());
+
+        final Consul consul = configuration.getConsulFactory().build();
+        final RibbonClientBuilder builder = new RibbonClientBuilder(environment,
+                consul);
+        final RibbonClient loadBalancingClient = builder
+                .build(configuration.getDownstream());
+
+        final HelloWorldResource resource = new HelloWorldResource(consul,
+                loadBalancingClient, configuration.getTemplate(),
+                configuration.getDefaultName());
         environment.jersey().register(resource);
     }
 }

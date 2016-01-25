@@ -1,10 +1,11 @@
-package com.smoketurner.dropwizard.consul.example;
+package com.example.helloworld;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import org.hibernate.validator.constraints.NotEmpty;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.smoketurner.dropwizard.consul.ConsulFactory;
+import com.smoketurner.dropwizard.consul.ribbon.RibbonLoadBalancerConfiguration;
 import io.dropwizard.Configuration;
 
 public class HelloWorldConfiguration extends Configuration {
@@ -18,6 +19,10 @@ public class HelloWorldConfiguration extends Configuration {
     @NotNull
     @Valid
     public final ConsulFactory consul = new ConsulFactory();
+
+    @NotNull
+    @Valid
+    public final RibbonLoadBalancerConfiguration downstream = new RibbonLoadBalancerConfiguration();
 
     @JsonProperty
     public String getTemplate() {
@@ -42,5 +47,10 @@ public class HelloWorldConfiguration extends Configuration {
     @JsonProperty
     public ConsulFactory getConsulFactory() {
         return consul;
+    }
+
+    @JsonProperty
+    public RibbonLoadBalancerConfiguration getDownstream() {
+        return downstream;
     }
 }
