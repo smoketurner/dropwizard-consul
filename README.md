@@ -17,7 +17,6 @@ Dependency Info
 </dependency>
 ```
 
-
 Usage
 -----
 Add a `ConsulBundle` to your [Application](http://www.dropwizard.io/0.9.2/dropwizard-core/apidocs/io/dropwizard/Application.html) class.
@@ -111,16 +110,16 @@ Content-Length: 591
 - The application will periodically checkin with Consul every second to notify the service check that it is still alive
 - Upon shutdown, the application will deregister itself from Consul
 
+Credits
+-------
+This bundle was inspired by an older bundle (Dropwizard 0.6.2) that [Chris Gray](https://github.com/chrisgray) created at https://github.com/chrisgray/dropwizard-consul. I also incorporated the configuration provider changes from https://github.com/remmelt/dropwizard-consul-config-provider
 
 Support
 -------
-
 Please file bug reports and feature requests in [GitHub issues](https://github.com/smoketurner/dropwizard-consul/issues).
-
 
 License
 -------
-
 Copyright (c) 2016 Justin Plock
 
 This library is licensed under the Apache License, Version 2.0.
