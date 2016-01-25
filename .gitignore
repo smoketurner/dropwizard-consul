@@ -1,1 +1,11 @@
-/target/
+.classpath
+.project
+.settings
+.idea
+*.iml
+.DS_Store
+*.class
+*.jar
+hs_err_pid*
+target
+dependency-reduced-pom.xml

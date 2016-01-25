@@ -1,0 +1,31 @@
+template: ${helloworld/template:-Hello, %s!}
+defaultName: ${helloworld/defaultName:-Stranger}
+
+consul:
+  serviceName: helloworld
+
+# HTTP-specific options.
+server:
+
+  applicationConnectors:
+    - type: http
+      port: 8080
+  
+  adminConnectors:
+    - type: http
+      port: 8180
+
+  requestLog:
+    appenders:
+      - type: console
+        timeZone: UTC
+        target: stdout
+
+logging:
+  level: INFO
+  loggers:
+    com.smoketurner.dropwizard.consul: DEBUG
+  appenders:
+    - type: console
+      timeZone: UTC
+      target: stdout
