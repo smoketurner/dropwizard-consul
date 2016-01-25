@@ -16,13 +16,15 @@
 package com.smoketurner.dropwizard.consul;
 
 import java.util.concurrent.ScheduledExecutorService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import com.orbitz.consul.Consul;
+import com.orbitz.consul.ConsulException;
 import com.smoketurner.dropwizard.consul.config.ConsulSubstitutor;
 import com.smoketurner.dropwizard.consul.core.ConsulAdvertiser;
 import com.smoketurner.dropwizard.consul.core.ConsulServiceCheckTask;
 import com.smoketurner.dropwizard.consul.core.ConsulServiceListener;
 import com.smoketurner.dropwizard.consul.health.ConsulHealthCheck;
-import com.smoketurner.dropwizard.consul.jersey.ConsulBinder;
 import com.smoketurner.dropwizard.consul.managed.ConsulAdvertiserManager;
 import io.dropwizard.Configuration;
 import io.dropwizard.ConfiguredBundle;
@@ -34,25 +36,31 @@ import io.dropwizard.util.Duration;
 public abstract class ConsulBundle<C extends Configuration>
         implements ConfiguredBundle<C>, ConsulConfiguration<C> {
 
-    // Default to creating a consul client that connects on localhost:8500 for
-    // configuration variable substitution
-    private Consul consul = Consul.builder().build();
+    private static final Logger LOGGER = LoggerFactory
+            .getLogger(ConsulBundle.class);
+    private static final long INITIAL_DELAY_SECS = 1;
 
     @Override
     public void initialize(Bootstrap<?> bootstrap) {
-        // replace variables with values from Consul KV
-        bootstrap.setConfigurationSourceProvider(new SubstitutingSourceProvider(
-                bootstrap.getConfigurationSourceProvider(),
-                new ConsulSubstitutor(consul, false)));
+        // Replace variables with values from Consul KV. This only works with a
+        // Consul agent running on localhost:8500 (the default) as there's no
+        // way to configure Consul in the initialize methods.
+        try {
+            bootstrap.setConfigurationSourceProvider(
+                    new SubstitutingSourceProvider(
+                            bootstrap.getConfigurationSourceProvider(),
+                            new ConsulSubstitutor(Consul.builder().build(),
+                                    false)));
+        } catch (ConsulException e) {
+            LOGGER.warn("Unable to query Consul running on localhost:8500,"
+                    + " disabling configuration subsitution");
+        }
     }
 
     @Override
     public void run(C configuration, Environment environment) throws Exception {
         final ConsulFactory consulConfig = getConsulFactory(configuration);
-        consul = consulConfig.build();
-
-        // Register Consul with Jersey so we can get it from the request context
-        environment.jersey().register(new ConsulBinder(consul));
+        final Consul consul = consulConfig.build();
 
         final ConsulAdvertiser advertiser = new ConsulAdvertiser(consulConfig,
                 consul);
@@ -70,7 +78,7 @@ public abstract class ConsulBundle<C extends Configuration>
         executor.scheduleAtFixedRate(
                 new ConsulServiceCheckTask(consul,
                         ConsulAdvertiser.getServiceId()),
-                1, interval.getQuantity(), interval.getUnit());
+                INITIAL_DELAY_SECS, interval.getQuantity(), interval.getUnit());
 
         // Register a ping healthcheck to the Consul agent
         environment.healthChecks().register("consul",
@@ -78,9 +86,5 @@ public abstract class ConsulBundle<C extends Configuration>
 
         // Register a shutdown manager to deregister the service
         environment.lifecycle().manage(new ConsulAdvertiserManager(advertiser));
-    }
-
-    public Consul getConsul() {
-        return consul;
     }
 }

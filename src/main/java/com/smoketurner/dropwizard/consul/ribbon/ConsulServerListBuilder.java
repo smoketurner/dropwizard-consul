@@ -13,14 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.smoketurner.dropwizard.consul.jersey;
+package com.smoketurner.dropwizard.consul.ribbon;
 
+import java.util.List;
 import java.util.Objects;
 import javax.annotation.Nonnull;
-import org.glassfish.hk2.api.Factory;
 import com.orbitz.consul.Consul;
+import com.orbitz.consul.model.health.ServiceHealth;
 
-public class ConsulFactory implements Factory<Consul> {
+public class ConsulServerListBuilder {
 
     private final Consul consul;
 
@@ -30,17 +31,21 @@ public class ConsulFactory implements Factory<Consul> {
      * @param consul
      *            Consul client
      */
-    public ConsulFactory(@Nonnull final Consul consul) {
+    public ConsulServerListBuilder(@Nonnull final Consul consul) {
         this.consul = Objects.requireNonNull(consul);
     }
 
-    @Override
-    public Consul provide() {
-        return consul;
-    }
-
-    @Override
-    public void dispose(Consul instance) {
-        // nothing to dispose
+    /**
+     * Build a new consul server list
+     *
+     * @param service
+     *            Service Name
+     * @return a list of healthy servers
+     */
+    public ConsulServerList build(@Nonnull final String service) {
+        Objects.requireNonNull(service);
+        final List<ServiceHealth> services = consul.healthClient()
+                .getHealthyServiceInstances(service).getResponse();
+        return new ConsulServerList(consul, service, services);
     }
 }

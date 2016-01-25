@@ -100,8 +100,8 @@ public class ConsulFactory {
     }
 
     @JsonProperty
-    public void setCheckInterval(Duration passInterval) {
-        this.checkInterval = passInterval;
+    public void setCheckInterval(Duration checkInterval) {
+        this.checkInterval = checkInterval;
     }
 
     @JsonIgnore

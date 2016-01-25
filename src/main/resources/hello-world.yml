@@ -4,6 +4,10 @@ defaultName: ${helloworld/defaultName:-Stranger}
 consul:
   serviceName: helloworld
 
+downstream:
+  serviceName: helloworld
+  refreshInterval: 10 seconds
+
 # HTTP-specific options.
 server:
 
@@ -25,6 +29,8 @@ logging:
   level: INFO
   loggers:
     com.smoketurner.dropwizard.consul: DEBUG
+    com.example.helloworld: DEBUG
+    com.netflix.loadbalancer: DEBUG
   appenders:
     - type: console
       timeZone: UTC
