@@ -13,7 +13,7 @@ Dependency Info
 <dependency>
   <groupId>com.smoketurner.dropwizard</groupId>
   <artifactId>dropwizard-consul</artifactId>
-  <version>0.1.0-SNAPSHOT</version>
+  <version>0.9.2-1</version>
 </dependency>
 ```
 
