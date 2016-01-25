@@ -1,7 +1,7 @@
 Dropwizard Consul Bundle
 ========================
-[![Build Status](https://travis-ci.org/smoketurner/dropwizard-consul.svg?branch=master)](https://travis-ci.org/smoketurner/notification)
-[![Coverage Status](https://coveralls.io/repos/smoketurner/dropwizard-consul/badge.svg)](https://coveralls.io/r/smoketurner/notification)
+[![Build Status](https://travis-ci.org/smoketurner/dropwizard-consul.svg?branch=master)](https://travis-ci.org/smoketurner/dropwizard-consul)
+[![Coverage Status](https://coveralls.io/repos/smoketurner/dropwizard-consul/badge.svg)](https://coveralls.io/r/smoketurner/dropwizard-consul)
 [![Maven Central](https://img.shields.io/maven-central/v/com.smoketurner.dropwizard/dropwizard-consul.svg?style=flat-square)](https://maven-badges.herokuapp.com/maven-central/com.smoketurner.dropwizard/dropwizard-consul/)
 [![GitHub license](https://img.shields.io/github/license/smoketurner/dropwizard-consul.svg?style=flat-square)](https://github.com/smoketurner/dropwizard-consul/tree/master)
 
