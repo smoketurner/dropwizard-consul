@@ -11,9 +11,9 @@ Dependency Info
 ---------------
 ```xml
 <dependency>
-  <groupId>com.smoketurner.dropwizard</groupId>
-  <artifactId>dropwizard-consul</artifactId>
-  <version>0.9.2-2</version>
+    <groupId>com.smoketurner.dropwizard</groupId>
+    <artifactId>consul-core</artifactId>
+    <version>0.9.2-2</version>
 </dependency>
 ```
 
