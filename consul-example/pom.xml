@@ -13,6 +13,10 @@
 
     <dependencies>
         <dependency>
+            <groupId>io.dropwizard</groupId>
+            <artifactId>dropwizard-core</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.smoketurner.dropwizard</groupId>
             <artifactId>consul-core</artifactId>
             <version>${project.version}</version>
@@ -22,12 +26,8 @@
             <artifactId>consul-ribbon</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <dependency>
-            <groupId>io.dropwizard</groupId>
-            <artifactId>dropwizard-core</artifactId>
-        </dependency>
     </dependencies>
-    
+
     <build>
         <plugins>
             <plugin>

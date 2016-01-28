@@ -11,6 +11,10 @@
     <artifactId>consul-ribbon</artifactId>
     <name>Dropwizard Consul Load Balancer</name>
 
+    <properties>
+        <ribbon.version>2.1.2</ribbon.version>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>com.smoketurner.dropwizard</groupId>

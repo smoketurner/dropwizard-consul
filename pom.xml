@@ -27,13 +27,12 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <file.encoding>UTF-8</file.encoding>
         <dropwizard.version>0.9.2</dropwizard.version>
-        <ribbon.version>2.1.2</ribbon.version>
     </properties>
 
     <modules>
-        <module>consul-example</module>
-        <module>consul-ribbon</module>
         <module>consul-core</module>
+        <module>consul-ribbon</module>
+        <module>consul-example</module>
     </modules>
 
     <developers>
