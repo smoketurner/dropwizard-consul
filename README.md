@@ -11,9 +11,9 @@ Dependency Info
 ---------------
 ```xml
 <dependency>
-  <groupId>com.smoketurner.dropwizard</groupId>
-  <artifactId>dropwizard-consul</artifactId>
-  <version>0.9.2-1</version>
+    <groupId>com.smoketurner.dropwizard</groupId>
+    <artifactId>consul-core</artifactId>
+    <version>0.9.2-2</version>
 </dependency>
 ```
 
@@ -70,7 +70,7 @@ This bundle includes a modified version of the `HelloWorldApplication` from Drop
 
 ```
 mvn clean package
-java -jar target/dropwizard-consul-0.1.0-SNAPSHOT.jar server src/main/resources/hello-world.yml
+java -jar consul-example/target/consul-example-0.9.2-3-SNAPSHOT.jar server consul-example/hello-world.yml
 ```
 
 This will start the application on port `8080` (admin port `8180`). This application demonstrations the following Consul integration points:
