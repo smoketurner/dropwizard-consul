@@ -5,11 +5,11 @@
     <parent>
         <groupId>com.smoketurner.dropwizard</groupId>
         <artifactId>dropwizard-consul</artifactId>
-        <version>1.0.2-SNAPSHOT</version>
+        <version>0.9.2-3-SNAPSHOT</version>
     </parent>
 
     <artifactId>consul-core</artifactId>
-    <name>Dropwizard Consul</name>
+    <name>Dropwizard Consul Bundle</name>
 
     <dependencies>
         <dependency>
