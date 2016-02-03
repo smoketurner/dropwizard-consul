@@ -104,13 +104,13 @@ public class ConsulAdvertiser {
 
         final AgentClient agent = consul.agentClient();
         if (agent.isRegistered(SERVICE_ID)) {
-            LOGGER.info("Service ({}) with ID \"{}\" already registered",
+            LOGGER.info("Service ({}) [{}] already registered",
                     configuration.getServiceName(), SERVICE_ID);
             return;
         }
 
         LOGGER.info(
-                "Registering service (name={}, id={}) at <{}:{}> with a TTL check of {} seconds",
+                "Registering service ({}) [{}] at <{}:{}> with a TTL check of {}s",
                 configuration.getServiceName(), SERVICE_ID, serviceHost.get(),
                 servicePort.get(), configuration.getServiceTTL().toSeconds());
 

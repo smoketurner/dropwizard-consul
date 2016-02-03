@@ -63,5 +63,4 @@ public class ConsulServiceListener implements ServerLifecycleListener {
             }
         }
     }
-
 }
