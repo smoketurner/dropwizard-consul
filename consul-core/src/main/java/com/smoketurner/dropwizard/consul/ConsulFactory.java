@@ -17,7 +17,6 @@ package com.smoketurner.dropwizard.consul;
 
 import java.util.concurrent.TimeUnit;
 import javax.validation.constraints.NotNull;
-import org.hibernate.validator.constraints.NotEmpty;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Optional;
@@ -30,9 +29,7 @@ public class ConsulFactory {
     @NotNull
     private HostAndPort endpoint = HostAndPort.fromString("127.0.0.1:8500");
 
-    @NotEmpty
     private String serviceName;
-
     private Optional<String> serviceHost = Optional.absent();
     private Optional<Integer> servicePort = Optional.absent();
 

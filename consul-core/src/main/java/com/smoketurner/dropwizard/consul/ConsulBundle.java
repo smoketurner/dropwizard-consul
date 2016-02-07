@@ -15,7 +15,9 @@
  */
 package com.smoketurner.dropwizard.consul;
 
+import java.util.Objects;
 import java.util.concurrent.ScheduledExecutorService;
+import javax.annotation.Nonnull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.orbitz.consul.Consul;
@@ -39,6 +41,17 @@ public abstract class ConsulBundle<C extends Configuration>
     private static final Logger LOGGER = LoggerFactory
             .getLogger(ConsulBundle.class);
     private static final long INITIAL_DELAY_SECS = 1;
+    private final String serviceName;
+
+    /**
+     * Constructor
+     *
+     * @param name
+     *            Service Name
+     */
+    public ConsulBundle(@Nonnull final String name) {
+        this.serviceName = Objects.requireNonNull(name);
+    }
 
     @Override
     public void initialize(Bootstrap<?> bootstrap) {
@@ -60,6 +73,7 @@ public abstract class ConsulBundle<C extends Configuration>
     @Override
     public void run(C configuration, Environment environment) throws Exception {
         final ConsulFactory consulConfig = getConsulFactory(configuration);
+        consulConfig.setSeviceName(serviceName);
         final Consul consul = consulConfig.build();
 
         final ConsulAdvertiser advertiser = new ConsulAdvertiser(consulConfig,

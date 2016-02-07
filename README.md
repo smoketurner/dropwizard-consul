@@ -25,7 +25,7 @@ Add a `ConsulBundle` to your [Application](http://www.dropwizard.io/0.9.2/dropwi
 @Override
 public void initialize(Bootstrap<MyConfiguration> bootstrap) {
     // ...
-    bootstrap.addBundle(new ConsulBundle<MyConfiguration>() {
+    bootstrap.addBundle(new ConsulBundle<MyConfiguration>(getName()) {
         @Override
         public ConsulFactory getConsulFactory(MyConfiguration configuration) {
             return configuration.getConsulFactory();
@@ -49,8 +49,6 @@ For configuring the Consul connection, there is a `ConsulFactory`:
 
 ```yaml
 consul:
-  serviceName: helloworld
-
   # Optional properties
   # endpoint for consul (defaults to localhost:8500)
   endpoint: localhost:8500

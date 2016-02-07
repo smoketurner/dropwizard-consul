@@ -24,7 +24,7 @@ public class HelloWorldApplication
 
     @Override
     public void initialize(Bootstrap<HelloWorldConfiguration> bootstrap) {
-        bootstrap.addBundle(new ConsulBundle<HelloWorldConfiguration>() {
+        bootstrap.addBundle(new ConsulBundle<HelloWorldConfiguration>(getName()) {
             @Override
             public ConsulFactory getConsulFactory(
                     HelloWorldConfiguration configuration) {

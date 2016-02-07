@@ -2,7 +2,7 @@ template: ${helloworld/template:-Hello, %s!}
 defaultName: ${helloworld/defaultName:-Stranger}
 
 consul:
-  serviceName: helloworld
+  endpoint: localhost:8500
 
 downstream:
   serviceName: helloworld
