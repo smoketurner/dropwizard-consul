@@ -25,7 +25,7 @@ import io.dropwizard.client.JerseyClientBuilder;
 import io.dropwizard.lifecycle.Managed;
 import io.dropwizard.setup.Environment;
 
-public class RibbonClientBuilder {
+public class RibbonJerseyClientBuilder {
 
     private final Environment environment;
     private final Consul consul;
@@ -38,21 +38,41 @@ public class RibbonClientBuilder {
      * @param consul
      *            Consul client
      */
-    public RibbonClientBuilder(@Nonnull final Environment environment,
+    public RibbonJerseyClientBuilder(@Nonnull final Environment environment,
             @Nonnull final Consul consul) {
         this.environment = Objects.requireNonNull(environment);
         this.consul = Objects.requireNonNull(consul);
     }
 
     /**
-     * Builds a new {@link RibbonClient}
+     * Builds a new {@link RibbonJerseyClient}
      *
      * @param configuration
      *            Ribbon Load Balancer configuration
-     * @return new RibbonClient
+     * @return new RibbonJerseyClient
      */
-    public RibbonClient build(
+    public RibbonJerseyClient build(
             @Nonnull final RibbonLoadBalancerConfiguration configuration) {
+
+        // create a new Jersey client
+        final Client jerseyClient = new JerseyClientBuilder(environment)
+                .build(configuration.getServiceName());
+
+        return build(configuration, jerseyClient);
+    }
+
+    /**
+     * Builds a new {@link RibbonJerseyClient} with an existing Jersey Client
+     *
+     * @param configuration
+     *            Ribbon Load Balancer configuration
+     * @param client
+     *            Jersey Client
+     * @return new RibbonJerseyClient
+     */
+    public RibbonJerseyClient build(
+            @Nonnull final RibbonLoadBalancerConfiguration configuration,
+            @Nonnull final Client jerseyClient) {
 
         // build a new load balancer based on the configuration
         final RibbonLoadBalancerBuilder factory = new RibbonLoadBalancerBuilder(
@@ -60,11 +80,7 @@ public class RibbonClientBuilder {
         final ZoneAwareLoadBalancer<Server> loadBalancer = factory
                 .build(configuration);
 
-        // create a new Jersey client
-        final Client jerseyClient = new JerseyClientBuilder(environment)
-                .build(configuration.getServiceName());
-
-        final RibbonClient client = new RibbonClient(loadBalancer,
+        final RibbonJerseyClient client = new RibbonJerseyClient(loadBalancer,
                 jerseyClient);
 
         environment.lifecycle().manage(new Managed() {
