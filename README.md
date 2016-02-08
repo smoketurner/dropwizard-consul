@@ -13,7 +13,12 @@ Dependency Info
 <dependency>
     <groupId>com.smoketurner.dropwizard</groupId>
     <artifactId>consul-core</artifactId>
-    <version>0.9.2-2</version>
+    <version>0.9.2-3</version>
+</dependency>
+<dependency>
+    <groupId>com.smoketurner.dropwizard</groupId>
+    <artifactId>consul-ribbon</artifactId>
+    <version>0.9.2-3</version>
 </dependency>
 ```
 
@@ -64,7 +69,17 @@ consul:
 
 Example Application
 -------------------
-This bundle includes a modified version of the `HelloWorldApplication` from Dropwizard's [Getting Started](http://www.dropwizard.io/0.9.2/docs/getting-started.html) documentation. You can execute this application by first starting Consul on your local machine then running:
+This bundle includes a modified version of the `HelloWorldApplication` from Dropwizard's [Getting Started](http://www.dropwizard.io/0.9.2/docs/getting-started.html) documentation.
+
+```xml
+<dependency>
+    <groupId>com.smoketurner.dropwizard</groupId>
+    <artifactId>consul-example</artifactId>
+    <version>0.9.2-3</version>
+</dependency>
+```
+
+You can execute this application by first starting Consul on your local machine then running:
 
 ```
 mvn clean package
