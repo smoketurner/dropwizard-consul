@@ -57,8 +57,6 @@ consul:
   # Optional properties
   # endpoint for consul (defaults to localhost:8500)
   endpoint: localhost:8500
-  # service host
-  serviceHost: 192.168.1.100
   # service port
   servicePort: 8080
   # service time to live

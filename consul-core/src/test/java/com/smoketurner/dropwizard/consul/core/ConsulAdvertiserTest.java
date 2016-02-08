@@ -16,7 +16,6 @@
 package com.smoketurner.dropwizard.consul.core;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.failBecauseExceptionWasNotThrown;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
@@ -54,40 +53,28 @@ public class ConsulAdvertiserTest {
     }
 
     @Test
-    public void testRegisterWithoutInitialize() {
-        try {
-            advertiser.register();
-            failBecauseExceptionWasNotThrown(IllegalStateException.class);
-        } catch (IllegalStateException e) {
-        }
-    }
-
-    @Test
     public void testRegister() {
         final String serviceId = ConsulAdvertiser.getServiceId();
         when(agent.isRegistered(serviceId)).thenReturn(false);
-        advertiser.initialize("127.0.0.1", 8080);
-        advertiser.register();
+        advertiser.register(8080);
         verify(agent).register(8080, 3, "test", serviceId);
     }
 
     @Test
     public void testRegisterAlreadyRegistered() {
         when(agent.isRegistered(anyString())).thenReturn(true);
-        advertiser.initialize("127.0.0.1", 8080);
-        advertiser.register();
+        advertiser.register(8080);
         verify(agent, never()).register(anyInt(), anyLong(), anyString(),
                 anyString());
     }
 
     @Test
     public void testHostFromConfig() {
-        factory.setServiceHost("127.0.0.1");
         factory.setServicePort(8888);
         when(agent.isRegistered(anyString())).thenReturn(false);
         final ConsulAdvertiser advertiser = new ConsulAdvertiser(factory,
                 consul);
-        advertiser.register();
+        advertiser.register(8080);
         verify(agent).register(eq(8888), eq(3L), eq("test"), anyString());
     }
 

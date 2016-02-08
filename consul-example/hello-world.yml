@@ -5,7 +5,7 @@ consul:
   endpoint: localhost:8500
 
 downstream:
-  serviceName: helloworld
+  serviceName: hello-world
   refreshInterval: 10 seconds
 
 # HTTP-specific options.

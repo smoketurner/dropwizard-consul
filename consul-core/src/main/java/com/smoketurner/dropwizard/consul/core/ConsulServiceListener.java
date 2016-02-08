@@ -15,12 +15,10 @@
  */
 package com.smoketurner.dropwizard.consul.core;
 
-import java.net.InetSocketAddress;
-import java.nio.channels.ServerSocketChannel;
 import java.util.Objects;
 import javax.annotation.Nonnull;
-import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.ServerConnector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import io.dropwizard.lifecycle.ServerLifecycleListener;
@@ -29,7 +27,6 @@ public class ConsulServiceListener implements ServerLifecycleListener {
 
     private static final Logger LOGGER = LoggerFactory
             .getLogger(ConsulServiceListener.class);
-    private static final String APPLICATION_CONNECTOR = "application";
     private final ConsulAdvertiser advertiser;
 
     /**
@@ -45,22 +42,12 @@ public class ConsulServiceListener implements ServerLifecycleListener {
     @Override
     public void serverStarted(Server server) {
         // Detect the port Jetty is listening on
-        for (final Connector connector : server.getConnectors()) {
-            if (APPLICATION_CONNECTOR.equals(connector.getName())) {
-                final ServerSocketChannel channel = (ServerSocketChannel) connector
-                        .getTransport();
-
-                try {
-                    final InetSocketAddress socket = (InetSocketAddress) channel
-                            .getLocalAddress();
-                    advertiser.initialize(socket.getHostString(),
-                            socket.getPort());
-                    advertiser.register();
-                    return;
-                } catch (final Exception e) {
-                    LOGGER.error("Unable to register service in Consul", e);
-                }
-            }
+        try {
+            final int port = ((ServerConnector) server.getConnectors()[0])
+                    .getLocalPort();
+            advertiser.register(port);
+        } catch (Exception e) {
+            LOGGER.error("Unable to get listening port", e);
         }
     }
 }

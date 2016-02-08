@@ -14,18 +14,18 @@ import com.google.common.base.Optional;
 import com.netflix.loadbalancer.Server;
 import com.orbitz.consul.Consul;
 import com.orbitz.consul.model.health.ServiceHealth;
-import com.smoketurner.dropwizard.consul.ribbon.RibbonClient;
+import com.smoketurner.dropwizard.consul.ribbon.RibbonJerseyClient;
 
 @Path("/")
 @Produces(MediaType.APPLICATION_JSON)
 public class HelloWorldResource {
     private final Consul consul;
-    private final RibbonClient client;
+    private final RibbonJerseyClient client;
     private final String template;
     private final String defaultName;
     private final AtomicLong counter;
 
-    public HelloWorldResource(Consul consul, RibbonClient client,
+    public HelloWorldResource(Consul consul, RibbonJerseyClient client,
             String template, String defaultName) {
         this.consul = consul;
         this.client = client;

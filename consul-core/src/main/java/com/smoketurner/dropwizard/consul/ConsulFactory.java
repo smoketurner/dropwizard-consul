@@ -30,7 +30,6 @@ public class ConsulFactory {
     private HostAndPort endpoint = HostAndPort.fromString("127.0.0.1:8500");
 
     private String serviceName;
-    private Optional<String> serviceHost = Optional.absent();
     private Optional<Integer> servicePort = Optional.absent();
 
     @NotNull
@@ -59,16 +58,6 @@ public class ConsulFactory {
     @JsonProperty
     public void setSeviceName(String serviceName) {
         this.serviceName = serviceName;
-    }
-
-    @JsonProperty
-    public Optional<String> getServiceHost() {
-        return serviceHost;
-    }
-
-    @JsonProperty
-    public void setServiceHost(String serviceHost) {
-        this.serviceHost = Optional.fromNullable(serviceHost);
     }
 
     @JsonProperty

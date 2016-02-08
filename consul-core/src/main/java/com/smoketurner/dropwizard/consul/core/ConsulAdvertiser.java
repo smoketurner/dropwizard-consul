@@ -18,11 +18,9 @@ package com.smoketurner.dropwizard.consul.core;
 import java.util.Objects;
 import java.util.UUID;
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.google.common.base.Optional;
-import com.google.common.base.Preconditions;
 import com.orbitz.consul.AgentClient;
 import com.orbitz.consul.Consul;
 import com.orbitz.consul.ConsulException;
@@ -36,7 +34,6 @@ public class ConsulAdvertiser {
     private final ConsulFactory configuration;
     private final Consul consul;
 
-    private Optional<String> serviceHost = Optional.absent();
     private Optional<Integer> servicePort = Optional.absent();
 
     /**
@@ -52,11 +49,6 @@ public class ConsulAdvertiser {
         this.configuration = Objects.requireNonNull(configuration);
         this.consul = Objects.requireNonNull(consul);
 
-        if (configuration.getServiceHost().isPresent()) {
-            LOGGER.info("Using \"{}\" as serviceHost from configuration file",
-                    configuration.getServiceHost().get());
-            serviceHost = configuration.getServiceHost();
-        }
         if (configuration.getServicePort().isPresent()) {
             LOGGER.info("Using \"{}\" as servicePort from configuration file",
                     configuration.getServicePort().get());
@@ -74,34 +66,12 @@ public class ConsulAdvertiser {
     }
 
     /**
-     * Initialize the advertiser by setting the host and port to register with
-     * Consul. This method is called by {@link ConsulServiceListener} after
-     * Jetty has been started.
-     * 
-     * @param host
-     *            Service host to register
-     * @param port
-     *            Service port to register
-     */
-    public void initialize(@Nullable final String host,
-            @Nullable final Integer port) {
-        if (!serviceHost.isPresent()) {
-            serviceHost = Optional.fromNullable(host);
-        }
-        if (!servicePort.isPresent()) {
-            servicePort = Optional.fromNullable(port);
-        }
-    }
-
-    /**
      * Register the service with Consul
+     * 
+     * @param port
+     *            Port the service is listening on
      */
-    public void register() {
-        Preconditions.checkState(serviceHost.isPresent(),
-                "serviceHost not set");
-        Preconditions.checkState(servicePort.isPresent(),
-                "servicePort not set");
-
+    public void register(final int port) {
         final AgentClient agent = consul.agentClient();
         if (agent.isRegistered(SERVICE_ID)) {
             LOGGER.info("Service ({}) [{}] already registered",
@@ -109,10 +79,16 @@ public class ConsulAdvertiser {
             return;
         }
 
+        // If we haven't set the servicePort via the configuration file already,
+        // set it from the listening port.
+        if (!servicePort.isPresent()) {
+            servicePort = Optional.of(port);
+        }
+
         LOGGER.info(
-                "Registering service ({}) [{}] at <{}:{}> with a TTL check of {}s",
-                configuration.getServiceName(), SERVICE_ID, serviceHost.get(),
-                servicePort.get(), configuration.getServiceTTL().toSeconds());
+                "Registering service ({}) [{}] on port {} with a TTL check of {}s",
+                configuration.getServiceName(), SERVICE_ID, servicePort.get(),
+                configuration.getServiceTTL().toSeconds());
 
         try {
             consul.agentClient().register(servicePort.get(),
