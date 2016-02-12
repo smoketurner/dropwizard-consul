@@ -84,9 +84,9 @@ public class ConsulServerList implements ServerList<Server> {
      */
     private List<Server> buildServerList(
             @Nonnull final List<ServiceHealth> services) {
-        return services.stream().map(service -> {
-            return new Server(service.getNode().getAddress(),
-                    service.getService().getPort());
-        }).collect(Collectors.toList());
+        return services.stream().map(service -> 
+             new Server(service.getNode().getAddress(),
+                    service.getService().getPort())
+        ).collect(Collectors.toList());
     }
 }

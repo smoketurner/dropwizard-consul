@@ -66,7 +66,7 @@ public abstract class ConsulBundle<C extends Configuration>
                                     false)));
         } catch (ConsulException e) {
             LOGGER.warn("Unable to query Consul running on localhost:8500,"
-                    + " disabling configuration subsitution");
+                    + " disabling configuration subsitution", e);
         }
     }
 

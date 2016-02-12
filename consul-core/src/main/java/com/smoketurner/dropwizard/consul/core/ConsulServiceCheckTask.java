@@ -49,8 +49,9 @@ public class ConsulServiceCheckTask implements Runnable {
         try {
             consul.agentClient().pass(serviceId);
         } catch (NotRegisteredException e) {
-            LOGGER.warn("Service ID ({}) not registered with Consul",
-                    serviceId);
+            LOGGER.warn(
+                    "Service ID (" + serviceId + ") not registered with Consul",
+                    e);
         } catch (Exception e) {
             LOGGER.warn("Unable to query Consul", e);
         }
