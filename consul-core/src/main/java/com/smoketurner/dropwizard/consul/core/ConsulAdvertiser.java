@@ -101,9 +101,9 @@ public class ConsulAdvertiser {
                 configuration.getServiceTTL().toSeconds());
 
         try {
-            Registration.RegCheck check = Registration.RegCheck.ttl(configuration.getServiceTTL().toSeconds());
+            final Registration.RegCheck check = Registration.RegCheck.ttl(configuration.getServiceTTL().toSeconds());
 
-            ImmutableRegistration.Builder registrationBuilder = ImmutableRegistration
+            final ImmutableRegistration.Builder registrationBuilder = ImmutableRegistration
                 .builder()
                 .port(servicePort.get())
                 .check(check)
