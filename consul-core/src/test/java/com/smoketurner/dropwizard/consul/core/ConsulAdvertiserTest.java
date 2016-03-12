@@ -19,12 +19,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
+import com.orbitz.consul.model.agent.ImmutableRegistration;
+import com.orbitz.consul.model.agent.Registration;
 import org.junit.Before;
 import org.junit.Test;
 import com.orbitz.consul.AgentClient;
@@ -57,7 +59,16 @@ public class ConsulAdvertiserTest {
         final String serviceId = ConsulAdvertiser.getServiceId();
         when(agent.isRegistered(serviceId)).thenReturn(false);
         advertiser.register(8080);
-        verify(agent).register(8080, 3, "test", serviceId);
+
+        ImmutableRegistration registration = ImmutableRegistration
+            .builder()
+            .port(8080)
+            .check(Registration.RegCheck.ttl(3L))
+            .name("test")
+            .id(serviceId)
+            .build();
+
+        verify(agent).register(registration);
     }
 
     @Test
@@ -71,11 +82,21 @@ public class ConsulAdvertiserTest {
     @Test
     public void testHostFromConfig() {
         factory.setServicePort(8888);
+        factory.setServiceAddress("127.0.0.1");
+
         when(agent.isRegistered(anyString())).thenReturn(false);
         final ConsulAdvertiser advertiser = new ConsulAdvertiser(factory,
                 consul);
         advertiser.register(8080);
-        verify(agent).register(eq(8888), eq(3L), eq("test"), anyString());
+
+        ImmutableRegistration.Builder builder = ImmutableRegistration
+            .builder()
+            .port(8888)
+            .address("127.0.0.1")
+            .check(Registration.RegCheck.ttl(3L))
+            .name("test");
+
+        verify(agent).register(builder.id(anyString()).build());
     }
 
     @Test

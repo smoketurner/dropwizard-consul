@@ -33,6 +33,7 @@ public class ConsulFactory {
 
     private String serviceName;
     private Optional<Integer> servicePort = Optional.absent();
+    private Optional<String> serviceAddress = Optional.absent();
 
     @NotNull
     @MinDuration(value = 1, unit = TimeUnit.SECONDS)
@@ -70,6 +71,16 @@ public class ConsulFactory {
     @JsonProperty
     public void setServicePort(Integer servicePort) {
         this.servicePort = Optional.fromNullable(servicePort);
+    }
+
+    @JsonProperty
+    public Optional<String> getServiceAddress() {
+        return serviceAddress;
+    }
+
+    @JsonProperty
+    public void setServiceAddress(String serviceAddress) {
+        this.serviceAddress = Optional.fromNullable(serviceAddress);
     }
 
     @JsonProperty("serviceTTL")
