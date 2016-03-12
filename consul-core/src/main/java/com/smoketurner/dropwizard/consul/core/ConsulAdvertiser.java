@@ -18,15 +18,14 @@ package com.smoketurner.dropwizard.consul.core;
 import java.util.Objects;
 import java.util.UUID;
 import javax.annotation.Nonnull;
-
-import com.orbitz.consul.model.agent.ImmutableRegistration;
-import com.orbitz.consul.model.agent.Registration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.google.common.base.Optional;
 import com.orbitz.consul.AgentClient;
 import com.orbitz.consul.Consul;
 import com.orbitz.consul.ConsulException;
+import com.orbitz.consul.model.agent.ImmutableRegistration;
+import com.orbitz.consul.model.agent.Registration;
 import com.smoketurner.dropwizard.consul.ConsulFactory;
 
 public class ConsulAdvertiser {
@@ -60,8 +59,9 @@ public class ConsulAdvertiser {
         }
 
         if (configuration.getServiceAddress().isPresent()) {
-            LOGGER.info("Using \"{}\" as serviceAddress from configuration file",
-                configuration.getServiceAddress().get());
+            LOGGER.info(
+                    "Using \"{}\" as serviceAddress from configuration file",
+                    configuration.getServiceAddress().get());
             serviceAddress = configuration.getServiceAddress();
         }
     }
@@ -100,25 +100,21 @@ public class ConsulAdvertiser {
                 configuration.getServiceName(), SERVICE_ID, servicePort.get(),
                 configuration.getServiceTTL().toSeconds());
 
+        final Registration.RegCheck check = Registration.RegCheck
+                .ttl(configuration.getServiceTTL().toSeconds());
+
+        final ImmutableRegistration.Builder builder = ImmutableRegistration
+                .builder().port(servicePort.get()).check(check)
+                .name(configuration.getServiceName()).id(SERVICE_ID);
+
+        // If we have set the serviceAddress via the configuration file, add it
+        // to the registration.
+        if (serviceAddress.isPresent()) {
+            builder.address(serviceAddress.get());
+        }
+
         try {
-            final Registration.RegCheck check = Registration.RegCheck.ttl(configuration.getServiceTTL().toSeconds());
-
-            final ImmutableRegistration.Builder registrationBuilder = ImmutableRegistration
-                .builder()
-                .port(servicePort.get())
-                .check(check)
-                .name(configuration.getServiceName())
-                .id(SERVICE_ID);
-
-            // If we have set the serviceAddress via the configuration file,
-            // add it to the registration.
-            if (serviceAddress.isPresent()) {
-                registrationBuilder.address(serviceAddress.get());
-            }
-
-            Registration registration = registrationBuilder.build();
-
-            consul.agentClient().register(registration);
+            consul.agentClient().register(builder.build());
         } catch (ConsulException e) {
             LOGGER.error("Failed to register service in Consul", e);
         }
