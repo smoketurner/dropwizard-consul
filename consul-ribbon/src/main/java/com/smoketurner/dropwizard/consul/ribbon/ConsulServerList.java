@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
+import com.google.common.base.Strings;
 import com.netflix.loadbalancer.Server;
 import com.netflix.loadbalancer.ServerList;
 import com.orbitz.consul.Consul;
@@ -84,9 +85,26 @@ public class ConsulServerList implements ServerList<Server> {
      */
     private List<Server> buildServerList(
             @Nonnull final List<ServiceHealth> services) {
-        return services.stream().map(service -> 
-             new Server(service.getNode().getAddress(),
-                    service.getService().getPort())
-        ).collect(Collectors.toList());
+        return services.stream().map(service -> buildServer(service))
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Build a {@link Server} instance from a Consul {@link ServiceHealth}
+     * instance. If the service has an address defined, use that as the server
+     * host, otherwise default to using the node address.
+     * 
+     * @param service
+     *            Consul service health record
+     * @return Ribbon Server instance
+     */
+    private Server buildServer(final ServiceHealth service) {
+        if (!Strings.isNullOrEmpty(service.getService().getAddress())) {
+            return new Server(service.getService().getAddress(),
+                    service.getService().getPort());
+        } else {
+            return new Server(service.getNode().getAddress(),
+                    service.getService().getPort());
+        }
     }
 }
