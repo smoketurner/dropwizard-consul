@@ -81,10 +81,10 @@ public abstract class ConsulBundle<C extends Configuration>
                                             getConsulAgentPort()))
                                     .build(), false)));
         } catch (ConsulException e) {
-            LOGGER.warn(String.format(
-                    "Unable to query Consul running on %s:%s,"
+            LOGGER.warn(
+                    "Unable to query Consul running on {}:{},"
                             + " disabling configuration subsitution",
-                    getConsulAgentHost(), getConsulAgentPort()), e);
+                    getConsulAgentHost(), getConsulAgentPort(), e);
         }
     }
 
