@@ -16,6 +16,7 @@
 package com.smoketurner.dropwizard.consul;
 
 import java.util.Objects;
+import java.util.UUID;
 import java.util.concurrent.ScheduledExecutorService;
 import javax.annotation.Nonnull;
 import org.slf4j.Logger;
@@ -39,12 +40,13 @@ import io.dropwizard.util.Duration;
 
 /**
  * Replace variables with values from Consul KV. By default, this only works
- * with a Consul agent running on localhost:8500 (the default) as there's no
- * way to configure Consul in the initialize methods.  You may override
+ * with a Consul agent running on localhost:8500 (the default) as there's no way
+ * to configure Consul in the initialize methods. You may override
  * {@link #getConsulAgentHost()} and {@link #getConsulAgentPort()} to provide
  * other defaults.
  *
- * @param <C> The configuration class for your Dropwizard Application.
+ * @param <C>
+ *            The configuration class for your Dropwizard Application.
  */
 public abstract class ConsulBundle<C extends Configuration>
         implements ConfiguredBundle<C>, ConsulConfiguration<C> {
@@ -77,12 +79,12 @@ public abstract class ConsulBundle<C extends Configuration>
                                     .withHostAndPort(HostAndPort.fromParts(
                                             getConsulAgentHost(),
                                             getConsulAgentPort()))
-                                    .build(),
-                                    false)));
+                                    .build(), false)));
         } catch (ConsulException e) {
-            LOGGER.warn(String.format("Unable to query Consul running on %s:%s,"
-                    + " disabling configuration subsitution", getConsulAgentHost(),
-                    getConsulAgentPort()), e);
+            LOGGER.warn(
+                    "Unable to query Consul running on {}:{},"
+                            + " disabling configuration subsitution",
+                    getConsulAgentHost(), getConsulAgentPort(), e);
         }
     }
 
@@ -92,8 +94,9 @@ public abstract class ConsulBundle<C extends Configuration>
         consulConfig.setSeviceName(serviceName);
         final Consul consul = consulConfig.build();
 
+        final String serviceId = getConsulServiceId();
         final ConsulAdvertiser advertiser = new ConsulAdvertiser(consulConfig,
-                consul);
+                consul, serviceId);
 
         // Register a Jetty listener to get the listening host and port
         environment.lifecycle().addServerLifecycleListener(
@@ -106,8 +109,7 @@ public abstract class ConsulBundle<C extends Configuration>
         // Scheduled a periodic check to Consul to keep service alive
         final Duration interval = consulConfig.getCheckInterval();
         executor.scheduleAtFixedRate(
-                new ConsulServiceCheckTask(consul,
-                        ConsulAdvertiser.getServiceId()),
+                new ConsulServiceCheckTask(consul, serviceId),
                 INITIAL_DELAY_SECS, interval.getQuantity(), interval.getUnit());
 
         // Register a ping healthcheck to the Consul agent
@@ -118,21 +120,33 @@ public abstract class ConsulBundle<C extends Configuration>
         environment.lifecycle().manage(new ConsulAdvertiserManager(advertiser));
     }
 
-	/**
+    /**
      * Override as necessary to provide an alternative Consul Agent Host
-     * @return By default, "localhost".
+     * 
+     * @return By default, "localhost"
      */
     @VisibleForTesting
-    String getConsulAgentHost() {
-        return "localhost";
+    public String getConsulAgentHost() {
+        return Consul.DEFAULT_HTTP_HOST;
     }
 
-	/**
-     * Overrider as necessary to provide an alternative Consul Agent Port
-     * @return By default, 8500.
+    /**
+     * Override as necessary to provide an alternative Consul Agent Port
+     * 
+     * @return By default, 8500
      */
     @VisibleForTesting
-    int getConsulAgentPort() {
-        return 8500;
+    public int getConsulAgentPort() {
+        return Consul.DEFAULT_HTTP_PORT;
+    }
+
+    /**
+     * Override as necessary to provide an alternative service ID
+     *
+     * @return By default, a random UUID v4
+     */
+    @VisibleForTesting
+    public String getConsulServiceId() {
+        return UUID.randomUUID().toString();
     }
 }
