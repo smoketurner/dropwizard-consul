@@ -24,20 +24,20 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-
-import com.orbitz.consul.model.agent.ImmutableRegistration;
-import com.orbitz.consul.model.agent.Registration;
 import org.junit.Before;
 import org.junit.Test;
 import com.orbitz.consul.AgentClient;
 import com.orbitz.consul.Consul;
 import com.orbitz.consul.ConsulException;
+import com.orbitz.consul.model.agent.ImmutableRegistration;
+import com.orbitz.consul.model.agent.Registration;
 import com.smoketurner.dropwizard.consul.ConsulFactory;
 
 public class ConsulAdvertiserTest {
 
     private final Consul consul = mock(Consul.class);
     private final AgentClient agent = mock(AgentClient.class);
+    private final String serviceId = "test";
     private ConsulAdvertiser advertiser;
     private ConsulFactory factory;
 
@@ -46,27 +46,22 @@ public class ConsulAdvertiserTest {
         when(consul.agentClient()).thenReturn(agent);
         factory = new ConsulFactory();
         factory.setSeviceName("test");
-        advertiser = new ConsulAdvertiser(factory, consul);
+        advertiser = new ConsulAdvertiser(factory, consul, serviceId);
     }
 
     @Test
     public void testGetServiceId() {
-        assertThat(ConsulAdvertiser.getServiceId()).isNotEmpty();
+        assertThat(advertiser.getServiceId()).isEqualTo(serviceId);
     }
 
     @Test
     public void testRegister() {
-        final String serviceId = ConsulAdvertiser.getServiceId();
         when(agent.isRegistered(serviceId)).thenReturn(false);
         advertiser.register(8080);
 
-        ImmutableRegistration registration = ImmutableRegistration
-            .builder()
-            .port(8080)
-            .check(Registration.RegCheck.ttl(3L))
-            .name("test")
-            .id(serviceId)
-            .build();
+        ImmutableRegistration registration = ImmutableRegistration.builder()
+                .port(8080).check(Registration.RegCheck.ttl(3L)).name("test")
+                .id(serviceId).build();
 
         verify(agent).register(registration);
     }
@@ -89,19 +84,16 @@ public class ConsulAdvertiserTest {
                 consul);
         advertiser.register(8080);
 
-        ImmutableRegistration.Builder builder = ImmutableRegistration
-            .builder()
-            .port(8888)
-            .address("127.0.0.1")
-            .check(Registration.RegCheck.ttl(3L))
-            .name("test");
+        ImmutableRegistration.Builder builder = ImmutableRegistration.builder()
+                .port(8888).address("127.0.0.1")
+                .check(Registration.RegCheck.ttl(3L)).name("test");
 
         verify(agent).register(builder.id(anyString()).build());
     }
 
     @Test
     public void testDeregister() {
-        final String serviceId = ConsulAdvertiser.getServiceId();
+        final String serviceId = advertiser.getServiceId();
         when(agent.isRegistered(serviceId)).thenReturn(true);
         advertiser.deregister();
         verify(agent).deregister(serviceId);
@@ -109,7 +101,7 @@ public class ConsulAdvertiserTest {
 
     @Test
     public void testDeregisterNotRegistered() {
-        final String serviceId = ConsulAdvertiser.getServiceId();
+        final String serviceId = advertiser.getServiceId();
         when(agent.isRegistered(serviceId)).thenReturn(false);
         advertiser.deregister();
         verify(agent, never()).deregister(serviceId);

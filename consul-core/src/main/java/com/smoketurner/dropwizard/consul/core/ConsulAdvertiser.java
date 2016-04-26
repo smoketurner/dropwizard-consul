@@ -17,10 +17,10 @@ package com.smoketurner.dropwizard.consul.core;
 
 import java.util.Objects;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicReference;
 import javax.annotation.Nonnull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.google.common.base.Optional;
 import com.orbitz.consul.AgentClient;
 import com.orbitz.consul.Consul;
 import com.orbitz.consul.ConsulException;
@@ -32,12 +32,11 @@ public class ConsulAdvertiser {
 
     private static final Logger LOGGER = LoggerFactory
             .getLogger(ConsulAdvertiser.class);
-    private static final String SERVICE_ID = UUID.randomUUID().toString();
+    private final AtomicReference<Integer> servicePort = new AtomicReference<>();
+    private final AtomicReference<String> serviceAddress = new AtomicReference<>();
     private final ConsulFactory configuration;
     private final Consul consul;
-
-    private Optional<Integer> servicePort = Optional.absent();
-    private Optional<String> serviceAddress = Optional.absent();
+    private final String serviceId;
 
     /**
      * Constructor
@@ -49,30 +48,46 @@ public class ConsulAdvertiser {
      */
     public ConsulAdvertiser(@Nonnull final ConsulFactory configuration,
             @Nonnull final Consul consul) {
+        this(configuration, consul, UUID.randomUUID().toString());
+    }
+
+    /**
+     * Constructor
+     *
+     * @param configuration
+     *            Consul configuration
+     * @param consul
+     *            Consul client
+     * @param serviceId
+     *            Consul service ID
+     */
+    public ConsulAdvertiser(@Nonnull final ConsulFactory configuration,
+            @Nonnull final Consul consul, @Nonnull final String serviceId) {
         this.configuration = Objects.requireNonNull(configuration);
         this.consul = Objects.requireNonNull(consul);
+        this.serviceId = Objects.requireNonNull(serviceId);
 
         if (configuration.getServicePort().isPresent()) {
             LOGGER.info("Using \"{}\" as servicePort from configuration file",
                     configuration.getServicePort().get());
-            servicePort = configuration.getServicePort();
+            servicePort.set(configuration.getServicePort().get());
         }
 
         if (configuration.getServiceAddress().isPresent()) {
             LOGGER.info(
                     "Using \"{}\" as serviceAddress from configuration file",
                     configuration.getServiceAddress().get());
-            serviceAddress = configuration.getServiceAddress();
+            serviceAddress.set(configuration.getServiceAddress().get());
         }
     }
 
     /**
-     * Return the randomly generate Service ID
+     * Return the Service ID
      *
-     * @return random service ID
+     * @return service ID
      */
-    public static String getServiceId() {
-        return SERVICE_ID;
+    public String getServiceId() {
+        return serviceId;
     }
 
     /**
@@ -83,21 +98,19 @@ public class ConsulAdvertiser {
      */
     public void register(final int port) {
         final AgentClient agent = consul.agentClient();
-        if (agent.isRegistered(SERVICE_ID)) {
+        if (agent.isRegistered(serviceId)) {
             LOGGER.info("Service ({}) [{}] already registered",
-                    configuration.getServiceName(), SERVICE_ID);
+                    configuration.getServiceName(), serviceId);
             return;
         }
 
         // If we haven't set the servicePort via the configuration file already,
         // set it from the listening port.
-        if (!servicePort.isPresent()) {
-            servicePort = Optional.of(port);
-        }
+        servicePort.compareAndSet(null, port);
 
         LOGGER.info(
                 "Registering service ({}) [{}] on port {} with a TTL check of {}s",
-                configuration.getServiceName(), SERVICE_ID, servicePort.get(),
+                configuration.getServiceName(), serviceId, servicePort.get(),
                 configuration.getServiceTTL().toSeconds());
 
         final Registration.RegCheck check = Registration.RegCheck
@@ -105,11 +118,10 @@ public class ConsulAdvertiser {
 
         final ImmutableRegistration.Builder builder = ImmutableRegistration
                 .builder().port(servicePort.get()).check(check)
-                .name(configuration.getServiceName()).id(SERVICE_ID);
+                .name(configuration.getServiceName()).id(serviceId);
 
-        // If we have set the serviceAddress via the configuration file, add it
-        // to the registration.
-        if (serviceAddress.isPresent()) {
+        // If we have set the serviceAddress, add it to the registration.
+        if (serviceAddress.get() != null) {
             builder.address(serviceAddress.get());
         }
 
@@ -125,15 +137,15 @@ public class ConsulAdvertiser {
      */
     public void deregister() {
         final AgentClient agent = consul.agentClient();
-        if (!agent.isRegistered(SERVICE_ID)) {
-            LOGGER.info("No service registered with ID \"{}\"", SERVICE_ID);
+        if (!agent.isRegistered(serviceId)) {
+            LOGGER.info("No service registered with ID \"{}\"", serviceId);
             return;
         }
 
-        LOGGER.info("Deregistering service ID \"{}\"", SERVICE_ID);
+        LOGGER.info("Deregistering service ID \"{}\"", serviceId);
 
         try {
-            consul.agentClient().deregister(SERVICE_ID);
+            consul.agentClient().deregister(serviceId);
         } catch (ConsulException e) {
             LOGGER.error("Failed to deregister service from Consul", e);
         }

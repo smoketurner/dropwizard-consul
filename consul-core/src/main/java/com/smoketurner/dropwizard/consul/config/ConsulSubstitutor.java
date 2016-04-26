@@ -34,6 +34,8 @@ public class ConsulSubstitutor extends StrSubstitutor {
     }
 
     /**
+     * Constructor
+     *
      * @param consul
      *            Consul client
      * @param strict
