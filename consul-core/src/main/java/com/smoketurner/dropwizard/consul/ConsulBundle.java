@@ -20,6 +20,8 @@ import java.util.concurrent.ScheduledExecutorService;
 import javax.annotation.Nonnull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.net.HostAndPort;
 import com.orbitz.consul.Consul;
 import com.orbitz.consul.ConsulException;
 import com.smoketurner.dropwizard.consul.config.ConsulSubstitutor;
@@ -35,6 +37,15 @@ import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import io.dropwizard.util.Duration;
 
+/**
+ * Replace variables with values from Consul KV. By default, this only works
+ * with a Consul agent running on localhost:8500 (the default) as there's no
+ * way to configure Consul in the initialize methods.  You may override
+ * {@link #getConsulAgentHost()} and {@link #getConsulAgentPort()} to provide
+ * other defaults.
+ *
+ * @param <C> The configuration class for your Dropwizard Application.
+ */
 public abstract class ConsulBundle<C extends Configuration>
         implements ConfiguredBundle<C>, ConsulConfiguration<C> {
 
@@ -62,11 +73,16 @@ public abstract class ConsulBundle<C extends Configuration>
             bootstrap.setConfigurationSourceProvider(
                     new SubstitutingSourceProvider(
                             bootstrap.getConfigurationSourceProvider(),
-                            new ConsulSubstitutor(Consul.builder().build(),
+                            new ConsulSubstitutor(Consul.builder()
+                                    .withHostAndPort(HostAndPort.fromParts(
+                                            getConsulAgentHost(),
+                                            getConsulAgentPort()))
+                                    .build(),
                                     false)));
         } catch (ConsulException e) {
-            LOGGER.warn("Unable to query Consul running on localhost:8500,"
-                    + " disabling configuration subsitution", e);
+            LOGGER.warn(String.format("Unable to query Consul running on %s:%s,"
+                    + " disabling configuration subsitution", getConsulAgentHost(),
+                    getConsulAgentPort()), e);
         }
     }
 
@@ -100,5 +116,23 @@ public abstract class ConsulBundle<C extends Configuration>
 
         // Register a shutdown manager to deregister the service
         environment.lifecycle().manage(new ConsulAdvertiserManager(advertiser));
+    }
+
+	/**
+     * Override as necessary to provide an alternative Consul Agent Host
+     * @return By default, "localhost".
+     */
+    @VisibleForTesting
+    String getConsulAgentHost() {
+        return "localhost";
+    }
+
+	/**
+     * Overrider as necessary to provide an alternative Consul Agent Port
+     * @return By default, 8500.
+     */
+    @VisibleForTesting
+    int getConsulAgentPort() {
+        return 8500;
     }
 }
