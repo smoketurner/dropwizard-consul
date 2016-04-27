@@ -55,6 +55,8 @@ public abstract class ConsulBundle<C extends Configuration>
             .getLogger(ConsulBundle.class);
     private static final long INITIAL_DELAY_SECS = 1;
     private final String serviceName;
+    private final boolean strict;
+    private final boolean substitutionInVariables;
 
     /**
      * Constructor
@@ -63,7 +65,31 @@ public abstract class ConsulBundle<C extends Configuration>
      *            Service Name
      */
     public ConsulBundle(@Nonnull final String name) {
+        this(name, false);
+    }
+
+	/**
+     *
+     * @param name Service Name
+     * @param strict If true, the application fails fast if a key cannot be
+     *               found in Consul KV
+     */
+    public ConsulBundle(@Nonnull final String name, boolean strict) {
+        this(name, strict, false);
+    }
+
+	/**
+     *
+     * @param name Service Name
+     * @param strict If true, the application fails fast if a key cannot be
+     *               found in Consul KV
+     * @param substitutionInVariables If true, substitution will be done within
+     *                                variable names.
+     */
+    public ConsulBundle(@Nonnull final String name, boolean strict, boolean substitutionInVariables) {
         this.serviceName = Objects.requireNonNull(name);
+        this.strict = strict;
+        this.substitutionInVariables = substitutionInVariables;
     }
 
     @Override
@@ -79,7 +105,7 @@ public abstract class ConsulBundle<C extends Configuration>
                                     .withHostAndPort(HostAndPort.fromParts(
                                             getConsulAgentHost(),
                                             getConsulAgentPort()))
-                                    .build(), false)));
+                                    .build(), strict, substitutionInVariables)));
         } catch (ConsulException e) {
             LOGGER.warn(
                     "Unable to query Consul running on {}:{},"
