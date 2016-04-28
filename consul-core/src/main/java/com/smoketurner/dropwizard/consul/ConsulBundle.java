@@ -68,25 +68,30 @@ public abstract class ConsulBundle<C extends Configuration>
         this(name, false);
     }
 
-	/**
+    /**
      *
-     * @param name Service Name
-     * @param strict If true, the application fails fast if a key cannot be
-     *               found in Consul KV
+     * @param name
+     *            Service Name
+     * @param strict
+     *            If true, the application fails fast if a key cannot be found
+     *            in Consul KV
      */
     public ConsulBundle(@Nonnull final String name, boolean strict) {
         this(name, strict, false);
     }
 
-	/**
+    /**
      *
-     * @param name Service Name
-     * @param strict If true, the application fails fast if a key cannot be
-     *               found in Consul KV
-     * @param substitutionInVariables If true, substitution will be done within
-     *                                variable names.
+     * @param name
+     *            Service Name
+     * @param strict
+     *            If true, the application fails fast if a key cannot be found
+     *            in Consul KV
+     * @param substitutionInVariables
+     *            If true, substitution will be done within variable names.
      */
-    public ConsulBundle(@Nonnull final String name, boolean strict, boolean substitutionInVariables) {
+    public ConsulBundle(@Nonnull final String name, boolean strict,
+            boolean substitutionInVariables) {
         this.serviceName = Objects.requireNonNull(name);
         this.strict = strict;
         this.substitutionInVariables = substitutionInVariables;
@@ -94,9 +99,9 @@ public abstract class ConsulBundle<C extends Configuration>
 
     @Override
     public void initialize(Bootstrap<?> bootstrap) {
-        // Replace variables with values from Consul KV. This only works with a
-        // Consul agent running on localhost:8500 (the default) as there's no
-        // way to configure Consul in the initialize methods.
+        // Replace variables with values from Consul KV. Please override
+        // getConsulAgentHost() and getConsulAgentPort() if Consul is not
+        // listening on the default localhost:8500.
         try {
             bootstrap.setConfigurationSourceProvider(
                     new SubstitutingSourceProvider(
@@ -105,7 +110,8 @@ public abstract class ConsulBundle<C extends Configuration>
                                     .withHostAndPort(HostAndPort.fromParts(
                                             getConsulAgentHost(),
                                             getConsulAgentPort()))
-                                    .build(), strict, substitutionInVariables)));
+                                    .build(), strict,
+                                    substitutionInVariables)));
         } catch (ConsulException e) {
             LOGGER.warn(
                     "Unable to query Consul running on {}:{},"
