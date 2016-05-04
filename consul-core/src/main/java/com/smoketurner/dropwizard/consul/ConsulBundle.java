@@ -140,10 +140,11 @@ public abstract class ConsulBundle<C extends Configuration>
 
         // Scheduled a periodic check to Consul to keep service alive
         final Duration interval = consulConfig.getCheckInterval();
-        ConsulServiceCheckTask serviceCheckTask = new ConsulServiceCheckTask(consul, serviceId);
+        final ConsulServiceCheckTask serviceCheckTask = new ConsulServiceCheckTask(
+                consul, serviceId);
         executor.scheduleAtFixedRate(serviceCheckTask, INITIAL_DELAY_SECS,
                 interval.getQuantity(), interval.getUnit());
-		
+
         environment.lifecycle().addLifeCycleListener(serviceCheckTask);
 
         // Register a ping healthcheck to the Consul agent

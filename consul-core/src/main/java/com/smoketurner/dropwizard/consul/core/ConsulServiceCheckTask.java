@@ -15,8 +15,8 @@
  */
 package com.smoketurner.dropwizard.consul.core;
 
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicBoolean;
 import javax.annotation.Nonnull;
 import org.eclipse.jetty.util.component.AbstractLifeCycle;
 import org.eclipse.jetty.util.component.LifeCycle;
@@ -25,13 +25,14 @@ import org.slf4j.LoggerFactory;
 import com.orbitz.consul.Consul;
 import com.orbitz.consul.NotRegisteredException;
 
-public class ConsulServiceCheckTask extends AbstractLifeCycle.AbstractLifeCycleListener implements Runnable  {
+public class ConsulServiceCheckTask extends
+        AbstractLifeCycle.AbstractLifeCycleListener implements Runnable {
 
     private static final Logger LOGGER = LoggerFactory
             .getLogger(ConsulServiceCheckTask.class);
+    private final AtomicBoolean started = new AtomicBoolean(false);
     private final Consul consul;
     private final String serviceId;
-    private final AtomicBoolean started = new AtomicBoolean(false);
 
     /**
      * Constructor
