@@ -15,7 +15,10 @@
  */
 package com.smoketurner.dropwizard.consul.core;
 
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import org.junit.Before;
@@ -38,7 +41,22 @@ public class ConsulServiceCheckTaskTest {
 
     @Test
     public void testRun() throws Exception {
+        task.lifeCycleStarted(null);
         task.run();
         verify(agent).pass(SERVICE_ID);
+    }
+
+    @Test
+    public void testPreLifecycleStartedEvent() throws Exception {
+        task.run();
+        verify(agent, never()).pass(anyString());
+    }
+
+    @Test
+    public void testPostLifecycleStoppingEvent() throws Exception {
+        testRun();
+        task.lifeCycleStopping(null);
+        reset(agent);
+        testPreLifecycleStartedEvent();
     }
 }
