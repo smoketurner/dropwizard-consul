@@ -15,19 +15,23 @@
  */
 package com.smoketurner.dropwizard.consul.core;
 
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.Objects;
 import javax.annotation.Nonnull;
+import org.eclipse.jetty.util.component.AbstractLifeCycle;
+import org.eclipse.jetty.util.component.LifeCycle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.orbitz.consul.Consul;
 import com.orbitz.consul.NotRegisteredException;
 
-public class ConsulServiceCheckTask implements Runnable {
+public class ConsulServiceCheckTask extends AbstractLifeCycle.AbstractLifeCycleListener implements Runnable  {
 
     private static final Logger LOGGER = LoggerFactory
             .getLogger(ConsulServiceCheckTask.class);
     private final Consul consul;
     private final String serviceId;
+    private final AtomicBoolean started = new AtomicBoolean(false);
 
     /**
      * Constructor
@@ -45,6 +49,11 @@ public class ConsulServiceCheckTask implements Runnable {
 
     @Override
     public void run() {
+        if (!started.get()) {
+            LOGGER.trace("Waiting for service start for ID: {}", serviceId);
+            return;
+        }
+
         LOGGER.trace("Resetting service TTL check for ID: {}", serviceId);
         try {
             consul.agentClient().pass(serviceId);
@@ -55,5 +64,15 @@ public class ConsulServiceCheckTask implements Runnable {
         } catch (Exception e) {
             LOGGER.warn("Unable to query Consul", e);
         }
+    }
+
+    @Override
+    public void lifeCycleStarted(LifeCycle event) {
+        started.set(true);
+    }
+
+    @Override
+    public void lifeCycleStopping(LifeCycle event) {
+        started.set(false);
     }
 }
