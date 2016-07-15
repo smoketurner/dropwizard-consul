@@ -15,9 +15,6 @@
  */
 package com.smoketurner.dropwizard.consul.core;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyLong;
@@ -27,6 +24,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import java.util.Arrays;
+import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import com.orbitz.consul.AgentClient;
@@ -93,23 +92,20 @@ public class ConsulAdvertiserTest {
 
         verify(agent).register(builder.id(anyString()).build());
     }
-    
+
     @Test
     public void testTagsFromConfig() {
-    	List<String> tags = new ArrayList<String>();
-    	tags.add("test");
-    	tags.add("second-test");
-    	factory.setTags(tags);
+        final List<String> tags = Arrays.asList("test", "second-test");
+        factory.setTags(tags);
 
         when(agent.isRegistered(serviceId)).thenReturn(false);
         final ConsulAdvertiser advertiser = new ConsulAdvertiser(factory,
                 consul, serviceId);
         advertiser.register(8080);
 
-        ImmutableRegistration registration = ImmutableRegistration.builder()
-        		.tags(tags)
-                .check(Registration.RegCheck.ttl(3L)).name("test")
-                .port(8080).id(serviceId).build();
+        final ImmutableRegistration registration = ImmutableRegistration
+                .builder().tags(tags).check(Registration.RegCheck.ttl(3L))
+                .name("test").port(8080).id(serviceId).build();
 
         verify(agent).register(registration);
     }

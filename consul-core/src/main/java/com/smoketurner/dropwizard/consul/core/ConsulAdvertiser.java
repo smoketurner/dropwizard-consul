@@ -80,12 +80,11 @@ public class ConsulAdvertiser {
                     configuration.getServiceAddress().get());
             serviceAddress.set(configuration.getServiceAddress().get());
         }
-        
+
         if (configuration.getTags().isPresent()) {
-        	LOGGER.info(
-        			"Using \"{}\" as tags from the configuration file",
-        			configuration.getTags().get());
-        	tags.set(configuration.getTags().get());
+            LOGGER.info("Using \"{}\" as tags from the configuration file",
+                    configuration.getTags().get());
+            tags.set(configuration.getTags().get());
         }
     }
 
@@ -132,10 +131,10 @@ public class ConsulAdvertiser {
         if (serviceAddress.get() != null) {
             builder.address(serviceAddress.get());
         }
-        
+
         // If we have tags, add them to the registration.
         if (tags.get() != null) {
-        	builder.tags(tags.get());
+            builder.tags(tags.get());
         }
 
         try {
