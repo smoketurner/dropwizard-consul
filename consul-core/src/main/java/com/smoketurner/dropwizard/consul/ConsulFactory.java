@@ -34,6 +34,7 @@ public class ConsulFactory {
     private String serviceName;
     private Optional<Integer> servicePort = Optional.absent();
     private Optional<String> serviceAddress = Optional.absent();
+    private Optional<Iterable<String>> tags = Optional.absent();
 
     @NotNull
     @MinDuration(value = 1, unit = TimeUnit.SECONDS)
@@ -61,6 +62,16 @@ public class ConsulFactory {
     @JsonProperty
     public void setSeviceName(String serviceName) {
         this.serviceName = serviceName;
+    }
+
+    @JsonProperty
+    public Optional<Iterable<String>> getTags() {
+        return tags;
+    }
+
+    @JsonProperty
+    public void setTags(Iterable<String> tags) {
+        this.tags = Optional.fromNullable(tags);
     }
 
     @JsonProperty
