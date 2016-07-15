@@ -34,6 +34,7 @@ public class ConsulAdvertiser {
             .getLogger(ConsulAdvertiser.class);
     private final AtomicReference<Integer> servicePort = new AtomicReference<>();
     private final AtomicReference<String> serviceAddress = new AtomicReference<>();
+    private final AtomicReference<Iterable<String>> tags = new AtomicReference<>();
     private final ConsulFactory configuration;
     private final Consul consul;
     private final String serviceId;
@@ -79,6 +80,13 @@ public class ConsulAdvertiser {
                     configuration.getServiceAddress().get());
             serviceAddress.set(configuration.getServiceAddress().get());
         }
+        
+        if (configuration.getTags().isPresent()) {
+        	LOGGER.info(
+        			"Using \"{}\" as tags from the configuration file",
+        			configuration.getTags().get());
+        	tags.set(configuration.getTags().get());
+        }
     }
 
     /**
@@ -123,6 +131,11 @@ public class ConsulAdvertiser {
         // If we have set the serviceAddress, add it to the registration.
         if (serviceAddress.get() != null) {
             builder.address(serviceAddress.get());
+        }
+        
+        // If we have tags, add them to the registration.
+        if (tags.get() != null) {
+        	builder.tags(tags.get());
         }
 
         try {
