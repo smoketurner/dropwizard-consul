@@ -26,10 +26,9 @@ import io.dropwizard.util.Duration;
 import io.dropwizard.validation.MinDuration;
 
 public class ConsulFactory {
-    private static final String DEFAULT_CONSUL = "127.0.0.1:8500";
-
     @NotNull
-    private HostAndPort endpoint = HostAndPort.fromString(DEFAULT_CONSUL);
+    private HostAndPort endpoint = HostAndPort
+            .fromParts(Consul.DEFAULT_HTTP_HOST, Consul.DEFAULT_HTTP_PORT);
 
     private String serviceName;
     private Optional<Integer> servicePort = Optional.absent();
