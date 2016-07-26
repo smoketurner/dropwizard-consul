@@ -7,7 +7,7 @@
 
     <groupId>com.smoketurner.dropwizard</groupId>
     <artifactId>dropwizard-consul</artifactId>
-    <version>0.9.3-3-SNAPSHOT</version>
+    <version>1.0.0-1-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>dropwizard-consul</name>
@@ -26,7 +26,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <file.encoding>UTF-8</file.encoding>
-        <dropwizard.version>0.9.3</dropwizard.version>
+        <dropwizard.version>1.0.0</dropwizard.version>
     </properties>
 
     <modules>
