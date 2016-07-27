@@ -61,9 +61,9 @@ public class ConsulAdvertiserTest {
         when(agent.isRegistered(serviceId)).thenReturn(false);
         advertiser.register(8080);
 
-        ImmutableRegistration registration = ImmutableRegistration.builder()
-                .port(8080).check(Registration.RegCheck.ttl(3L)).name("test")
-                .id(serviceId).build();
+        final ImmutableRegistration registration = ImmutableRegistration
+                .builder().port(8080).check(Registration.RegCheck.ttl(3L))
+                .name("test").id(serviceId).build();
 
         verify(agent).register(registration);
     }
@@ -83,14 +83,14 @@ public class ConsulAdvertiserTest {
 
         when(agent.isRegistered(anyString())).thenReturn(false);
         final ConsulAdvertiser advertiser = new ConsulAdvertiser(factory,
-                consul);
+                consul, serviceId);
         advertiser.register(8080);
 
-        ImmutableRegistration.Builder builder = ImmutableRegistration.builder()
-                .port(8888).address("127.0.0.1")
-                .check(Registration.RegCheck.ttl(3L)).name("test");
+        final ImmutableRegistration registration = ImmutableRegistration
+                .builder().id(serviceId).port(8888).address("127.0.0.1")
+                .check(Registration.RegCheck.ttl(3L)).name("test").build();
 
-        verify(agent).register(builder.id(anyString()).build());
+        verify(agent).register(registration);
     }
 
     @Test
