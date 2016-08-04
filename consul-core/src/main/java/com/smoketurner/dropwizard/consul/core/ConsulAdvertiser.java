@@ -15,24 +15,26 @@
  */
 package com.smoketurner.dropwizard.consul.core;
 
-import java.util.Objects;
-import java.util.UUID;
-import java.util.concurrent.atomic.AtomicReference;
-import javax.annotation.Nonnull;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import com.orbitz.consul.AgentClient;
 import com.orbitz.consul.Consul;
 import com.orbitz.consul.ConsulException;
 import com.orbitz.consul.model.agent.ImmutableRegistration;
 import com.orbitz.consul.model.agent.Registration;
 import com.smoketurner.dropwizard.consul.ConsulFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.annotation.Nonnull;
+import java.util.Objects;
+import java.util.UUID;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class ConsulAdvertiser {
 
     private static final Logger LOGGER = LoggerFactory
             .getLogger(ConsulAdvertiser.class);
     private final AtomicReference<Integer> servicePort = new AtomicReference<>();
+    private  final AtomicReference<Integer> serviceAdminPort = new AtomicReference<>();
     private final AtomicReference<String> serviceAddress = new AtomicReference<>();
     private final AtomicReference<Iterable<String>> tags = new AtomicReference<>();
     private final ConsulFactory configuration;
@@ -74,6 +76,12 @@ public class ConsulAdvertiser {
             servicePort.set(configuration.getServicePort().get());
         }
 
+        if (configuration.getAdminPort().isPresent()) {
+            LOGGER.info("Using \"{}\" as adminPort from configuration file",
+                configuration.getAdminPort().get());
+            serviceAdminPort.set(configuration.getAdminPort().get());
+        }
+
         if (configuration.getServiceAddress().isPresent()) {
             LOGGER.info(
                     "Using \"{}\" as serviceAddress from configuration file",
@@ -100,10 +108,12 @@ public class ConsulAdvertiser {
     /**
      * Register the service with Consul
      *
-     * @param port
+     * @param applicationPort
      *            Port the service is listening on
+     * @param adminPort
+     *            Port the admin server is listening on
      */
-    public void register(final int port) {
+    public void register(final int applicationPort, final int adminPort) {
         final AgentClient agent = consul.agentClient();
         if (agent.isRegistered(serviceId)) {
             LOGGER.info("Service ({}) [{}] already registered",
@@ -112,16 +122,17 @@ public class ConsulAdvertiser {
         }
 
         // If we haven't set the servicePort via the configuration file already,
-        // set it from the listening port.
-        servicePort.compareAndSet(null, port);
+        // set it from the listening applicationPort.
+        servicePort.compareAndSet(null, applicationPort);
+        serviceAdminPort.compareAndSet(null, adminPort);
 
         LOGGER.info(
-                "Registering service ({}) [{}] on port {} with a TTL check of {}s",
+                "Registering service ({}) [{}] on applicationPort {} with a health check of {}s on {} adminPort",
                 configuration.getServiceName(), serviceId, servicePort.get(),
-                configuration.getServiceTTL().toSeconds());
+                configuration.getCheckInterval().toSeconds(), serviceAdminPort.get());
 
-        final Registration.RegCheck check = Registration.RegCheck
-                .ttl(configuration.getServiceTTL().toSeconds());
+        final Registration.RegCheck check = Registration.RegCheck.http(
+            buildHealthCheckUrl(serviceAdminPort.get()), configuration.getCheckInterval().toSeconds());
 
         final ImmutableRegistration.Builder builder = ImmutableRegistration
                 .builder().port(servicePort.get()).check(check)
@@ -161,5 +172,19 @@ public class ConsulAdvertiser {
         } catch (ConsulException e) {
             LOGGER.error("Failed to deregister service from Consul", e);
         }
+    }
+
+    private String buildHealthCheckUrl(int adminPort) {
+        StringBuilder healthCheckUrl = new StringBuilder("http://");
+        if (serviceAddress.get() == null) {
+            healthCheckUrl.append("localhost");
+        } else {
+            healthCheckUrl.append(serviceAddress.get());
+        }
+        healthCheckUrl.append(":");
+        healthCheckUrl.append(adminPort);
+        healthCheckUrl.append("/healthcheck");
+
+        return healthCheckUrl.toString();
     }
 }

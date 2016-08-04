@@ -15,8 +15,6 @@
  */
 package com.smoketurner.dropwizard.consul;
 
-import java.util.concurrent.TimeUnit;
-import javax.validation.constraints.NotNull;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Optional;
@@ -25,6 +23,9 @@ import com.orbitz.consul.Consul;
 import io.dropwizard.util.Duration;
 import io.dropwizard.validation.MinDuration;
 
+import javax.validation.constraints.NotNull;
+import java.util.concurrent.TimeUnit;
+
 public class ConsulFactory {
     @NotNull
     private HostAndPort endpoint = HostAndPort
@@ -32,12 +33,9 @@ public class ConsulFactory {
 
     private String serviceName;
     private Optional<Integer> servicePort = Optional.absent();
+    private Optional<Integer> adminPort = Optional.absent();
     private Optional<String> serviceAddress = Optional.absent();
     private Optional<Iterable<String>> tags = Optional.absent();
-
-    @NotNull
-    @MinDuration(value = 1, unit = TimeUnit.SECONDS)
-    private Duration serviceTTL = Duration.seconds(3);
 
     @NotNull
     @MinDuration(value = 1, unit = TimeUnit.SECONDS)
@@ -84,6 +82,16 @@ public class ConsulFactory {
     }
 
     @JsonProperty
+    public Optional<Integer> getAdminPort() {
+        return adminPort;
+    }
+
+    @JsonProperty
+    public void setAdminPort(Integer adminPort) {
+        this.adminPort = Optional.fromNullable(adminPort);
+    }
+
+    @JsonProperty
     public Optional<String> getServiceAddress() {
         return serviceAddress;
     }
@@ -91,16 +99,6 @@ public class ConsulFactory {
     @JsonProperty
     public void setServiceAddress(String serviceAddress) {
         this.serviceAddress = Optional.fromNullable(serviceAddress);
-    }
-
-    @JsonProperty("serviceTTL")
-    public Duration getServiceTTL() {
-        return serviceTTL;
-    }
-
-    @JsonProperty("serviceTTL")
-    public void setServiceTTL(Duration serviceTTL) {
-        this.serviceTTL = serviceTTL;
     }
 
     @JsonProperty

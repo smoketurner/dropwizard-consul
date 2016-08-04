@@ -15,19 +15,12 @@
  */
 package com.smoketurner.dropwizard.consul;
 
-import java.util.Objects;
-import java.util.UUID;
-import java.util.concurrent.ScheduledExecutorService;
-import javax.annotation.Nonnull;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.net.HostAndPort;
 import com.orbitz.consul.Consul;
 import com.orbitz.consul.ConsulException;
 import com.smoketurner.dropwizard.consul.config.ConsulSubstitutor;
 import com.smoketurner.dropwizard.consul.core.ConsulAdvertiser;
-import com.smoketurner.dropwizard.consul.core.ConsulServiceCheckTask;
 import com.smoketurner.dropwizard.consul.core.ConsulServiceListener;
 import com.smoketurner.dropwizard.consul.health.ConsulHealthCheck;
 import com.smoketurner.dropwizard.consul.managed.ConsulAdvertiserManager;
@@ -36,7 +29,12 @@ import io.dropwizard.ConfiguredBundle;
 import io.dropwizard.configuration.SubstitutingSourceProvider;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
-import io.dropwizard.util.Duration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.annotation.Nonnull;
+import java.util.Objects;
+import java.util.UUID;
 
 /**
  * Replace variables with values from Consul KV. By default, this only works
@@ -53,7 +51,6 @@ public abstract class ConsulBundle<C extends Configuration>
 
     private static final Logger LOGGER = LoggerFactory
             .getLogger(ConsulBundle.class);
-    private static final long INITIAL_DELAY_SECS = 1;
     private final String serviceName;
     private final boolean strict;
     private final boolean substitutionInVariables;
@@ -134,19 +131,6 @@ public abstract class ConsulBundle<C extends Configuration>
         environment.lifecycle().addServerLifecycleListener(
                 new ConsulServiceListener(advertiser));
 
-        final ScheduledExecutorService executor = environment.lifecycle()
-                .scheduledExecutorService("consul-healthcheck", true).threads(1)
-                .build();
-
-        // Scheduled a periodic check to Consul to keep service alive
-        final Duration interval = consulConfig.getCheckInterval();
-        final ConsulServiceCheckTask serviceCheckTask = new ConsulServiceCheckTask(
-                consul, serviceId);
-        executor.scheduleAtFixedRate(serviceCheckTask, INITIAL_DELAY_SECS,
-                interval.getQuantity(), interval.getUnit());
-
-        environment.lifecycle().addLifeCycleListener(serviceCheckTask);
-
         // Register a ping healthcheck to the Consul agent
         environment.healthChecks().register("consul",
                 new ConsulHealthCheck(consul));
@@ -157,7 +141,7 @@ public abstract class ConsulBundle<C extends Configuration>
 
     /**
      * Override as necessary to provide an alternative Consul Agent Host
-     * 
+     *
      * @return By default, "localhost"
      */
     @VisibleForTesting
@@ -167,7 +151,7 @@ public abstract class ConsulBundle<C extends Configuration>
 
     /**
      * Override as necessary to provide an alternative Consul Agent Port
-     * 
+     *
      * @return By default, 8500
      */
     @VisibleForTesting

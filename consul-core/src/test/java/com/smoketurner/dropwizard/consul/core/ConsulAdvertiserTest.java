@@ -15,25 +15,23 @@
  */
 package com.smoketurner.dropwizard.consul.core;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.anyLong;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import java.util.Arrays;
-import java.util.List;
-import org.junit.Before;
-import org.junit.Test;
 import com.orbitz.consul.AgentClient;
 import com.orbitz.consul.Consul;
 import com.orbitz.consul.ConsulException;
 import com.orbitz.consul.model.agent.ImmutableRegistration;
 import com.orbitz.consul.model.agent.Registration;
 import com.smoketurner.dropwizard.consul.ConsulFactory;
+import org.junit.Before;
+import org.junit.Test;
+
+import java.util.Arrays;
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.anyLong;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.*;
 
 public class ConsulAdvertiserTest {
 
@@ -59,10 +57,10 @@ public class ConsulAdvertiserTest {
     @Test
     public void testRegister() {
         when(agent.isRegistered(serviceId)).thenReturn(false);
-        advertiser.register(8080);
+        advertiser.register(8080, 8081);
 
         final ImmutableRegistration registration = ImmutableRegistration
-                .builder().port(8080).check(Registration.RegCheck.ttl(3L))
+                .builder().port(8080).check(Registration.RegCheck.http("http://localhost:8081/healthcheck", 1))
                 .name("test").id(serviceId).build();
 
         verify(agent).register(registration);
@@ -71,7 +69,7 @@ public class ConsulAdvertiserTest {
     @Test
     public void testRegisterAlreadyRegistered() {
         when(agent.isRegistered(anyString())).thenReturn(true);
-        advertiser.register(8080);
+        advertiser.register(8080, 8081);
         verify(agent, never()).register(anyInt(), anyLong(), anyString(),
                 anyString());
     }
@@ -84,11 +82,11 @@ public class ConsulAdvertiserTest {
         when(agent.isRegistered(anyString())).thenReturn(false);
         final ConsulAdvertiser advertiser = new ConsulAdvertiser(factory,
                 consul, serviceId);
-        advertiser.register(8080);
+        advertiser.register(8080, 8081);
 
         final ImmutableRegistration registration = ImmutableRegistration
                 .builder().id(serviceId).port(8888).address("127.0.0.1")
-                .check(Registration.RegCheck.ttl(3L)).name("test").build();
+                .check(Registration.RegCheck.http("http://127.0.0.1:8081/healthcheck", 1)).name("test").build();
 
         verify(agent).register(registration);
     }
@@ -101,10 +99,10 @@ public class ConsulAdvertiserTest {
         when(agent.isRegistered(serviceId)).thenReturn(false);
         final ConsulAdvertiser advertiser = new ConsulAdvertiser(factory,
                 consul, serviceId);
-        advertiser.register(8080);
+        advertiser.register(8080, 8081);
 
         final ImmutableRegistration registration = ImmutableRegistration
-                .builder().tags(tags).check(Registration.RegCheck.ttl(3L))
+                .builder().tags(tags).check(Registration.RegCheck.http("http://localhost:8081/healthcheck", 1))
                 .name("test").port(8080).id(serviceId).build();
 
         verify(agent).register(registration);
