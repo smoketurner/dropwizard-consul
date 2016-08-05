@@ -25,6 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
+import javax.ws.rs.core.UriBuilder;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
@@ -175,16 +176,14 @@ public class ConsulAdvertiser {
     }
 
     private String buildHealthCheckUrl(int adminPort) {
-        StringBuilder healthCheckUrl = new StringBuilder("http://");
+        UriBuilder builder = UriBuilder.fromPath("/healthcheck");
+        builder.scheme("http");
         if (serviceAddress.get() == null) {
-            healthCheckUrl.append("localhost");
+            builder.host("localhost");
         } else {
-            healthCheckUrl.append(serviceAddress.get());
+            builder.host(serviceAddress.get());
         }
-        healthCheckUrl.append(":");
-        healthCheckUrl.append(adminPort);
-        healthCheckUrl.append("/healthcheck");
-
-        return healthCheckUrl.toString();
+        builder.port(adminPort);
+        return builder.build().toString();
     }
 }
