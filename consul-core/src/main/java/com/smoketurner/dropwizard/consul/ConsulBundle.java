@@ -15,6 +15,11 @@
  */
 package com.smoketurner.dropwizard.consul;
 
+import java.util.Objects;
+import java.util.UUID;
+import javax.annotation.Nonnull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.net.HostAndPort;
 import com.orbitz.consul.Consul;
@@ -29,12 +34,6 @@ import io.dropwizard.ConfiguredBundle;
 import io.dropwizard.configuration.SubstitutingSourceProvider;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.annotation.Nonnull;
-import java.util.Objects;
-import java.util.UUID;
 
 /**
  * Replace variables with values from Consul KV. By default, this only works
@@ -124,8 +123,8 @@ public abstract class ConsulBundle<C extends Configuration>
         final Consul consul = consulConfig.build();
 
         final String serviceId = getConsulServiceId();
-        final ConsulAdvertiser advertiser = new ConsulAdvertiser(consulConfig,
-                consul, serviceId);
+        final ConsulAdvertiser advertiser = new ConsulAdvertiser(environment,
+                consulConfig, consul, serviceId);
 
         // Register a Jetty listener to get the listening host and port
         environment.lifecycle().addServerLifecycleListener(
