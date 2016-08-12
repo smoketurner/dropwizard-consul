@@ -15,29 +15,30 @@
  */
 package com.smoketurner.dropwizard.consul.core;
 
+import java.util.Objects;
+import java.util.UUID;
+import java.util.concurrent.atomic.AtomicReference;
+import javax.annotation.Nonnull;
+import javax.ws.rs.core.UriBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import com.orbitz.consul.AgentClient;
 import com.orbitz.consul.Consul;
 import com.orbitz.consul.ConsulException;
 import com.orbitz.consul.model.agent.ImmutableRegistration;
 import com.orbitz.consul.model.agent.Registration;
 import com.smoketurner.dropwizard.consul.ConsulFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.annotation.Nonnull;
-import javax.ws.rs.core.UriBuilder;
-import java.util.Objects;
-import java.util.UUID;
-import java.util.concurrent.atomic.AtomicReference;
+import io.dropwizard.setup.Environment;
 
 public class ConsulAdvertiser {
 
     private static final Logger LOGGER = LoggerFactory
             .getLogger(ConsulAdvertiser.class);
     private final AtomicReference<Integer> servicePort = new AtomicReference<>();
-    private  final AtomicReference<Integer> serviceAdminPort = new AtomicReference<>();
+    private final AtomicReference<Integer> serviceAdminPort = new AtomicReference<>();
     private final AtomicReference<String> serviceAddress = new AtomicReference<>();
     private final AtomicReference<Iterable<String>> tags = new AtomicReference<>();
+    private final Environment environment;
     private final ConsulFactory configuration;
     private final Consul consul;
     private final String serviceId;
@@ -45,19 +46,24 @@ public class ConsulAdvertiser {
     /**
      * Constructor
      *
+     * @param environment
+     *            Dropwizard environment
      * @param configuration
      *            Consul configuration
      * @param consul
      *            Consul client
      */
-    public ConsulAdvertiser(@Nonnull final ConsulFactory configuration,
+    public ConsulAdvertiser(@Nonnull final Environment environment,
+            @Nonnull final ConsulFactory configuration,
             @Nonnull final Consul consul) {
-        this(configuration, consul, UUID.randomUUID().toString());
+        this(environment, configuration, consul, UUID.randomUUID().toString());
     }
 
     /**
      * Constructor
      *
+     * @param environment
+     *            Dropwizard environment
      * @param configuration
      *            Consul configuration
      * @param consul
@@ -65,8 +71,10 @@ public class ConsulAdvertiser {
      * @param serviceId
      *            Consul service ID
      */
-    public ConsulAdvertiser(@Nonnull final ConsulFactory configuration,
+    public ConsulAdvertiser(@Nonnull final Environment environment,
+            @Nonnull final ConsulFactory configuration,
             @Nonnull final Consul consul, @Nonnull final String serviceId) {
+        this.environment = Objects.requireNonNull(environment);
         this.configuration = Objects.requireNonNull(configuration);
         this.consul = Objects.requireNonNull(consul);
         this.serviceId = Objects.requireNonNull(serviceId);
@@ -79,7 +87,7 @@ public class ConsulAdvertiser {
 
         if (configuration.getAdminPort().isPresent()) {
             LOGGER.info("Using \"{}\" as adminPort from configuration file",
-                configuration.getAdminPort().get());
+                    configuration.getAdminPort().get());
             serviceAdminPort.set(configuration.getAdminPort().get());
         }
 
@@ -130,10 +138,12 @@ public class ConsulAdvertiser {
         LOGGER.info(
                 "Registering service ({}) [{}] on applicationPort {} with a health check of {}s on {} adminPort",
                 configuration.getServiceName(), serviceId, servicePort.get(),
-                configuration.getCheckInterval().toSeconds(), serviceAdminPort.get());
+                configuration.getCheckInterval().toSeconds(),
+                serviceAdminPort.get());
 
         final Registration.RegCheck check = Registration.RegCheck.http(
-            buildHealthCheckUrl(serviceAdminPort.get()), configuration.getCheckInterval().toSeconds());
+                getHealthCheckUrl(),
+                configuration.getCheckInterval().toSeconds());
 
         final ImmutableRegistration.Builder builder = ImmutableRegistration
                 .builder().port(servicePort.get()).check(check)
@@ -175,15 +185,17 @@ public class ConsulAdvertiser {
         }
     }
 
-    private String buildHealthCheckUrl(int adminPort) {
-        UriBuilder builder = UriBuilder.fromPath("/healthcheck");
+    private String getHealthCheckUrl() {
+        final UriBuilder builder = UriBuilder
+                .fromPath(environment.getAdminContext().getContextPath());
+        builder.path("healthcheck");
         builder.scheme("http");
         if (serviceAddress.get() == null) {
-            builder.host("localhost");
+            builder.host("127.0.0.1");
         } else {
             builder.host(serviceAddress.get());
         }
-        builder.port(adminPort);
+        builder.port(serviceAdminPort.get());
         return builder.build().toString();
     }
 }

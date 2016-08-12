@@ -15,15 +15,14 @@
  */
 package com.smoketurner.dropwizard.consul.core;
 
-import io.dropwizard.lifecycle.ServerLifecycleListener;
+import java.util.Objects;
+import javax.annotation.Nonnull;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.annotation.Nonnull;
-import java.util.Objects;
+import io.dropwizard.lifecycle.ServerLifecycleListener;
 
 public class ConsulServiceListener implements ServerLifecycleListener {
 
@@ -46,28 +45,30 @@ public class ConsulServiceListener implements ServerLifecycleListener {
     }
 
     @Override
-    public void serverStarted(Server server) {
+    public void serverStarted(final Server server) {
         // Detect the port Jetty is listening on
         try {
             int applicationPort = -1;
             int adminPort = -1;
             for (Connector connector : server.getConnectors()) {
-                ServerConnector serverConnector = (ServerConnector) connector;
-                int port = serverConnector.getLocalPort();
+                @SuppressWarnings("resource")
+                final ServerConnector serverConnector = (ServerConnector) connector;
+                final int port = serverConnector.getLocalPort();
                 switch (serverConnector.getName()) {
-                    case APPLICATION_CONNECTOR_NAME:
-                        applicationPort = port;
-                        break;
-                    case ADMIN_CONNECTOR_NAME:
-                        adminPort = port;
-                        break;
-                    default:
-                        // unknown connector, do nothing
-                        break;
+                case APPLICATION_CONNECTOR_NAME:
+                    applicationPort = port;
+                    break;
+                case ADMIN_CONNECTOR_NAME:
+                    adminPort = port;
+                    break;
+                default:
+                    // unknown connector, do nothing
+                    break;
                 }
             }
             if (applicationPort < 0) {
-                throw new IllegalStateException("Unable to get ports to register with Consul");
+                throw new IllegalStateException(
+                        "Unable to get ports to register with Consul");
             }
             if (adminPort < 0) {
                 adminPort = applicationPort;
