@@ -1,12 +1,13 @@
 package com.example.helloworld;
 
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
-import org.hibernate.validator.constraints.NotEmpty;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.smoketurner.dropwizard.consul.ConsulFactory;
 import com.smoketurner.dropwizard.consul.ribbon.RibbonLoadBalancerConfiguration;
 import io.dropwizard.Configuration;
+import org.hibernate.validator.constraints.NotEmpty;
+
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 
 public class HelloWorldConfiguration extends Configuration {
 

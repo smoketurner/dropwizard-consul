@@ -5,7 +5,6 @@ consul:
   endpoint: localhost:8500
 
 downstream:
-  serviceName: hello-world
   refreshInterval: 10 seconds
 
 # HTTP-specific options.
@@ -14,7 +13,7 @@ server:
   applicationConnectors:
     - type: http
       port: 8080
-  
+
   adminConnectors:
     - type: http
       port: 8180

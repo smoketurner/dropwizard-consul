@@ -15,9 +15,6 @@
  */
 package com.smoketurner.dropwizard.consul.ribbon;
 
-import java.util.Objects;
-import javax.annotation.Nonnull;
-import javax.ws.rs.client.Client;
 import com.netflix.loadbalancer.Server;
 import com.netflix.loadbalancer.ZoneAwareLoadBalancer;
 import com.orbitz.consul.Consul;
@@ -25,58 +22,64 @@ import io.dropwizard.client.JerseyClientBuilder;
 import io.dropwizard.lifecycle.Managed;
 import io.dropwizard.setup.Environment;
 
+import javax.annotation.Nonnull;
+import javax.ws.rs.client.Client;
+import java.util.Objects;
+
 public class RibbonJerseyClientBuilder {
 
     private final Environment environment;
     private final Consul consul;
+    private final RibbonLoadBalancerConfiguration configuration;
 
     /**
      * Constructor
-     *
-     * @param environment
+     *  @param environment
      *            Dropwizard environment
      * @param consul
-     *            Consul client
+     * @param configuration
      */
     public RibbonJerseyClientBuilder(@Nonnull final Environment environment,
-            @Nonnull final Consul consul) {
+                                     @Nonnull final Consul consul,
+                                     @Nonnull final RibbonLoadBalancerConfiguration configuration) {
         this.environment = Objects.requireNonNull(environment);
         this.consul = Objects.requireNonNull(consul);
+        this.configuration = Objects.requireNonNull(configuration);
     }
 
     /**
      * Builds a new {@link RibbonJerseyClient}
      *
-     * @param configuration
-     *            Ribbon Load Balancer configuration
+     * @param clientName Jersey client name
+     * @param serviceDiscoverer
+     *            Service discoverer
      * @return new RibbonJerseyClient
      */
-    public RibbonJerseyClient build(
-            @Nonnull final RibbonLoadBalancerConfiguration configuration) {
+    public RibbonJerseyClient build(@Nonnull final String clientName,
+        @Nonnull final ConsulServiceDiscoverer serviceDiscoverer) {
 
         // create a new Jersey client
         final Client jerseyClient = new JerseyClientBuilder(environment)
-                .build(configuration.getServiceName());
+            .build(clientName);
 
-        return build(configuration, jerseyClient);
+        return build(clientName, jerseyClient, serviceDiscoverer);
     }
 
     /**
      * Builds a new {@link RibbonJerseyClient} with an existing Jersey Client
      *
-     * @param configuration
-     *            Ribbon Load Balancer configuration
-     * @param client
+     * @param name
+     * @param jerseyClient
      *            Jersey Client
+     * @param serviceDiscoverer
      * @return new RibbonJerseyClient
      */
-    public RibbonJerseyClient build(
-            @Nonnull final RibbonLoadBalancerConfiguration configuration,
-            @Nonnull final Client jerseyClient) {
-
+    public RibbonJerseyClient build(@Nonnull final String name,
+                                    @Nonnull final Client jerseyClient,
+                                    @Nonnull final ConsulServiceDiscoverer serviceDiscoverer) {
         // build a new load balancer based on the configuration
         final RibbonLoadBalancerBuilder factory = new RibbonLoadBalancerBuilder(
-                new ConsulServerListBuilder(consul));
+                new ConsulServerList(name, consul, serviceDiscoverer));
         final ZoneAwareLoadBalancer<Server> loadBalancer = factory
                 .build(configuration);
 
