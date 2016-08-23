@@ -15,8 +15,6 @@
  */
 package com.smoketurner.dropwizard.consul.ribbon;
 
-import java.util.Objects;
-import javax.annotation.Nonnull;
 import com.google.common.primitives.Ints;
 import com.netflix.client.config.CommonClientConfigKey;
 import com.netflix.client.config.DefaultClientConfigImpl;
@@ -25,19 +23,22 @@ import com.netflix.loadbalancer.Server;
 import com.netflix.loadbalancer.WeightedResponseTimeRule;
 import com.netflix.loadbalancer.ZoneAwareLoadBalancer;
 
+import javax.annotation.Nonnull;
+import java.util.Objects;
+
 public class RibbonLoadBalancerBuilder {
 
-    private final ConsulServerListBuilder factory;
+    private final ConsulServerList consulServerList;
 
     /**
      * Constructor
      *
-     * @param factory
-     *            Consul server list factory
+     * @param consulServerList
+     *            Consul server list consulServerList
      */
     public RibbonLoadBalancerBuilder(
-            @Nonnull final ConsulServerListBuilder factory) {
-        this.factory = Objects.requireNonNull(factory);
+            @Nonnull final ConsulServerList consulServerList) {
+        this.consulServerList = Objects.requireNonNull(consulServerList);
     }
 
     /**
@@ -50,14 +51,13 @@ public class RibbonLoadBalancerBuilder {
     public ZoneAwareLoadBalancer<Server> build(
             @Nonnull final RibbonLoadBalancerConfiguration configuration) {
         final DefaultClientConfigImpl clientConfig = new DefaultClientConfigImpl();
-        clientConfig.setClientName(configuration.getServiceName());
+        clientConfig.setClientName(consulServerList.getName());
         clientConfig.set(CommonClientConfigKey.ServerListRefreshInterval,
                 Ints.checkedCast(
                         configuration.getRefreshInterval().toMilliseconds()));
         return LoadBalancerBuilder.newBuilder().withClientConfig(clientConfig)
                 .withRule(new WeightedResponseTimeRule())
-                .withDynamicServerList(
-                        factory.build(configuration.getServiceName()))
+                .withDynamicServerList(consulServerList)
                 .buildDynamicServerListLoadBalancer();
     }
 }

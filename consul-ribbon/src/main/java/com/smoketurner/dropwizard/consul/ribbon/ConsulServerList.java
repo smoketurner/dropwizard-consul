@@ -15,85 +15,62 @@
  */
 package com.smoketurner.dropwizard.consul.ribbon;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
-import javax.annotation.Nonnull;
 import com.google.common.base.Strings;
 import com.netflix.loadbalancer.Server;
 import com.netflix.loadbalancer.ServerList;
 import com.orbitz.consul.Consul;
 import com.orbitz.consul.model.health.ServiceHealth;
 
+import javax.annotation.Nonnull;
+import java.util.Collection;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
+
 public class ConsulServerList implements ServerList<Server> {
 
+    private final String name;
     private final Consul consul;
-    private final String service;
-    private List<Server> serverList = Collections.emptyList();
+    private final ConsulServiceDiscoverer serviceDiscoverer;
 
-    /**
-     * Constructor
-     *
-     * @param consul
-     *            Consul client
-     * @param service
-     *            Service name
-     */
-    public ConsulServerList(@Nonnull final Consul consul,
-            @Nonnull final String service) {
-        this(consul, service, Collections.emptyList());
+    public ConsulServerList(String name, @Nonnull final Consul consul, @Nonnull final ConsulServiceDiscoverer serviceDiscoverer) {
+        this.name = name;
+        this.consul = Objects.requireNonNull(consul);
+        this.serviceDiscoverer = Objects.requireNonNull(serviceDiscoverer);
     }
 
-    /**
-     * Constructor
-     *
-     * @param consul
-     *            Consul client
-     * @param service
-     *            Service name
-     * @param services
-     *            Initial list of healthy services
-     */
-    public ConsulServerList(@Nonnull final Consul consul,
-            @Nonnull final String service,
-            @Nonnull final List<ServiceHealth> services) {
-        this.consul = Objects.requireNonNull(consul);
-        this.service = Objects.requireNonNull(service);
-        this.serverList = buildServerList(Objects.requireNonNull(services));
+    public String getName() {
+        return name;
     }
 
     @Override
     public List<Server> getInitialListOfServers() {
-        return serverList;
+        return buildServerList(serviceDiscoverer.discover(consul));
     }
 
     @Override
     public List<Server> getUpdatedListOfServers() {
-        final List<ServiceHealth> services = consul.healthClient()
-                .getHealthyServiceInstances(service).getResponse();
-        return buildServerList(services);
+        return buildServerList(serviceDiscoverer.discover(consul));
     }
 
     /**
      * Converts a list of {@link ServiceHealth} objects into {@link Server}
      * objects
-     * 
+     *
      * @param services
      *            list of healthy service instances
      * @return list of server instances
      */
     private List<Server> buildServerList(
-            @Nonnull final List<ServiceHealth> services) {
-        return services.stream().map(service -> buildServer(service))
-                .collect(Collectors.toList());
+            @Nonnull final Collection<ServiceHealth> services) {
+        return services.stream().map(this::buildServer).collect(Collectors.toList());
     }
 
     /**
      * Build a {@link Server} instance from a Consul {@link ServiceHealth}
      * instance. If the service has an address defined, use that as the server
      * host, otherwise default to using the node address.
-     * 
+     *
      * @param service
      *            Consul service health record
      * @return Ribbon Server instance

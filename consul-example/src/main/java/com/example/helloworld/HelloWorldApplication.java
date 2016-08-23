@@ -37,12 +37,11 @@ public class HelloWorldApplication
     @Override
     public void run(HelloWorldConfiguration configuration,
             Environment environment) throws Exception {
-
         final Consul consul = configuration.getConsulFactory().build();
         final RibbonJerseyClientBuilder builder = new RibbonJerseyClientBuilder(
-                environment, consul);
+                environment, consul, configuration.getDownstream());
         final RibbonJerseyClient loadBalancingClient = builder
-                .build(configuration.getDownstream());
+                .build("hello-world", c -> c.healthClient().getHealthyServiceInstances("hello-world").getResponse());
 
         final HelloWorldResource resource = new HelloWorldResource(consul,
                 loadBalancingClient, configuration.getTemplate(),
