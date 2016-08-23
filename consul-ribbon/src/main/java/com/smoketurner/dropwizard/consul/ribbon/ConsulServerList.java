@@ -15,17 +15,17 @@
  */
 package com.smoketurner.dropwizard.consul.ribbon;
 
+import java.util.Collection;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import com.google.common.base.Strings;
 import com.netflix.loadbalancer.Server;
 import com.netflix.loadbalancer.ServerList;
 import com.orbitz.consul.Consul;
 import com.orbitz.consul.model.health.ServiceHealth;
-
-import javax.annotation.Nonnull;
-import java.util.Collection;
-import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
 
 public class ConsulServerList implements ServerList<Server> {
 
@@ -33,8 +33,20 @@ public class ConsulServerList implements ServerList<Server> {
     private final Consul consul;
     private final ConsulServiceDiscoverer serviceDiscoverer;
 
-    public ConsulServerList(String name, @Nonnull final Consul consul, @Nonnull final ConsulServiceDiscoverer serviceDiscoverer) {
-        this.name = name;
+    /**
+     * Constructor
+     *
+     * @param name
+     *            Service name
+     * @param consul
+     *            Consul client
+     * @param serviceDiscoverer
+     *            Discoverer
+     */
+    public ConsulServerList(@Nonnull final String name,
+            @Nonnull final Consul consul,
+            @Nonnull final ConsulServiceDiscoverer serviceDiscoverer) {
+        this.name = Objects.requireNonNull(name);
         this.consul = Objects.requireNonNull(consul);
         this.serviceDiscoverer = Objects.requireNonNull(serviceDiscoverer);
     }
@@ -63,7 +75,8 @@ public class ConsulServerList implements ServerList<Server> {
      */
     private List<Server> buildServerList(
             @Nonnull final Collection<ServiceHealth> services) {
-        return services.stream().map(this::buildServer).collect(Collectors.toList());
+        return services.stream().map(this::buildServer)
+                .collect(Collectors.toList());
     }
 
     /**
@@ -75,7 +88,7 @@ public class ConsulServerList implements ServerList<Server> {
      *            Consul service health record
      * @return Ribbon Server instance
      */
-    private Server buildServer(final ServiceHealth service) {
+    private Server buildServer(@Nullable final ServiceHealth service) {
         if (!Strings.isNullOrEmpty(service.getService().getAddress())) {
             return new Server(service.getService().getAddress(),
                     service.getService().getPort());

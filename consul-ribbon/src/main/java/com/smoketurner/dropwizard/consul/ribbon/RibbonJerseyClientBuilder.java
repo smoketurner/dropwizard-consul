@@ -15,16 +15,15 @@
  */
 package com.smoketurner.dropwizard.consul.ribbon;
 
+import java.util.Objects;
+import javax.annotation.Nonnull;
+import javax.ws.rs.client.Client;
 import com.netflix.loadbalancer.Server;
 import com.netflix.loadbalancer.ZoneAwareLoadBalancer;
 import com.orbitz.consul.Consul;
 import io.dropwizard.client.JerseyClientBuilder;
 import io.dropwizard.lifecycle.Managed;
 import io.dropwizard.setup.Environment;
-
-import javax.annotation.Nonnull;
-import javax.ws.rs.client.Client;
-import java.util.Objects;
 
 public class RibbonJerseyClientBuilder {
 
@@ -34,14 +33,17 @@ public class RibbonJerseyClientBuilder {
 
     /**
      * Constructor
-     *  @param environment
+     * 
+     * @param environment
      *            Dropwizard environment
      * @param consul
+     *            Consul client
      * @param configuration
+     *            Configuration
      */
     public RibbonJerseyClientBuilder(@Nonnull final Environment environment,
-                                     @Nonnull final Consul consul,
-                                     @Nonnull final RibbonLoadBalancerConfiguration configuration) {
+            @Nonnull final Consul consul,
+            @Nonnull final RibbonLoadBalancerConfiguration configuration) {
         this.environment = Objects.requireNonNull(environment);
         this.consul = Objects.requireNonNull(consul);
         this.configuration = Objects.requireNonNull(configuration);
@@ -50,7 +52,8 @@ public class RibbonJerseyClientBuilder {
     /**
      * Builds a new {@link RibbonJerseyClient} using service discovery by health
      *
-     * @param name Service name
+     * @param name
+     *            Service name
      * @return new RibbonJerseyClient
      */
     public RibbonJerseyClient build(@Nonnull final String name) {
@@ -58,19 +61,21 @@ public class RibbonJerseyClientBuilder {
     }
 
     /**
-     * Builds a new {@link RibbonJerseyClient} using the provided service discoverer
+     * Builds a new {@link RibbonJerseyClient} using the provided service
+     * discoverer
      *
-     * @param clientName Jersey client name
+     * @param clientName
+     *            Jersey client name
      * @param serviceDiscoverer
      *            Service discoverer
      * @return new RibbonJerseyClient
      */
     public RibbonJerseyClient build(@Nonnull final String clientName,
-        @Nonnull final ConsulServiceDiscoverer serviceDiscoverer) {
+            @Nonnull final ConsulServiceDiscoverer serviceDiscoverer) {
 
         // create a new Jersey client
         final Client jerseyClient = new JerseyClientBuilder(environment)
-            .build(clientName);
+                .build(clientName);
 
         return build(clientName, jerseyClient, serviceDiscoverer);
     }
@@ -78,26 +83,33 @@ public class RibbonJerseyClientBuilder {
     /**
      * Builds a new {@link RibbonJerseyClient} using service discovery by health
      *
-     * @param name Service name
-     * @param jerseyClient Jersey Client
+     * @param name
+     *            Service name
+     * @param jerseyClient
+     *            Jersey Client
      * @return new {@link RibbonJerseyClient}
      */
-    public RibbonJerseyClient build(@Nonnull final String name, @Nonnull final Client jerseyClient) {
-        return build(name, jerseyClient, new HealthyConsulServiceDiscoverer(name));
+    public RibbonJerseyClient build(@Nonnull final String name,
+            @Nonnull final Client jerseyClient) {
+        return build(name, jerseyClient,
+                new HealthyConsulServiceDiscoverer(name));
     }
 
     /**
-     * Builds a new {@link RibbonJerseyClient} with an existing Jersey Client and service discoverer
+     * Builds a new {@link RibbonJerseyClient} with an existing Jersey Client
+     * and service discoverer
      *
-     * @param name Client name
+     * @param name
+     *            Client name
      * @param jerseyClient
      *            Jersey Client
-     * @param serviceDiscoverer Service discoverer
+     * @param serviceDiscoverer
+     *            Service discoverer
      * @return new RibbonJerseyClient
      */
     public RibbonJerseyClient build(@Nonnull final String name,
-                                    @Nonnull final Client jerseyClient,
-                                    @Nonnull final ConsulServiceDiscoverer serviceDiscoverer) {
+            @Nonnull final Client jerseyClient,
+            @Nonnull final ConsulServiceDiscoverer serviceDiscoverer) {
         // build a new load balancer based on the configuration
         final RibbonLoadBalancerBuilder factory = new RibbonLoadBalancerBuilder(
                 new ConsulServerList(name, consul, serviceDiscoverer));
