@@ -48,7 +48,17 @@ public class RibbonJerseyClientBuilder {
     }
 
     /**
-     * Builds a new {@link RibbonJerseyClient}
+     * Builds a new {@link RibbonJerseyClient} using service discovery by health
+     *
+     * @param name Service name
+     * @return new RibbonJerseyClient
+     */
+    public RibbonJerseyClient build(@Nonnull final String name) {
+        return build(name, new HealthyConsulServiceDiscoverer(name));
+    }
+
+    /**
+     * Builds a new {@link RibbonJerseyClient} using the provided service discoverer
      *
      * @param clientName Jersey client name
      * @param serviceDiscoverer
@@ -66,12 +76,23 @@ public class RibbonJerseyClientBuilder {
     }
 
     /**
-     * Builds a new {@link RibbonJerseyClient} with an existing Jersey Client
+     * Builds a new {@link RibbonJerseyClient} using service discovery by health
      *
-     * @param name
+     * @param name Service name
+     * @param jerseyClient Jersey Client
+     * @return new {@link RibbonJerseyClient}
+     */
+    public RibbonJerseyClient build(@Nonnull final String name, @Nonnull final Client jerseyClient) {
+        return build(name, jerseyClient, new HealthyConsulServiceDiscoverer(name));
+    }
+
+    /**
+     * Builds a new {@link RibbonJerseyClient} with an existing Jersey Client and service discoverer
+     *
+     * @param name Client name
      * @param jerseyClient
      *            Jersey Client
-     * @param serviceDiscoverer
+     * @param serviceDiscoverer Service discoverer
      * @return new RibbonJerseyClient
      */
     public RibbonJerseyClient build(@Nonnull final String name,
