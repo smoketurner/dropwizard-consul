@@ -15,11 +15,9 @@
  */
 package com.smoketurner.dropwizard.consul.ribbon;
 
-import java.io.Closeable;
-import java.net.URI;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import com.netflix.loadbalancer.Server;
+import com.netflix.loadbalancer.ZoneAwareLoadBalancer;
+
 import javax.annotation.Nonnull;
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLContext;
@@ -29,24 +27,31 @@ import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Configuration;
 import javax.ws.rs.core.Link;
 import javax.ws.rs.core.UriBuilder;
-import com.netflix.loadbalancer.Server;
-import com.netflix.loadbalancer.ZoneAwareLoadBalancer;
+import java.io.Closeable;
+import java.net.URI;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 public class RibbonJerseyClient implements Client, Closeable {
+    private final String scheme;
     private final ZoneAwareLoadBalancer<Server> loadBalancer;
     private final Client delegate;
 
     /**
      * Constructor
      *
+     * @param scheme Communication scheme (usually http or https)
      * @param loadBalancer
      *            Load Balancer
      * @param delegate
      *            Jersey Client delegate
      */
     public RibbonJerseyClient(
+            @Nonnull final String scheme,
             @Nonnull final ZoneAwareLoadBalancer<Server> loadBalancer,
             @Nonnull final Client delegate) {
+        this.scheme = scheme;
         this.loadBalancer = Objects.requireNonNull(loadBalancer);
         this.delegate = Objects.requireNonNull(delegate);
     }
@@ -63,7 +68,7 @@ public class RibbonJerseyClient implements Client, Closeable {
     /**
      * Fetch a server from the load balancer or throw an exception if none are
      * available.
-     * 
+     *
      * @return a server
      * @throws IllegalStateException
      *             if no servers are available
@@ -153,6 +158,7 @@ public class RibbonJerseyClient implements Client, Closeable {
     public WebTarget target(String uri) {
         final Server server = fetchServerOrThrow();
         final UriBuilder builder = UriBuilder.fromUri(uri);
+        builder.scheme(scheme);
         builder.host(server.getHost());
         builder.port(server.getPort());
         return delegate.target(builder);
@@ -168,6 +174,7 @@ public class RibbonJerseyClient implements Client, Closeable {
     public WebTarget target(URI uri) {
         final Server server = fetchServerOrThrow();
         final UriBuilder builder = UriBuilder.fromUri(uri);
+        builder.scheme(scheme);
         builder.host(server.getHost());
         builder.port(server.getPort());
         return delegate.target(builder);
@@ -197,6 +204,7 @@ public class RibbonJerseyClient implements Client, Closeable {
     public WebTarget target(Link link) {
         final Server server = fetchServerOrThrow();
         final UriBuilder builder = UriBuilder.fromLink(link);
+        builder.scheme(scheme);
         builder.host(server.getHost());
         builder.port(server.getPort());
         return delegate.target(builder);
