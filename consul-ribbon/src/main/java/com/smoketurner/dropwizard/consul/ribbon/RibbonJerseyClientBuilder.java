@@ -15,16 +15,15 @@
  */
 package com.smoketurner.dropwizard.consul.ribbon;
 
+import java.util.Objects;
+import javax.annotation.Nonnull;
+import javax.ws.rs.client.Client;
 import com.netflix.loadbalancer.Server;
 import com.netflix.loadbalancer.ZoneAwareLoadBalancer;
 import com.orbitz.consul.Consul;
 import io.dropwizard.client.JerseyClientBuilder;
 import io.dropwizard.lifecycle.Managed;
 import io.dropwizard.setup.Environment;
-
-import javax.annotation.Nonnull;
-import javax.ws.rs.client.Client;
-import java.util.Objects;
 
 public class RibbonJerseyClientBuilder {
 
@@ -117,8 +116,8 @@ public class RibbonJerseyClientBuilder {
         final ZoneAwareLoadBalancer<Server> loadBalancer = factory
                 .build(configuration);
 
-        final RibbonJerseyClient client = new RibbonJerseyClient(configuration.getScheme(), loadBalancer,
-                jerseyClient);
+        final RibbonJerseyClient client = new RibbonJerseyClient(
+                configuration.getScheme(), loadBalancer, jerseyClient);
 
         environment.lifecycle().manage(new Managed() {
             @Override

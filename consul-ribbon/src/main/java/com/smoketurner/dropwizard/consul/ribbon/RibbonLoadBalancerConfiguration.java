@@ -15,13 +15,12 @@
  */
 package com.smoketurner.dropwizard.consul.ribbon;
 
+import java.util.concurrent.TimeUnit;
+import javax.validation.constraints.NotNull;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.dropwizard.util.Duration;
 import io.dropwizard.validation.MinDuration;
-import org.hibernate.validator.constraints.NotBlank;
-
-import javax.validation.constraints.NotNull;
-import java.util.concurrent.TimeUnit;
+import io.dropwizard.validation.OneOf;
 
 public class RibbonLoadBalancerConfiguration {
 
@@ -29,7 +28,8 @@ public class RibbonLoadBalancerConfiguration {
     @MinDuration(value = 1, unit = TimeUnit.SECONDS)
     private Duration refreshInterval = Duration.seconds(10);
 
-    @NotBlank
+    @NotNull
+    @OneOf(value = { "http", "https" })
     private String scheme = "http";
 
     @JsonProperty

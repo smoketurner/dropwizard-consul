@@ -15,9 +15,11 @@
  */
 package com.smoketurner.dropwizard.consul.ribbon;
 
-import com.netflix.loadbalancer.Server;
-import com.netflix.loadbalancer.ZoneAwareLoadBalancer;
-
+import java.io.Closeable;
+import java.net.URI;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import javax.annotation.Nonnull;
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLContext;
@@ -27,11 +29,8 @@ import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Configuration;
 import javax.ws.rs.core.Link;
 import javax.ws.rs.core.UriBuilder;
-import java.io.Closeable;
-import java.net.URI;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import com.netflix.loadbalancer.Server;
+import com.netflix.loadbalancer.ZoneAwareLoadBalancer;
 
 public class RibbonJerseyClient implements Client, Closeable {
     private final String scheme;
@@ -41,14 +40,14 @@ public class RibbonJerseyClient implements Client, Closeable {
     /**
      * Constructor
      *
-     * @param scheme Communication scheme (usually http or https)
+     * @param scheme
+     *            Communication scheme (usually http or https)
      * @param loadBalancer
      *            Load Balancer
      * @param delegate
      *            Jersey Client delegate
      */
-    public RibbonJerseyClient(
-            @Nonnull final String scheme,
+    public RibbonJerseyClient(@Nonnull final String scheme,
             @Nonnull final ZoneAwareLoadBalancer<Server> loadBalancer,
             @Nonnull final Client delegate) {
         this.scheme = scheme;
