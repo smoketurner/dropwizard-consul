@@ -1,0 +1,5 @@
+com.smoketurner.dropwizard.consul
+com.smoketurner.dropwizard.consul.config
+com.smoketurner.dropwizard.consul.core
+com.smoketurner.dropwizard.consul.health
+com.smoketurner.dropwizard.consul.managed
