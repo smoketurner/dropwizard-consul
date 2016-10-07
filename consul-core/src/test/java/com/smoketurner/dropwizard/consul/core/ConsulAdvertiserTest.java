@@ -31,8 +31,8 @@ import org.junit.Test;
 import com.orbitz.consul.AgentClient;
 import com.orbitz.consul.Consul;
 import com.orbitz.consul.ConsulException;
+import com.orbitz.consul.model.agent.ImmutableRegCheck;
 import com.orbitz.consul.model.agent.ImmutableRegistration;
-import com.orbitz.consul.model.agent.Registration;
 import com.smoketurner.dropwizard.consul.ConsulFactory;
 import io.dropwizard.jetty.MutableServletContextHandler;
 import io.dropwizard.setup.Environment;
@@ -71,8 +71,10 @@ public class ConsulAdvertiserTest {
 
         final ImmutableRegistration registration = ImmutableRegistration
                 .builder().port(8080)
-                .check(Registration.RegCheck
-                        .http("http://127.0.0.1:8081/admin/healthcheck", 1))
+                .check(ImmutableRegCheck.builder()
+                        .http("http://127.0.0.1:8081/admin/healthcheck")
+                        .interval("1s").deregisterCriticalServiceAfter("1m")
+                        .build())
                 .name("test").id(serviceId).build();
 
         verify(agent).register(registration);
@@ -98,8 +100,10 @@ public class ConsulAdvertiserTest {
 
         final ImmutableRegistration registration = ImmutableRegistration
                 .builder().id(serviceId).port(8888).address("127.0.0.1")
-                .check(Registration.RegCheck
-                        .http("http://127.0.0.1:8081/admin/healthcheck", 1))
+                .check(ImmutableRegCheck.builder()
+                        .http("http://127.0.0.1:8081/admin/healthcheck")
+                        .interval("1s").deregisterCriticalServiceAfter("1m")
+                        .build())
                 .name("test").build();
 
         verify(agent).register(registration);
@@ -117,8 +121,10 @@ public class ConsulAdvertiserTest {
 
         final ImmutableRegistration registration = ImmutableRegistration
                 .builder().tags(tags)
-                .check(Registration.RegCheck
-                        .http("http://127.0.0.1:8081/admin/healthcheck", 1))
+                .check(ImmutableRegCheck.builder()
+                        .http("http://127.0.0.1:8081/admin/healthcheck")
+                        .interval("1s").deregisterCriticalServiceAfter("1m")
+                        .build())
                 .name("test").port(8080).id(serviceId).build();
 
         verify(agent).register(registration);

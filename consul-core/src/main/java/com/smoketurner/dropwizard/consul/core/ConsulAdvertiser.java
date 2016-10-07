@@ -25,6 +25,7 @@ import org.slf4j.LoggerFactory;
 import com.orbitz.consul.AgentClient;
 import com.orbitz.consul.Consul;
 import com.orbitz.consul.ConsulException;
+import com.orbitz.consul.model.agent.ImmutableRegCheck;
 import com.orbitz.consul.model.agent.ImmutableRegistration;
 import com.orbitz.consul.model.agent.Registration;
 import com.smoketurner.dropwizard.consul.ConsulFactory;
@@ -136,14 +137,16 @@ public class ConsulAdvertiser {
         serviceAdminPort.compareAndSet(null, adminPort);
 
         LOGGER.info(
-                "Registering service ({}) [{}] on applicationPort {} with a health check of {}s on {} adminPort",
+                "Registering service ({}) [{}] on port {} (admin port {}) with a health check of {}s",
                 configuration.getServiceName(), serviceId, servicePort.get(),
-                configuration.getCheckInterval().toSeconds(),
-                serviceAdminPort.get());
-
-        final Registration.RegCheck check = Registration.RegCheck.http(
-                getHealthCheckUrl(),
+                serviceAdminPort.get(),
                 configuration.getCheckInterval().toSeconds());
+
+        final Registration.RegCheck check = ImmutableRegCheck.builder()
+                .http(getHealthCheckUrl())
+                .interval(String.format("%ss",
+                        configuration.getCheckInterval().toSeconds()))
+                .deregisterCriticalServiceAfter("1m").build();
 
         final ImmutableRegistration.Builder builder = ImmutableRegistration
                 .builder().port(servicePort.get()).check(check)
