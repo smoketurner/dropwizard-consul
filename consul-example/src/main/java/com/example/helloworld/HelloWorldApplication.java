@@ -38,10 +38,9 @@ public class HelloWorldApplication
     public void run(HelloWorldConfiguration configuration,
             Environment environment) throws Exception {
         final Consul consul = configuration.getConsulFactory().build();
-        final RibbonJerseyClientBuilder builder = new RibbonJerseyClientBuilder(
-                environment, consul, configuration.getDownstream());
-        final RibbonJerseyClient loadBalancingClient = builder
-                .build("hello-world", c -> c.healthClient().getHealthyServiceInstances("hello-world").getResponse());
+        final RibbonJerseyClient loadBalancingClient = new RibbonJerseyClientBuilder(
+                environment, consul, configuration.getDownstream())
+                        .build("hello-world");
 
         final HelloWorldResource resource = new HelloWorldResource(consul,
                 loadBalancingClient, configuration.getTemplate(),

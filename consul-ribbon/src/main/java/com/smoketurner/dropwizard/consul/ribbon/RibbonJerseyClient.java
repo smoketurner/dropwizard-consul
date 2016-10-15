@@ -50,7 +50,7 @@ public class RibbonJerseyClient implements Client, Closeable {
     public RibbonJerseyClient(@Nonnull final String scheme,
             @Nonnull final ZoneAwareLoadBalancer<Server> loadBalancer,
             @Nonnull final Client delegate) {
-        this.scheme = scheme;
+        this.scheme = Objects.requireNonNull(scheme);
         this.loadBalancer = Objects.requireNonNull(loadBalancer);
         this.delegate = Objects.requireNonNull(delegate);
     }
