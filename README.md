@@ -5,7 +5,12 @@ Dropwizard Consul Bundle
 [![Maven Central](https://img.shields.io/maven-central/v/com.smoketurner.dropwizard/dropwizard-consul.svg?style=flat-square)](https://maven-badges.herokuapp.com/maven-central/com.smoketurner.dropwizard/dropwizard-consul/)
 [![GitHub license](https://img.shields.io/github/license/smoketurner/dropwizard-consul.svg?style=flat-square)](https://github.com/smoketurner/dropwizard-consul/tree/master)
 
-A bundle for using [Consul](https://consul.io) in Dropwizard applications.
+A bundle for using [Consul](https://consul.io) in Dropwizard applications. Features:
+
+* Integrated client-side load balancer based on [Ribbon](https://github.com/netflix/ribbon)
+* Dropwizard health check that monitors reachablility of Consul
+* The Dropwizard service is registered as a Consul service with a Consul-side health check querying the Dropwizard [health check](http://www.dropwizard.io/1.0.2/docs/manual/core.html#health-checks)
+* Ability to resolve [configuration](http://www.dropwizard.io/1.0.2/docs/manual/core.html#configuration) properties from Consul's KV store
 
 Dependency Info
 ---------------
