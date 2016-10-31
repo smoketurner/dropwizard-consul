@@ -12,7 +12,7 @@
     <name>Dropwizard Consul Load Balancer</name>
 
     <properties>
-        <ribbon.version>2.2.0</ribbon.version>
+        <ribbon.version>2.2.2</ribbon.version>
     </properties>
 
     <dependencies>
@@ -25,6 +25,7 @@
             <groupId>io.dropwizard</groupId>
             <artifactId>dropwizard-client</artifactId>
         </dependency>
+        <!-- archaius-core, servo-core and rxjava are required in ribbon-loadbalancer -->
         <dependency>
             <groupId>com.netflix.archaius</groupId>
             <artifactId>archaius-core</artifactId>

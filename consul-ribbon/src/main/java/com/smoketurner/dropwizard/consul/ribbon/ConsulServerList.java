@@ -20,7 +20,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import com.google.common.base.Strings;
 import com.netflix.loadbalancer.Server;
 import com.netflix.loadbalancer.ServerList;
@@ -88,7 +87,7 @@ public class ConsulServerList implements ServerList<Server> {
      *            Consul service health record
      * @return Ribbon Server instance
      */
-    private Server buildServer(@Nullable final ServiceHealth service) {
+    private Server buildServer(final ServiceHealth service) {
         if (!Strings.isNullOrEmpty(service.getService().getAddress())) {
             return new Server(service.getService().getAddress(),
                     service.getService().getPort());
