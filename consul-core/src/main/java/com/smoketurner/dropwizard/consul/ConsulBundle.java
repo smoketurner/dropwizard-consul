@@ -119,27 +119,28 @@ public abstract class ConsulBundle<C extends Configuration>
     @Override
     public void run(C configuration, Environment environment) throws Exception {
         final ConsulFactory consulConfig = getConsulFactory(configuration);
-        if (!consulConfig.getEnabled()) {
+        if (!consulConfig.isEnabled()) {
             LOGGER.warn("Consul bundle disabled.");
         } else {
             runEnabled(consulConfig, environment);
         }
     }
 
-    public void runEnabled(ConsulFactory consulConfig, Environment environment) throws Exception {
+    protected void runEnabled(ConsulFactory consulConfig,
+            Environment environment) {
         consulConfig.setSeviceName(serviceName);
         final Consul consul = consulConfig.build();
         final String serviceId = getConsulServiceId();
         final ConsulAdvertiser advertiser = new ConsulAdvertiser(environment,
-            consulConfig, consul, serviceId);
+                consulConfig, consul, serviceId);
 
         // Register a Jetty listener to get the listening host and port
         environment.lifecycle().addServerLifecycleListener(
-            new ConsulServiceListener(advertiser));
+                new ConsulServiceListener(advertiser));
 
         // Register a ping healthcheck to the Consul agent
         environment.healthChecks().register("consul",
-            new ConsulHealthCheck(consul));
+                new ConsulHealthCheck(consul));
 
         // Register a shutdown manager to deregister the service
         environment.lifecycle().manage(new ConsulAdvertiserManager(advertiser));

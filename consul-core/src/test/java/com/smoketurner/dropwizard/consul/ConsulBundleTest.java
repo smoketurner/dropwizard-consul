@@ -16,8 +16,12 @@
 package com.smoketurner.dropwizard.consul;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
-
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import org.junit.Before;
 import org.junit.Test;
 import io.dropwizard.Configuration;
@@ -25,20 +29,21 @@ import io.dropwizard.setup.Environment;
 
 public class ConsulBundleTest {
 
-    private ConsulBundle bundle;
-    private Configuration config;
     private final ConsulFactory factory = spy(new ConsulFactory());
     private final Environment environment = mock(Environment.class);
+    private final TestConfiguration config = new TestConfiguration();
+    private ConsulBundle<TestConfiguration> bundle;
+
+    class TestConfiguration extends Configuration
+            implements ConsulConfiguration<TestConfiguration> {
+        @Override
+        public ConsulFactory getConsulFactory(TestConfiguration configuration) {
+            return factory;
+        }
+    }
 
     @Before
     public void setUp() throws Exception {
-        class TestConfiguration extends Configuration implements ConsulConfiguration {
-            @Override
-            public ConsulFactory getConsulFactory(Configuration c) {
-                return factory;
-            }
-        }
-
         bundle = spy(new ConsulBundle<TestConfiguration>("test") {
             @Override
             public ConsulFactory getConsulFactory(TestConfiguration c) {
@@ -46,27 +51,25 @@ public class ConsulBundleTest {
             }
         });
 
-        config = new TestConfiguration();
         doNothing().when(bundle).runEnabled(factory, environment);
     }
 
     @Test
     public void testDefaultsToEnabled() throws Exception {
-        assertThat(factory.getEnabled()).isTrue();
+        assertThat(factory.isEnabled()).isTrue();
     }
 
     @Test
     public void testEnabled() throws Exception {
-        doReturn(true).when(factory).getEnabled();
+        doReturn(true).when(factory).isEnabled();
         bundle.run(config, environment);
         verify(bundle, times(1)).runEnabled(factory, environment);
     }
 
     @Test
     public void testNotEnabled() throws Exception {
-        doReturn(false).when(factory).getEnabled();
+        doReturn(false).when(factory).isEnabled();
         bundle.run(config, environment);
         verify(bundle, times(0)).runEnabled(factory, environment);
     }
-
 }

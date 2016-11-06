@@ -15,6 +15,8 @@
  */
 package com.smoketurner.dropwizard.consul;
 
+import java.util.concurrent.TimeUnit;
+import javax.validation.constraints.NotNull;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Optional;
@@ -23,16 +25,13 @@ import com.orbitz.consul.Consul;
 import io.dropwizard.util.Duration;
 import io.dropwizard.validation.MinDuration;
 
-import javax.validation.constraints.NotNull;
-import java.util.concurrent.TimeUnit;
-
 public class ConsulFactory {
     @NotNull
     private HostAndPort endpoint = HostAndPort
             .fromParts(Consul.DEFAULT_HTTP_HOST, Consul.DEFAULT_HTTP_PORT);
 
     private String serviceName;
-    private Boolean enabled = true;
+    private boolean enabled = true;
     private Optional<Integer> servicePort = Optional.absent();
     private Optional<Integer> adminPort = Optional.absent();
     private Optional<String> serviceAddress = Optional.absent();
@@ -43,12 +42,12 @@ public class ConsulFactory {
     private Duration checkInterval = Duration.seconds(1);
 
     @JsonProperty
-    public Boolean getEnabled() {
+    public boolean isEnabled() {
         return enabled;
     }
 
     @JsonProperty
-    public void setEnabled(Boolean enabled) {
+    public void setEnabled(boolean enabled) {
         this.enabled = enabled;
     }
 
