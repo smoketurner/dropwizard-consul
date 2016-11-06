@@ -32,6 +32,7 @@ public class ConsulFactory {
             .fromParts(Consul.DEFAULT_HTTP_HOST, Consul.DEFAULT_HTTP_PORT);
 
     private String serviceName;
+    private Boolean enabled = true;
     private Optional<Integer> servicePort = Optional.absent();
     private Optional<Integer> adminPort = Optional.absent();
     private Optional<String> serviceAddress = Optional.absent();
@@ -40,6 +41,16 @@ public class ConsulFactory {
     @NotNull
     @MinDuration(value = 1, unit = TimeUnit.SECONDS)
     private Duration checkInterval = Duration.seconds(1);
+
+    @JsonProperty
+    public Boolean getEnabled() {
+        return enabled;
+    }
+
+    @JsonProperty
+    public void setEnabled(Boolean enabled) {
+        this.enabled = enabled;
+    }
 
     @JsonProperty
     public HostAndPort getEndpoint() {
