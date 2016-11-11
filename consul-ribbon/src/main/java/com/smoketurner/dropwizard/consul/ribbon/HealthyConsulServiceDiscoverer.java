@@ -23,21 +23,21 @@ import com.orbitz.consul.model.health.ServiceHealth;
 
 public class HealthyConsulServiceDiscoverer implements ConsulServiceDiscoverer {
 
-    private final String serviceName;
+    private final String service;
 
     /**
      * Constructor
      *
-     * @param serviceName
+     * @param service
      *            Service name
      */
-    public HealthyConsulServiceDiscoverer(@Nonnull final String serviceName) {
-        this.serviceName = Objects.requireNonNull(serviceName);
+    public HealthyConsulServiceDiscoverer(@Nonnull final String service) {
+        this.service = Objects.requireNonNull(service);
     }
 
     @Override
     public Collection<ServiceHealth> discover(@Nonnull final Consul consul) {
-        return consul.healthClient().getHealthyServiceInstances(serviceName)
+        return consul.healthClient().getHealthyServiceInstances(service)
                 .getResponse();
     }
 }

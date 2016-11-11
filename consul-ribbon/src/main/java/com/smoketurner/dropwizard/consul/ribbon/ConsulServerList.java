@@ -28,30 +28,21 @@ import com.orbitz.consul.model.health.ServiceHealth;
 
 public class ConsulServerList implements ServerList<Server> {
 
-    private final String name;
     private final Consul consul;
     private final ConsulServiceDiscoverer serviceDiscoverer;
 
     /**
      * Constructor
      *
-     * @param name
-     *            Service name
      * @param consul
      *            Consul client
      * @param serviceDiscoverer
      *            Discoverer
      */
-    public ConsulServerList(@Nonnull final String name,
-            @Nonnull final Consul consul,
+    public ConsulServerList(@Nonnull final Consul consul,
             @Nonnull final ConsulServiceDiscoverer serviceDiscoverer) {
-        this.name = Objects.requireNonNull(name);
         this.consul = Objects.requireNonNull(consul);
         this.serviceDiscoverer = Objects.requireNonNull(serviceDiscoverer);
-    }
-
-    public String getName() {
-        return name;
     }
 
     @Override
