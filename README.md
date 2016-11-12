@@ -18,12 +18,12 @@ Dependency Info
 <dependency>
     <groupId>com.smoketurner.dropwizard</groupId>
     <artifactId>consul-core</artifactId>
-    <version>1.0.3-2</version>
+    <version>1.0.3-3</version>
 </dependency>
 <dependency>
     <groupId>com.smoketurner.dropwizard</groupId>
     <artifactId>consul-ribbon</artifactId>
-    <version>1.0.3-2</version>
+    <version>1.0.3-3</version>
 </dependency>
 ```
 
@@ -78,7 +78,7 @@ This bundle includes a modified version of the `HelloWorldApplication` from Drop
 <dependency>
     <groupId>com.smoketurner.dropwizard</groupId>
     <artifactId>consul-example</artifactId>
-    <version>1.0.3-2</version>
+    <version>1.0.3-3</version>
 </dependency>
 ```
 
