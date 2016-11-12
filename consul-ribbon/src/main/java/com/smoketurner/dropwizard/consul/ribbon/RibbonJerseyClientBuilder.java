@@ -34,7 +34,7 @@ public class RibbonJerseyClientBuilder {
 
     private final Environment environment;
     private final Consul consul;
-    private final RibbonLoadBalancerConfiguration configuration;
+    private final RibbonJerseyClientConfiguration configuration;
 
     /**
      * Constructor
@@ -48,7 +48,7 @@ public class RibbonJerseyClientBuilder {
      */
     public RibbonJerseyClientBuilder(@Nonnull final Environment environment,
             @Nonnull final Consul consul,
-            @Nonnull final RibbonLoadBalancerConfiguration configuration) {
+            @Nonnull final RibbonJerseyClientConfiguration configuration) {
         this.environment = Objects.requireNonNull(environment);
         this.consul = Objects.requireNonNull(consul);
         this.configuration = Objects.requireNonNull(configuration);
@@ -80,7 +80,7 @@ public class RibbonJerseyClientBuilder {
 
         // create a new Jersey client
         final Client jerseyClient = new JerseyClientBuilder(environment)
-                .build(name);
+                .using(configuration).build(name);
 
         return build(name, jerseyClient, serviceDiscoverer);
     }

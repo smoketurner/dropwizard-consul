@@ -17,18 +17,20 @@ package com.smoketurner.dropwizard.consul.ribbon;
 
 import java.util.concurrent.TimeUnit;
 import javax.validation.constraints.NotNull;
+import org.hibernate.validator.constraints.NotEmpty;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.dropwizard.client.JerseyClientConfiguration;
 import io.dropwizard.util.Duration;
 import io.dropwizard.validation.MinDuration;
 import io.dropwizard.validation.OneOf;
 
-public class RibbonLoadBalancerConfiguration {
+public class RibbonJerseyClientConfiguration extends JerseyClientConfiguration {
 
     @NotNull
     @MinDuration(value = 1, unit = TimeUnit.SECONDS)
     private Duration refreshInterval = Duration.seconds(10);
 
-    @NotNull
+    @NotEmpty
     @OneOf(value = { "http", "https" })
     private String scheme = "http";
 

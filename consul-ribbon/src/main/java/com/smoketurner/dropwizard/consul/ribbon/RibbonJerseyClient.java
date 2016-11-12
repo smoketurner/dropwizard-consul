@@ -188,6 +188,7 @@ public class RibbonJerseyClient implements Client, Closeable {
     @Override
     public WebTarget target(UriBuilder uriBuilder) {
         final Server server = fetchServerOrThrow();
+        uriBuilder.scheme(scheme);
         uriBuilder.host(server.getHost());
         uriBuilder.port(server.getPort());
         return delegate.target(uriBuilder);

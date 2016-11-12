@@ -54,7 +54,7 @@ public class HelloWorldApplication
             Environment environment) throws Exception {
         final Consul consul = configuration.getConsulFactory().build();
         final RibbonJerseyClient loadBalancingClient = new RibbonJerseyClientBuilder(
-                environment, consul, configuration.getLoadBalancer())
+                environment, consul, configuration.getClient())
                         .build("hello-world");
 
         final HelloWorldResource resource = new HelloWorldResource(consul,

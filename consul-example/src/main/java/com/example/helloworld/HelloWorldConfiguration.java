@@ -20,7 +20,7 @@ import javax.validation.constraints.NotNull;
 import org.hibernate.validator.constraints.NotEmpty;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.smoketurner.dropwizard.consul.ConsulFactory;
-import com.smoketurner.dropwizard.consul.ribbon.RibbonLoadBalancerConfiguration;
+import com.smoketurner.dropwizard.consul.ribbon.RibbonJerseyClientConfiguration;
 import io.dropwizard.Configuration;
 
 public class HelloWorldConfiguration extends Configuration {
@@ -37,7 +37,7 @@ public class HelloWorldConfiguration extends Configuration {
 
     @NotNull
     @Valid
-    public final RibbonLoadBalancerConfiguration loadBalancer = new RibbonLoadBalancerConfiguration();
+    public final RibbonJerseyClientConfiguration client = new RibbonJerseyClientConfiguration();
 
     @JsonProperty
     public String getTemplate() {
@@ -65,7 +65,7 @@ public class HelloWorldConfiguration extends Configuration {
     }
 
     @JsonProperty
-    public RibbonLoadBalancerConfiguration getLoadBalancer() {
-        return loadBalancer;
+    public RibbonJerseyClientConfiguration getClient() {
+        return client;
     }
 }
