@@ -4,7 +4,7 @@ defaultName: ${helloworld/defaultName:-Stranger}
 consul:
   endpoint: localhost:8500
 
-downstream:
+client:
   refreshInterval: 10 seconds
 
 # HTTP-specific options.
