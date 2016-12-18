@@ -23,7 +23,6 @@ import org.slf4j.LoggerFactory;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMultimap;
 import com.orbitz.consul.Consul;
-import com.orbitz.consul.ConsulException;
 import io.dropwizard.servlets.tasks.Task;
 
 public class MaintenanceTask extends Task {
@@ -53,8 +52,7 @@ public class MaintenanceTask extends Task {
             PrintWriter output) throws Exception {
 
         if (!parameters.containsKey("enable")) {
-            LOGGER.error("required \"enable\" parameter not found in request");
-            return;
+            throw new Exception("Parameter \"enable\" not found");
         }
 
         final boolean enable = Boolean
@@ -66,33 +64,23 @@ public class MaintenanceTask extends Task {
             reason = null;
         }
 
-        try {
-            consul.agentClient().toggleMaintenanceMode(serviceId, enable,
-                    reason);
-        } catch (ConsulException e) {
-            LOGGER.warn(String.format(
-                    "Unable to toggle maintenance mode for service %s",
-                    serviceId), e);
-            return;
-        }
-
-        final String message;
         if (enable) {
             if (!Strings.isNullOrEmpty(reason)) {
-                message = String.format(
-                        "Enabling maintenance mode for service %s (reason: %s)",
+                LOGGER.warn(
+                        "Enabling maintenance mode for service {} (reason: {})",
                         serviceId, reason);
             } else {
-                message = String.format(
-                        "Enabling maintenance mode for service %s (no reason given)",
+                LOGGER.warn(
+                        "Enabling maintenance mode for service {} (no reason given)",
                         serviceId);
             }
         } else {
-            message = String.format("Disabling maintenance mode for service %s",
-                    serviceId);
+            LOGGER.warn("Disabling maintenance mode for service {}", serviceId);
         }
-        LOGGER.warn(message);
-        output.println(message);
+
+        consul.agentClient().toggleMaintenanceMode(serviceId, enable, reason);
+
+        output.println("OK");
         output.flush();
     }
 }
