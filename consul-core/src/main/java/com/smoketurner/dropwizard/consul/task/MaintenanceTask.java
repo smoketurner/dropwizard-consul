@@ -58,7 +58,7 @@ public class MaintenanceTask extends Task {
         }
 
         final boolean enable = Boolean
-                .valueOf(parameters.get("enable").asList().get(0));
+                .parseBoolean(parameters.get("enable").asList().get(0));
         final String reason;
         if (parameters.containsKey("reason")) {
             reason = parameters.get("reason").asList().get(0);
