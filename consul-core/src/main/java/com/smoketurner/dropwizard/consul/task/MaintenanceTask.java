@@ -52,11 +52,8 @@ public class MaintenanceTask extends Task {
     public void execute(ImmutableMultimap<String, String> parameters,
             PrintWriter output) throws Exception {
 
-        output.println(String.format("params: %s", parameters));
-        output.flush();
-
         if (!parameters.containsKey("enable")) {
-            LOGGER.error("enable parameter not found in request");
+            LOGGER.error("required \"enable\" parameter not found in request");
             return;
         }
 
