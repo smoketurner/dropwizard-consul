@@ -52,7 +52,8 @@ public class MaintenanceTask extends Task {
             PrintWriter output) throws Exception {
 
         if (!parameters.containsKey("enable")) {
-            throw new Exception("Parameter \"enable\" not found");
+            throw new IllegalArgumentException(
+                    "Parameter \"enable\" not found");
         }
 
         final boolean enable = Boolean
