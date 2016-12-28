@@ -29,6 +29,7 @@ import com.smoketurner.dropwizard.consul.core.ConsulAdvertiser;
 import com.smoketurner.dropwizard.consul.core.ConsulServiceListener;
 import com.smoketurner.dropwizard.consul.health.ConsulHealthCheck;
 import com.smoketurner.dropwizard.consul.managed.ConsulAdvertiserManager;
+import com.smoketurner.dropwizard.consul.task.MaintenanceTask;
 import io.dropwizard.Configuration;
 import io.dropwizard.ConfiguredBundle;
 import io.dropwizard.configuration.SubstitutingSourceProvider;
@@ -144,6 +145,9 @@ public abstract class ConsulBundle<C extends Configuration>
 
         // Register a shutdown manager to deregister the service
         environment.lifecycle().manage(new ConsulAdvertiserManager(advertiser));
+
+        // Add an administrative task to toggle maintenance mode
+        environment.admin().addTask(new MaintenanceTask(consul, serviceId));
     }
 
     /**
