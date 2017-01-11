@@ -62,7 +62,10 @@ public class ConsulServiceListener implements ServerLifecycleListener {
                     adminPort = port;
                     break;
                 default:
-                    // unknown connector, do nothing
+                    // if we are here, then the server is a "simple" type
+                    // which means both contexts are running on the same port
+                    applicationPort = port;
+                    adminPort = port;
                     break;
                 }
             }
