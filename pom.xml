@@ -90,14 +90,6 @@
                 <enabled>true</enabled>
             </snapshots>
         </repository>
-        <repository>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-            <id>bintray</id>
-            <name>bintray</name>
-            <url>http://jcenter.bintray.com</url>
-        </repository>
     </repositories>
 
     <dependencyManagement>
