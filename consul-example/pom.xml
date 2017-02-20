@@ -17,12 +17,12 @@
             <artifactId>dropwizard-core</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.smoketurner.dropwizard</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>consul-core</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.smoketurner.dropwizard</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>consul-ribbon</artifactId>
             <version>${project.version}</version>
         </dependency>

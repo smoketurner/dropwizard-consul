@@ -17,7 +17,7 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.smoketurner.dropwizard</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>consul-core</artifactId>
             <version>${project.version}</version>
         </dependency>
