@@ -17,20 +17,10 @@ package com.smoketurner.dropwizard.consul.core;
 
 import java.util.Objects;
 import javax.annotation.Nonnull;
-import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.server.ServerConnector;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import io.dropwizard.lifecycle.ServerLifecycleListener;
 
 public class ConsulServiceListener implements ServerLifecycleListener {
-
-    private static final Logger LOGGER = LoggerFactory
-            .getLogger(ConsulServiceListener.class);
-
-    private static final String APPLICATION_CONNECTOR_NAME = "application";
-    private static final String ADMIN_CONNECTOR_NAME = "admin";
 
     private final ConsulAdvertiser advertiser;
 
@@ -46,39 +36,8 @@ public class ConsulServiceListener implements ServerLifecycleListener {
 
     @Override
     public void serverStarted(final Server server) {
-        // Detect the port Jetty is listening on
-        try {
-            int applicationPort = -1;
-            int adminPort = -1;
-            for (Connector connector : server.getConnectors()) {
-                @SuppressWarnings("resource")
-                final ServerConnector serverConnector = (ServerConnector) connector;
-                final int port = serverConnector.getLocalPort();
-                switch (serverConnector.getName()) {
-                case APPLICATION_CONNECTOR_NAME:
-                    applicationPort = port;
-                    break;
-                case ADMIN_CONNECTOR_NAME:
-                    adminPort = port;
-                    break;
-                default:
-                    // if we are here, then the server is a "simple" type
-                    // which means both contexts are running on the same port
-                    applicationPort = port;
-                    adminPort = port;
-                    break;
-                }
-            }
-            if (applicationPort < 0) {
-                throw new IllegalStateException(
-                        "Unable to get ports to register with Consul");
-            }
-            if (adminPort < 0) {
-                adminPort = applicationPort;
-            }
-            advertiser.register(applicationPort, adminPort);
-        } catch (Exception e) {
-            LOGGER.error("Unable to get listening port", e);
-        }
+        final int applicationPort = getLocalPort(server);
+        final int adminPort = getAdminPort(server);
+        advertiser.register(applicationPort, adminPort);
     }
 }

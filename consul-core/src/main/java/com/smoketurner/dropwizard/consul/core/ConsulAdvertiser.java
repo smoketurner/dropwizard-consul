@@ -30,11 +30,13 @@ import com.orbitz.consul.model.agent.ImmutableRegistration;
 import com.orbitz.consul.model.agent.Registration;
 import com.smoketurner.dropwizard.consul.ConsulFactory;
 import io.dropwizard.setup.Environment;
+import io.dropwizard.util.Duration;
 
 public class ConsulAdvertiser {
 
     private static final Logger LOGGER = LoggerFactory
             .getLogger(ConsulAdvertiser.class);
+    private static final Duration DEREGISTER_AFTER = Duration.minutes(1);
     private final AtomicReference<Integer> servicePort = new AtomicReference<>();
     private final AtomicReference<Integer> serviceAdminPort = new AtomicReference<>();
     private final AtomicReference<String> serviceAddress = new AtomicReference<>();
@@ -45,15 +47,10 @@ public class ConsulAdvertiser {
     private final String serviceId;
 
     /**
-     * Constructor
-     *
-     * @param environment
-     *            Dropwizard environment
-     * @param configuration
-     *            Consul configuration
-     * @param consul
-     *            Consul client
+     * @deprecated Use the other constructor and require passing in the
+     *             serviceId
      */
+    @Deprecated
     public ConsulAdvertiser(@Nonnull final Environment environment,
             @Nonnull final ConsulFactory configuration,
             @Nonnull final Consul consul) {
@@ -80,30 +77,30 @@ public class ConsulAdvertiser {
         this.consul = Objects.requireNonNull(consul);
         this.serviceId = Objects.requireNonNull(serviceId);
 
-        if (configuration.getServicePort().isPresent()) {
+        configuration.getServicePort().ifPresent(port -> {
             LOGGER.info("Using \"{}\" as servicePort from configuration file",
-                    configuration.getServicePort().get());
-            servicePort.set(configuration.getServicePort().get());
-        }
+                    port);
+            servicePort.set(port);
+        });
 
-        if (configuration.getAdminPort().isPresent()) {
+        configuration.getAdminPort().ifPresent(port -> {
             LOGGER.info("Using \"{}\" as adminPort from configuration file",
-                    configuration.getAdminPort().get());
-            serviceAdminPort.set(configuration.getAdminPort().get());
-        }
+                    port);
+            serviceAdminPort.set(port);
+        });
 
-        if (configuration.getServiceAddress().isPresent()) {
+        configuration.getServiceAddress().ifPresent(address -> {
             LOGGER.info(
                     "Using \"{}\" as serviceAddress from configuration file",
-                    configuration.getServiceAddress().get());
-            serviceAddress.set(configuration.getServiceAddress().get());
-        }
+                    address);
+            serviceAddress.set(address);
+        });
 
-        if (configuration.getTags().isPresent()) {
+        configuration.getTags().ifPresent(newTags -> {
             LOGGER.info("Using \"{}\" as tags from the configuration file",
-                    configuration.getTags().get());
-            tags.set(configuration.getTags().get());
-        }
+                    newTags);
+            tags.set(newTags);
+        });
     }
 
     /**
@@ -144,9 +141,11 @@ public class ConsulAdvertiser {
 
         final Registration.RegCheck check = ImmutableRegCheck.builder()
                 .http(getHealthCheckUrl())
-                .interval(String.format("%ss",
+                .interval(String.format("%ds",
                         configuration.getCheckInterval().toSeconds()))
-                .deregisterCriticalServiceAfter("1m").build();
+                .deregisterCriticalServiceAfter(
+                        String.format("%dm", DEREGISTER_AFTER.toMinutes()))
+                .build();
 
         final ImmutableRegistration.Builder builder = ImmutableRegistration
                 .builder().port(servicePort.get()).check(check)

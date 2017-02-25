@@ -73,7 +73,7 @@ public abstract class ConsulBundle<C extends Configuration>
      *            If true, the application fails fast if a key cannot be found
      *            in Consul KV
      */
-    public ConsulBundle(@Nonnull final String name, boolean strict) {
+    public ConsulBundle(@Nonnull final String name, final boolean strict) {
         this(name, strict, false);
     }
 
@@ -87,8 +87,8 @@ public abstract class ConsulBundle<C extends Configuration>
      * @param substitutionInVariables
      *            If true, substitution will be done within variable names.
      */
-    public ConsulBundle(@Nonnull final String name, boolean strict,
-            boolean substitutionInVariables) {
+    public ConsulBundle(@Nonnull final String name, final boolean strict,
+            final boolean substitutionInVariables) {
         this.serviceName = Objects.requireNonNull(name);
         this.strict = strict;
         this.substitutionInVariables = substitutionInVariables;
@@ -100,14 +100,13 @@ public abstract class ConsulBundle<C extends Configuration>
         // getConsulAgentHost() and getConsulAgentPort() if Consul is not
         // listening on the default localhost:8500.
         try {
+            final Consul consul = Consul.builder().withHostAndPort(HostAndPort
+                    .fromParts(getConsulAgentHost(), getConsulAgentPort()))
+                    .build();
             bootstrap.setConfigurationSourceProvider(
                     new SubstitutingSourceProvider(
                             bootstrap.getConfigurationSourceProvider(),
-                            new ConsulSubstitutor(Consul.builder()
-                                    .withHostAndPort(HostAndPort.fromParts(
-                                            getConsulAgentHost(),
-                                            getConsulAgentPort()))
-                                    .build(), strict,
+                            new ConsulSubstitutor(consul, strict,
                                     substitutionInVariables)));
         } catch (ConsulException e) {
             LOGGER.warn(
