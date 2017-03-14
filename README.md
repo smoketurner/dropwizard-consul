@@ -65,8 +65,6 @@ consul:
   endpoint: localhost:8500
   # service port
   servicePort: 8080
-  # service time to live
-  serviceTTL: 30 seconds
   # check interval frequency
   checkInterval: 1 second
 ```

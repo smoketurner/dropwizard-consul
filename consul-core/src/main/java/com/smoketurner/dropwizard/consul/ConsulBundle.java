@@ -36,6 +36,8 @@ import io.dropwizard.configuration.SubstitutingSourceProvider;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 
+import static com.google.common.base.Strings.isNullOrEmpty;
+
 /**
  * Replace variables with values from Consul KV. By default, this only works
  * with a Consul agent running on localhost:8500 (the default) as there's no way
@@ -51,7 +53,7 @@ public abstract class ConsulBundle<C extends Configuration>
 
     private static final Logger LOGGER = LoggerFactory
             .getLogger(ConsulBundle.class);
-    private final String serviceName;
+    private final String defaultServiceName;
     private final boolean strict;
     private final boolean substitutionInVariables;
 
@@ -89,7 +91,7 @@ public abstract class ConsulBundle<C extends Configuration>
      */
     public ConsulBundle(@Nonnull final String name, final boolean strict,
             final boolean substitutionInVariables) {
-        this.serviceName = Objects.requireNonNull(name);
+        this.defaultServiceName = Objects.requireNonNull(name);
         this.strict = strict;
         this.substitutionInVariables = substitutionInVariables;
     }
@@ -128,7 +130,13 @@ public abstract class ConsulBundle<C extends Configuration>
 
     protected void runEnabled(ConsulFactory consulConfig,
             Environment environment) {
-        consulConfig.setSeviceName(serviceName);
+        if (isNullOrEmpty(consulConfig.getServiceName())){
+            consulConfig.setSeviceName(defaultServiceName);
+        }
+        setupEnvironment(consulConfig, environment);
+    }
+
+    protected void setupEnvironment(ConsulFactory consulConfig, Environment environment) {
         final Consul consul = consulConfig.build();
         final String serviceId = getConsulServiceId();
         final ConsulAdvertiser advertiser = new ConsulAdvertiser(environment,

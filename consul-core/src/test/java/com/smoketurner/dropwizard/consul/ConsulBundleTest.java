@@ -51,7 +51,7 @@ public class ConsulBundleTest {
             }
         });
 
-        doNothing().when(bundle).runEnabled(factory, environment);
+        doNothing().when(bundle).setupEnvironment(factory, environment);
     }
 
     @Test
@@ -63,13 +63,28 @@ public class ConsulBundleTest {
     public void testEnabled() throws Exception {
         doReturn(true).when(factory).isEnabled();
         bundle.run(config, environment);
-        verify(bundle, times(1)).runEnabled(factory, environment);
+        verify(bundle, times(1)).setupEnvironment(factory, environment);
     }
 
     @Test
     public void testNotEnabled() throws Exception {
         doReturn(false).when(factory).isEnabled();
         bundle.run(config, environment);
-        verify(bundle, times(0)).runEnabled(factory, environment);
+        verify(bundle, times(0)).setupEnvironment(factory, environment);
     }
+
+    @Test
+    public void testMissingServiceName() throws Exception {
+        factory.setSeviceName(null);
+        bundle.run(config, environment);
+        assertThat(factory.getServiceName()).isEqualTo("test");
+    }
+
+    @Test
+    public void testPopulatedServiceName() throws Exception {
+        factory.setSeviceName("test-service-name");
+        bundle.run(config, environment);
+        assertThat(factory.getServiceName()).isEqualTo("test-service-name");
+    }
+
 }
