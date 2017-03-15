@@ -26,7 +26,8 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <file.encoding>UTF-8</file.encoding>
-        <dropwizard.version>1.1.0-rc2</dropwizard.version>
+        <javadoc.doclint.none>-Xdoclint:none</javadoc.doclint.none>
+        <dropwizard.version>1.1.0-rc3</dropwizard.version>
     </properties>
 
     <modules>
@@ -110,15 +111,6 @@
     </dependencyManagement>
 
     <profiles>
-        <profile>
-            <id>java8-disable-strict-javadoc</id>
-            <activation>
-                <jdk>[1.8,)</jdk>
-            </activation>
-            <properties>
-                <javadoc.doclint.none>-Xdoclint:none</javadoc.doclint.none>
-            </properties>
-        </profile>
         <profile>
             <id>release-sign-artifacts</id>
             <activation>
