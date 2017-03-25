@@ -42,7 +42,7 @@ public class ConsulHealthCheckTest {
     public void testCheckHealthy() throws Exception {
         final Result actual = healthCheck.check();
         verify(agent).ping();
-        assertThat(actual).isEqualTo(Result.healthy());
+        assertThat(actual.isHealthy()).isTrue();
     }
 
     @Test
@@ -50,6 +50,6 @@ public class ConsulHealthCheckTest {
         doThrow(new ConsulException("error")).when(agent).ping();
         final Result actual = healthCheck.check();
         verify(agent).ping();
-        assertThat(actual).isEqualTo(Result.unhealthy("Could not ping consul"));
+        assertThat(actual.isHealthy()).isFalse();
     }
 }
