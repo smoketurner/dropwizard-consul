@@ -17,7 +17,6 @@ package com.smoketurner.dropwizard.consul;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.common.base.Optional;
 import com.google.common.net.HostAndPort;
 import com.orbitz.consul.Consul;
 import io.dropwizard.util.Duration;
@@ -25,6 +24,7 @@ import io.dropwizard.validation.MinDuration;
 
 import javax.validation.constraints.NotNull;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 public class ConsulFactory {
@@ -34,10 +34,10 @@ public class ConsulFactory {
 
     private String serviceName;
     private boolean enabled = true;
-    private Optional<Integer> servicePort = Optional.absent();
-    private Optional<Integer> adminPort = Optional.absent();
-    private Optional<String> serviceAddress = Optional.absent();
-    private Optional<Iterable<String>> tags = Optional.absent();
+    private Optional<Integer> servicePort = Optional.empty();
+    private Optional<Integer> adminPort = Optional.empty();
+    private Optional<String> serviceAddress = Optional.empty();
+    private Optional<Iterable<String>> tags = Optional.empty();
 
     @NotNull
     @MinDuration(value = 1, unit = TimeUnit.SECONDS)
@@ -80,7 +80,7 @@ public class ConsulFactory {
 
     @JsonProperty
     public void setTags(Iterable<String> tags) {
-        this.tags = Optional.fromNullable(tags);
+        this.tags = Optional.ofNullable(tags);
     }
 
     @JsonProperty
@@ -90,7 +90,7 @@ public class ConsulFactory {
 
     @JsonProperty
     public void setServicePort(Integer servicePort) {
-        this.servicePort = Optional.fromNullable(servicePort);
+        this.servicePort = Optional.ofNullable(servicePort);
     }
 
     @JsonProperty
@@ -100,7 +100,7 @@ public class ConsulFactory {
 
     @JsonProperty
     public void setAdminPort(Integer adminPort) {
-        this.adminPort = Optional.fromNullable(adminPort);
+        this.adminPort = Optional.ofNullable(adminPort);
     }
 
     @JsonProperty
@@ -110,7 +110,7 @@ public class ConsulFactory {
 
     @JsonProperty
     public void setServiceAddress(String serviceAddress) {
-        this.serviceAddress = Optional.fromNullable(serviceAddress);
+        this.serviceAddress = Optional.ofNullable(serviceAddress);
     }
 
     @JsonProperty
