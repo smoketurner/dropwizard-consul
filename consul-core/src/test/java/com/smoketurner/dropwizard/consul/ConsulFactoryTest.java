@@ -4,9 +4,7 @@ import com.google.common.collect.ImmutableList;
 import io.dropwizard.util.Duration;
 import org.junit.Test;
 
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class ConsulFactoryTest {
 
@@ -14,7 +12,7 @@ public class ConsulFactoryTest {
     public void testEquality() {
         final ConsulFactory actual = createFullyPopulatedConsulFactory();
         final ConsulFactory expected = createFullyPopulatedConsulFactory();
-        assertThat(actual, is(expected));
+        assertThat(actual).isEqualTo(expected);
     }
 
     @Test
@@ -22,14 +20,14 @@ public class ConsulFactoryTest {
         final ConsulFactory actual = createFullyPopulatedConsulFactory();
         final ConsulFactory expected = createFullyPopulatedConsulFactory();
         expected.setAdminPort(200);
-        assertThat(actual, is(not(expected)));
+        assertThat(actual).isNotEqualTo((expected));
     }
 
     @Test
     public void testHashCode() {
         final ConsulFactory actual = createFullyPopulatedConsulFactory();
         final ConsulFactory expected = createFullyPopulatedConsulFactory();
-        assertThat(actual.hashCode(), is(expected.hashCode()));
+        assertThat(actual.hashCode()).isEqualTo(expected.hashCode());
     }
 
     @Test
@@ -37,7 +35,7 @@ public class ConsulFactoryTest {
         final ConsulFactory actual = createFullyPopulatedConsulFactory();
         final ConsulFactory expected = createFullyPopulatedConsulFactory();
         expected.setAdminPort(200);
-        assertThat(actual.hashCode(), is(not(expected.hashCode())));
+        assertThat(actual.hashCode()).isNotEqualTo(expected.hashCode());
     }
 
     private ConsulFactory createFullyPopulatedConsulFactory() {
