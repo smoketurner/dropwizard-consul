@@ -15,15 +15,17 @@
  */
 package com.smoketurner.dropwizard.consul;
 
-import java.util.Optional;
-import java.util.concurrent.TimeUnit;
-import javax.validation.constraints.NotNull;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.net.HostAndPort;
 import com.orbitz.consul.Consul;
 import io.dropwizard.util.Duration;
 import io.dropwizard.validation.MinDuration;
+
+import javax.validation.constraints.NotNull;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 public class ConsulFactory {
     @NotNull
@@ -125,4 +127,30 @@ public class ConsulFactory {
     public Consul build() {
         return Consul.builder().withHostAndPort(endpoint).build();
     }
+
+    @Override
+    public int hashCode() {
+        return Objects
+            .hash(endpoint, serviceName, enabled, servicePort, adminPort, serviceAddress, tags, checkInterval);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+        final ConsulFactory other = (ConsulFactory) obj;
+        return Objects.equals(this.endpoint, other.endpoint)
+            && Objects.equals(this.serviceName, other.serviceName)
+            && Objects.equals(this.enabled, other.enabled)
+            && Objects.equals(this.servicePort, other.servicePort)
+            && Objects.equals(this.adminPort, other.adminPort)
+            && Objects.equals(this.serviceAddress, other.serviceAddress)
+            && Objects.equals(this.tags, other.tags)
+            && Objects.equals(this.checkInterval, other.checkInterval);
+    }
+
 }
