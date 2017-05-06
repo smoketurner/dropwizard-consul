@@ -9,7 +9,7 @@ A bundle for using [Consul](https://consul.io) in Dropwizard applications. Featu
 
 * Integrated client-side load balancer based on [Ribbon](https://github.com/netflix/ribbon)
 * Dropwizard health check that monitors reachablility of Consul
-* The Dropwizard service is registered as a Consul service with a Consul-side health check querying the Dropwizard [health check](http://www.dropwizard.io/1.0.6/docs/manual/core.html#health-checks)
+* The Dropwizard service is registered as a Consul service with a Consul-side health check querying the Dropwizard [health check](http://www.dropwizard.io/1.1.0/docs/manual/core.html#health-checks)
 * Ability to resolve [configuration](http://www.dropwizard.io/1.1.0/docs/manual/core.html#configuration) properties from Consul's KV store
 * Admin task to toggle Consul's [maintenance](https://www.consul.io/docs/agent/http/agent.html#agent_service_maintenance) mode
 
@@ -19,12 +19,12 @@ Dependency Info
 <dependency>
     <groupId>com.smoketurner.dropwizard</groupId>
     <artifactId>consul-core</artifactId>
-    <version>1.1.0-2</version>
+    <version>1.1.0-3</version>
 </dependency>
 <dependency>
     <groupId>com.smoketurner.dropwizard</groupId>
     <artifactId>consul-ribbon</artifactId>
-    <version>1.1.0-2</version>
+    <version>1.1.0-3</version>
 </dependency>
 ```
 
@@ -77,7 +77,7 @@ This bundle includes a modified version of the `HelloWorldApplication` from Drop
 <dependency>
     <groupId>com.smoketurner.dropwizard</groupId>
     <artifactId>consul-example</artifactId>
-    <version>1.1.0-2</version>
+    <version>1.1.0-3</version>
 </dependency>
 ```
 
@@ -85,7 +85,7 @@ You can execute this application by first starting Consul on your local machine 
 
 ```
 mvn clean package
-java -jar consul-example/target/consul-example-1.1.0-3-SNAPSHOT.jar server consul-example/hello-world.yml
+java -jar consul-example/target/consul-example-1.1.0-4-SNAPSHOT.jar server consul-example/hello-world.yml
 ```
 
 This will start the application on port `8080` (admin port `8180`). This application demonstrations the following Consul integration points:
