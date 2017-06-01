@@ -11,7 +11,7 @@ A bundle for using [Consul](https://consul.io) in Dropwizard applications. Featu
 * Dropwizard health check that monitors reachablility of Consul
 * The Dropwizard service is registered as a Consul service with a Consul-side health check querying the Dropwizard [health check](http://www.dropwizard.io/1.1.0/docs/manual/core.html#health-checks)
 * Ability to resolve [configuration](http://www.dropwizard.io/1.1.0/docs/manual/core.html#configuration) properties from Consul's KV store
-* Admin task to toggle Consul's [maintenance](https://www.consul.io/docs/agent/http/agent.html#agent_service_maintenance) mode
+* Admin task to toggle Consul's [maintenance](https://www.consul.io/api/agent.html#enable-maintenance-mode) mode
 
 Dependency Info
 ---------------
