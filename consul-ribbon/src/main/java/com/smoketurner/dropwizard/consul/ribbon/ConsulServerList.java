@@ -79,12 +79,16 @@ public class ConsulServerList implements ServerList<Server> {
      * @return Ribbon Server instance
      */
     private Server buildServer(final ServiceHealth service) {
+        final Server server;
         if (!Strings.isNullOrEmpty(service.getService().getAddress())) {
-            return new Server(service.getService().getAddress(),
+            server = new Server(service.getService().getAddress(),
                     service.getService().getPort());
         } else {
-            return new Server(service.getNode().getAddress(),
+            server = new Server(service.getNode().getAddress(),
                     service.getService().getPort());
         }
+        server.setZone(
+                service.getNode().getDatacenter().or(Server.UNKNOWN_ZONE));
+        return server;
     }
 }
