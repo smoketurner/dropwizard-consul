@@ -199,7 +199,7 @@
                             <compilerArgs>
                                 <arg>-XepDisableWarningsInGeneratedCode</arg>
                                 <arg>-Xep:NullAway:ERROR</arg>
-                                <arg>-XepOpt:NullAway:AnnotatedPackages=io.smoketurner.notification</arg>
+                                <arg>-XepOpt:NullAway:AnnotatedPackages=com.smoketurner.dropwizard.consul</arg>
                             </compilerArgs>
                         </configuration>
                         <dependencies>
