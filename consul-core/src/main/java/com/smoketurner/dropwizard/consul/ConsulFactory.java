@@ -65,13 +65,14 @@ public class ConsulFactory {
         this.endpoint = endpoint;
     }
 
+    @Nullable
     @JsonProperty
     public String getServiceName() {
         return serviceName;
     }
 
     @JsonProperty
-    public void setSeviceName(String serviceName) {
+    public void setSeviceName(@Nullable String serviceName) {
         this.serviceName = serviceName;
     }
 
