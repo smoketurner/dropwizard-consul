@@ -17,6 +17,7 @@ package com.smoketurner.dropwizard.consul.config;
 
 import java.util.Objects;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.apache.commons.lang3.text.StrLookup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -70,6 +71,7 @@ public class ConsulLookup extends StrLookup<Object> {
      *             if the environment variable doesn't exist and strict behavior
      *             is enabled.
      */
+    @Nullable
     @Override
     public String lookup(String key) {
         try {
