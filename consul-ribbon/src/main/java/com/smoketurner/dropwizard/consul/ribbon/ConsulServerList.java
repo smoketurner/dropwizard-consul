@@ -88,7 +88,7 @@ public class ConsulServerList implements ServerList<Server> {
                     service.getService().getPort());
         }
         server.setZone(
-                service.getNode().getDatacenter().or(Server.UNKNOWN_ZONE));
+                service.getNode().getDatacenter().orElse(Server.UNKNOWN_ZONE));
         return server;
     }
 }

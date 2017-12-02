@@ -16,7 +16,6 @@
 package com.smoketurner.dropwizard.consul.core;
 
 import java.util.Objects;
-import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 import javax.annotation.Nonnull;
 import javax.ws.rs.core.UriBuilder;
@@ -45,17 +44,6 @@ public class ConsulAdvertiser {
     private final ConsulFactory configuration;
     private final Consul consul;
     private final String serviceId;
-
-    /**
-     * @deprecated Use the other constructor and require passing in the
-     *             serviceId
-     */
-    @Deprecated
-    public ConsulAdvertiser(@Nonnull final Environment environment,
-            @Nonnull final ConsulFactory configuration,
-            @Nonnull final Consul consul) {
-        this(environment, configuration, consul, UUID.randomUUID().toString());
-    }
 
     /**
      * Constructor
