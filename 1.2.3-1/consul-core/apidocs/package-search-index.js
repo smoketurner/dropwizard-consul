@@ -1,0 +1,1 @@
+packageSearchIndex = [{"l":"com.smoketurner.dropwizard.consul"},{"l":"com.smoketurner.dropwizard.consul.config"},{"l":"com.smoketurner.dropwizard.consul.core"},{"l":"com.smoketurner.dropwizard.consul.health"},{"l":"com.smoketurner.dropwizard.consul.managed"},{"l":"com.smoketurner.dropwizard.consul.task"}]
