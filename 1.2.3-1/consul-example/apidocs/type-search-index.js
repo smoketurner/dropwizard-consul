@@ -1,0 +1,1 @@
+typeSearchIndex = [{"p":"com.example.helloworld","l":"HelloWorldApplication"},{"p":"com.example.helloworld","l":"HelloWorldConfiguration"},{"p":"com.example.helloworld.resources","l":"HelloWorldResource"},{"p":"com.example.helloworld.api","l":"Saying"}]
