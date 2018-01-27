@@ -19,12 +19,12 @@ Dependency Info
 <dependency>
     <groupId>com.smoketurner.dropwizard</groupId>
     <artifactId>consul-core</artifactId>
-    <version>1.2.2-1</version>
+    <version>1.2.3-1</version>
 </dependency>
 <dependency>
     <groupId>com.smoketurner.dropwizard</groupId>
     <artifactId>consul-ribbon</artifactId>
-    <version>1.2.2-1</version>
+    <version>1.2.3-1</version>
 </dependency>
 ```
 
@@ -73,19 +73,11 @@ Example Application
 -------------------
 This bundle includes a modified version of the `HelloWorldApplication` from Dropwizard's [Getting Started](http://www.dropwizard.io/1.2.2/docs/getting-started.html) documentation.
 
-```xml
-<dependency>
-    <groupId>com.smoketurner.dropwizard</groupId>
-    <artifactId>consul-example</artifactId>
-    <version>1.2.2-1</version>
-</dependency>
-```
-
 You can execute this application by first starting Consul on your local machine then running:
 
 ```
 mvn clean package
-java -jar consul-example/target/consul-example-1.2.2-2-SNAPSHOT.jar server consul-example/hello-world.yml
+java -jar consul-example/target/consul-example-1.2.3-2-SNAPSHOT.jar server consul-example/hello-world.yml
 ```
 
 This will start the application on port `8080` (admin port `8180`). This application demonstrations the following Consul integration points:
