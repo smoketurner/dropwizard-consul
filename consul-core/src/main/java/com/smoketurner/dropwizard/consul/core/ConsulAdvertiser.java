@@ -175,7 +175,7 @@ public class ConsulAdvertiser {
         }
     }
 
-    private String getHealthCheckUrl() {
+    protected String getHealthCheckUrl() {
         final UriBuilder builder = UriBuilder
                 .fromPath(environment.getAdminContext().getContextPath());
         builder.path("healthcheck");
