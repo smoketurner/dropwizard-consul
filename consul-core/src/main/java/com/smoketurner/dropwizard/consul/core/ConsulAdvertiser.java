@@ -39,6 +39,7 @@ public class ConsulAdvertiser {
     private final AtomicReference<Integer> servicePort = new AtomicReference<>();
     private final AtomicReference<Integer> serviceAdminPort = new AtomicReference<>();
     private final AtomicReference<String> serviceAddress = new AtomicReference<>();
+    private final AtomicReference<String> aclToken = new AtomicReference<>();
     private final AtomicReference<Iterable<String>> tags = new AtomicReference<>();
     private final Environment environment;
     private final ConsulFactory configuration;
@@ -88,6 +89,14 @@ public class ConsulAdvertiser {
             LOGGER.info("Using \"{}\" as tags from the configuration file",
                     newTags);
             tags.set(newTags);
+        });
+
+
+        configuration.getAclToken().ifPresent(token ->{
+            LOGGER.info(
+                    "Using \"{}\" as aclToken from the configuration file.",
+                    token);
+            aclToken.set(token);
         });
     }
 
