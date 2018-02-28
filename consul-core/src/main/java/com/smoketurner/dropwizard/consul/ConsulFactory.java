@@ -15,6 +15,9 @@
  */
 package com.smoketurner.dropwizard.consul;
 
+import com.google.common.collect.ImmutableMap;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
@@ -40,6 +43,7 @@ public class ConsulFactory {
     private Optional<Integer> adminPort = Optional.empty();
     private Optional<String> serviceAddress = Optional.empty();
     private Optional<Iterable<String>> tags = Optional.empty();
+    private Optional<String> aclToken = Optional.empty();
 
     @NotNull
     @MinDuration(value = 1, unit = TimeUnit.SECONDS)
@@ -126,15 +130,38 @@ public class ConsulFactory {
         this.checkInterval = checkInterval;
     }
 
+    @JsonProperty
+    public Optional<String> getAclToken() { return aclToken; }
+
+    @JsonProperty
+    public void setAclToken(@Nullable String aclToken){
+        this.aclToken = Optional.ofNullable(aclToken);
+    }
+
     @JsonIgnore
     public Consul build() {
-        return Consul.builder().withHostAndPort(endpoint).build();
+
+        Consul.Builder builder = Consul.builder()
+            .withHostAndPort(endpoint);
+
+        if(aclToken.isPresent()){
+            final String CONSUL_AUTH_HEADER_KEY = "X-Consul-Token";
+            // setting both acl token here and with header, supplying an auth header. This should
+            // cover both use cases - endpoint supports legacy ?token query param and other case
+            // in which endpoint requires an X-Consul-Token header.
+            // see: https://www.consul.io/api/index.html#acls
+            Map<String, String> headers = ImmutableMap.of(CONSUL_AUTH_HEADER_KEY, aclToken.get());
+            builder.withAclToken(aclToken.get())
+                .withHeaders(headers);
+        }
+
+        return builder.build();
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(endpoint, serviceName, enabled, servicePort,
-                adminPort, serviceAddress, tags, checkInterval);
+                adminPort, serviceAddress, tags, checkInterval, aclToken);
     }
 
     @Override
@@ -153,7 +180,8 @@ public class ConsulFactory {
                 && Objects.equals(this.adminPort, other.adminPort)
                 && Objects.equals(this.serviceAddress, other.serviceAddress)
                 && Objects.equals(this.tags, other.tags)
-                && Objects.equals(this.checkInterval, other.checkInterval);
+                && Objects.equals(this.checkInterval, other.checkInterval)
+                && Objects.equals(this.aclToken, other.aclToken);
     }
 
 }

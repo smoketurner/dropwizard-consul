@@ -15,7 +15,10 @@
  */
 package com.smoketurner.dropwizard.consul;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 import javax.annotation.Nonnull;
 import org.slf4j.Logger;
@@ -56,6 +59,8 @@ public abstract class ConsulBundle<C extends Configuration>
     private final String defaultServiceName;
     private final boolean strict;
     private final boolean substitutionInVariables;
+
+    static final String CONSUL_AUTH_HEADER_KEY = "X-Consul-Token";
 
     /**
      * Constructor
@@ -102,18 +107,38 @@ public abstract class ConsulBundle<C extends Configuration>
         // getConsulAgentHost() and getConsulAgentPort() if Consul is not
         // listening on the default localhost:8500.
         try {
-            final Consul consul = Consul.builder().withHostAndPort(HostAndPort
-                    .fromParts(getConsulAgentHost(), getConsulAgentPort()))
-                    .build();
+            LOGGER.debug("Building Consul Client");
+            Consul.Builder builder = Consul.builder()
+                .withHostAndPort(HostAndPort
+                .fromParts(getConsulAgentHost(), getConsulAgentPort()));
+
+            if(getConsulAclToken().isPresent()) {
+                // setting both acl token here and with header, supplying an auth header. This should
+                // cover both use cases - endpoint supports legacy ?token query param and other case
+                // in which endpoint requires an X-Consul-Token header.
+                // see: https://www.consul.io/api/index.html#acls
+
+                LOGGER.debug("Building Consul Client with ACL Support");
+                LOGGER.debug("Consul Agent Host: {}", getConsulAgentHost());
+                LOGGER.debug("Consul Agent Port: {}", getConsulAgentPort());
+                LOGGER.debug("Consul Agent ACL: {}", getConsulAclToken());
+
+                Map<String, String> headers = new HashMap<>();
+                headers.put(CONSUL_AUTH_HEADER_KEY, getConsulAclToken().get());
+
+                builder.withAclToken(getConsulAclToken().get())
+                    .withHeaders(headers);
+            }
+
             bootstrap.setConfigurationSourceProvider(
                     new SubstitutingSourceProvider(
                             bootstrap.getConfigurationSourceProvider(),
-                            new ConsulSubstitutor(consul, strict,
+                            new ConsulSubstitutor(builder.build(), strict,
                                     substitutionInVariables)));
         } catch (ConsulException e) {
             LOGGER.warn(
                     "Unable to query Consul running on {}:{},"
-                            + " disabling configuration subsitution",
+                            + " disabling configuration substitution",
                     getConsulAgentHost(), getConsulAgentPort(), e);
         }
     }
@@ -137,6 +162,7 @@ public abstract class ConsulBundle<C extends Configuration>
     }
 
     protected void setupEnvironment(ConsulFactory consulConfig, Environment environment) {
+
         final Consul consul = consulConfig.build();
         final String serviceId = getConsulServiceId();
         final ConsulAdvertiser advertiser = new ConsulAdvertiser(environment,
@@ -185,5 +211,15 @@ public abstract class ConsulBundle<C extends Configuration>
     @VisibleForTesting
     public String getConsulServiceId() {
         return UUID.randomUUID().toString();
+    }
+
+    /**
+     * Override as necessary to provide an alternative Acl Token - if needed.
+     *
+     * @return By default - empty string (Consul created with out acl support)
+     */
+    @VisibleForTesting
+    public Optional<String> getConsulAclToken() {
+        return Optional.empty();
     }
 }

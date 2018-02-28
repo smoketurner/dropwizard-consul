@@ -87,4 +87,12 @@ public class ConsulBundleTest {
         assertThat(factory.getServiceName()).isEqualTo("test-service-name");
     }
 
+    @Test
+    public void testAclToken() throws Exception {
+        String token = "acl-token";
+        factory.setAclToken(token);
+        bundle.run(config, environment);
+        assertThat(factory.getAclToken().get()).isEqualTo(token);
+    }
+
 }

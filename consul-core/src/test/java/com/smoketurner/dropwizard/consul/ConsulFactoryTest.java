@@ -47,6 +47,7 @@ public class ConsulFactoryTest {
         consulFactory.setServiceAddress("localhost");
         consulFactory.setTags(ImmutableList.of("tag1", "tag2"));
         consulFactory.setCheckInterval(Duration.seconds(1));
+        consulFactory.setAclToken("acl-token");
         return consulFactory;
     }
 

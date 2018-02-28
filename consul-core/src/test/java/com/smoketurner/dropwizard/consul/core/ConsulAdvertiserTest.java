@@ -131,6 +131,27 @@ public class ConsulAdvertiserTest {
     }
 
     @Test
+    public void testAclTokenFromConfig(){
+        String aclToken = "acl-token";
+        factory.setAclToken(aclToken);
+
+        when(agent.isRegistered(serviceId)).thenReturn(false);
+        final ConsulAdvertiser advertiser = new ConsulAdvertiser(environment,
+            factory, consul, serviceId);
+        advertiser.register(8080, 8081);
+
+        final ImmutableRegistration registration = ImmutableRegistration
+            .builder().id(serviceId)
+            .check(ImmutableRegCheck.builder()
+                .http("http://127.0.0.1:8081/admin/healthcheck")
+                .interval("1s").deregisterCriticalServiceAfter("1m")
+                .build())
+            .name("test").port(8080).id(serviceId).build();
+
+        verify(agent).register(registration);
+    }
+
+    @Test
     public void testDeregister() {
         final String serviceId = advertiser.getServiceId();
         when(agent.isRegistered(serviceId)).thenReturn(true);
