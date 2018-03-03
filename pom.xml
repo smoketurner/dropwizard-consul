@@ -4,7 +4,7 @@
 
     <groupId>com.smoketurner.dropwizard</groupId>
     <artifactId>dropwizard-consul</artifactId>
-    <version>1.2.4-2</version>
+    <version>1.2.4-3-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>dropwizard-consul</name>
@@ -46,7 +46,7 @@
         <connection>scm:git:git://github.com/smoketurner/dropwizard-consul.git</connection>
         <developerConnection>scm:git:git@github.com:smoketurner/dropwizard-consul.git</developerConnection>
         <url>https://github.com/smoketurner/dropwizard-consul</url>
-        <tag>v1.2.4-2</tag>
+        <tag>HEAD</tag>
     </scm>
 
     <distributionManagement>
