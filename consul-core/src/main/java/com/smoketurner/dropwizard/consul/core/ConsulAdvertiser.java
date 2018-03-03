@@ -91,10 +91,9 @@ public class ConsulAdvertiser {
             tags.set(newTags);
         });
 
-
-        configuration.getAclToken().ifPresent(token ->{
+        configuration.getAclToken().ifPresent(token -> {
             LOGGER.info(
-                    "Using \"{}\" as aclToken from the configuration file.",
+                    "Using \"{}\" as ACL token from the configuration file.",
                     token);
             aclToken.set(token);
         });

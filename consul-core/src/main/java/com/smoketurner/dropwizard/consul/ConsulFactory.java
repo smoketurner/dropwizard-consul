@@ -15,9 +15,6 @@
  */
 package com.smoketurner.dropwizard.consul;
 
-import com.google.common.collect.ImmutableMap;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
@@ -25,12 +22,15 @@ import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.net.HostAndPort;
 import com.orbitz.consul.Consul;
 import io.dropwizard.util.Duration;
 import io.dropwizard.validation.MinDuration;
 
 public class ConsulFactory {
+    private static final String CONSUL_AUTH_HEADER_KEY = "X-Consul-Token";
+
     @NotNull
     private HostAndPort endpoint = HostAndPort
             .fromParts(Consul.DEFAULT_HTTP_HOST, Consul.DEFAULT_HTTP_PORT);
@@ -131,29 +131,30 @@ public class ConsulFactory {
     }
 
     @JsonProperty
-    public Optional<String> getAclToken() { return aclToken; }
+    public Optional<String> getAclToken() {
+        return aclToken;
+    }
 
     @JsonProperty
-    public void setAclToken(@Nullable String aclToken){
+    public void setAclToken(@Nullable String aclToken) {
         this.aclToken = Optional.ofNullable(aclToken);
     }
 
     @JsonIgnore
     public Consul build() {
 
-        Consul.Builder builder = Consul.builder()
-            .withHostAndPort(endpoint);
+        final Consul.Builder builder = Consul.builder()
+                .withHostAndPort(endpoint);
 
-        if(aclToken.isPresent()){
-            final String CONSUL_AUTH_HEADER_KEY = "X-Consul-Token";
-            // setting both acl token here and with header, supplying an auth header. This should
-            // cover both use cases - endpoint supports legacy ?token query param and other case
-            // in which endpoint requires an X-Consul-Token header.
-            // see: https://www.consul.io/api/index.html#acls
-            Map<String, String> headers = ImmutableMap.of(CONSUL_AUTH_HEADER_KEY, aclToken.get());
-            builder.withAclToken(aclToken.get())
-                .withHeaders(headers);
-        }
+        aclToken.ifPresent(token -> {
+            // setting both acl token here and with header, supplying an auth
+            // header. This should cover both use cases: endpoint supports
+            // legacy ?token query param and other case in which endpoint
+            // requires an X-Consul-Token header.
+            // @see https://www.consul.io/api/index.html#acls
+            builder.withAclToken(token).withHeaders(
+                    ImmutableMap.of(CONSUL_AUTH_HEADER_KEY, token));
+        });
 
         return builder.build();
     }
@@ -183,5 +184,4 @@ public class ConsulFactory {
                 && Objects.equals(this.checkInterval, other.checkInterval)
                 && Objects.equals(this.aclToken, other.aclToken);
     }
-
 }
