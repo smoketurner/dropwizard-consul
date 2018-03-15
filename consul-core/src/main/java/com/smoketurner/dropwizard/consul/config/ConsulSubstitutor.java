@@ -16,7 +16,7 @@
 package com.smoketurner.dropwizard.consul.config;
 
 import javax.annotation.Nonnull;
-import org.apache.commons.lang3.text.StrSubstitutor;
+import org.apache.commons.text.StrSubstitutor;
 import com.orbitz.consul.Consul;
 import io.dropwizard.configuration.UndefinedEnvironmentVariableException;
 

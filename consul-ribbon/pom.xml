@@ -12,7 +12,7 @@
     <name>Dropwizard Consul Load Balancer</name>
 
     <properties>
-        <ribbon.version>2.2.4</ribbon.version>
+        <ribbon.version>2.2.5</ribbon.version>
     </properties>
 
     <dependencies>
