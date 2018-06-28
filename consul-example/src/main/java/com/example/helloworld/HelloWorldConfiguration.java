@@ -1,11 +1,11 @@
-/**
- * Copyright 2018 Smoke Turner, LLC.
+/*
+ * Copyright © 2018 Smoke Turner, LLC (contact@smoketurner.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,57 +15,52 @@
  */
 package com.example.helloworld;
 
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
-import org.hibernate.validator.constraints.NotEmpty;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.smoketurner.dropwizard.consul.ConsulFactory;
 import com.smoketurner.dropwizard.consul.ribbon.RibbonJerseyClientConfiguration;
 import io.dropwizard.Configuration;
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+import org.hibernate.validator.constraints.NotEmpty;
 
 public class HelloWorldConfiguration extends Configuration {
 
-    @NotEmpty
-    private String template = "Hello, %s!";
+  @NotEmpty private String template = "Hello, %s!";
 
-    @NotEmpty
-    private String defaultName = "Stranger";
+  @NotEmpty private String defaultName = "Stranger";
 
-    @NotNull
-    @Valid
-    public final ConsulFactory consul = new ConsulFactory();
+  @NotNull @Valid public final ConsulFactory consul = new ConsulFactory();
 
-    @NotNull
-    @Valid
-    public final RibbonJerseyClientConfiguration client = new RibbonJerseyClientConfiguration();
+  @NotNull @Valid
+  public final RibbonJerseyClientConfiguration client = new RibbonJerseyClientConfiguration();
 
-    @JsonProperty
-    public String getTemplate() {
-        return template;
-    }
+  @JsonProperty
+  public String getTemplate() {
+    return template;
+  }
 
-    @JsonProperty
-    public void setTemplate(String template) {
-        this.template = template;
-    }
+  @JsonProperty
+  public void setTemplate(String template) {
+    this.template = template;
+  }
 
-    @JsonProperty
-    public String getDefaultName() {
-        return defaultName;
-    }
+  @JsonProperty
+  public String getDefaultName() {
+    return defaultName;
+  }
 
-    @JsonProperty
-    public void setDefaultName(String name) {
-        this.defaultName = name;
-    }
+  @JsonProperty
+  public void setDefaultName(String name) {
+    this.defaultName = name;
+  }
 
-    @JsonProperty
-    public ConsulFactory getConsulFactory() {
-        return consul;
-    }
+  @JsonProperty
+  public ConsulFactory getConsulFactory() {
+    return consul;
+  }
 
-    @JsonProperty
-    public RibbonJerseyClientConfiguration getClient() {
-        return client;
-    }
+  @JsonProperty
+  public RibbonJerseyClientConfiguration getClient() {
+    return client;
+  }
 }
