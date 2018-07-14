@@ -1,7 +1,6 @@
 Dropwizard Consul Bundle
 ========================
 [![Build Status](https://travis-ci.org/smoketurner/dropwizard-consul.svg?branch=master)](https://travis-ci.org/smoketurner/dropwizard-consul)
-[![Coverage Status](https://coveralls.io/repos/smoketurner/dropwizard-consul/badge.svg)](https://coveralls.io/r/smoketurner/dropwizard-consul)
 [![Maven Central](https://img.shields.io/maven-central/v/com.smoketurner.dropwizard/dropwizard-consul.svg?style=flat-square)](https://maven-badges.herokuapp.com/maven-central/com.smoketurner.dropwizard/dropwizard-consul/)
 [![GitHub license](https://img.shields.io/github/license/smoketurner/dropwizard-consul.svg?style=flat-square)](https://github.com/smoketurner/dropwizard-consul/tree/master)
 [![Become a Patron](https://img.shields.io/badge/Patron-Patreon-red.svg)](https://www.patreon.com/bePatron?u=9567343)
@@ -20,18 +19,18 @@ Dependency Info
 <dependency>
     <groupId>com.smoketurner.dropwizard</groupId>
     <artifactId>consul-core</artifactId>
-    <version>1.3.4-1</version>
+    <version>1.3.5-1</version>
 </dependency>
 <dependency>
     <groupId>com.smoketurner.dropwizard</groupId>
     <artifactId>consul-ribbon</artifactId>
-    <version>1.3.4-1</version>
+    <version>1.3.5-1</version>
 </dependency>
 ```
 
 Usage
 -----
-Add a `ConsulBundle` to your [Application](http://www.dropwizard.io/1.3.4/dropwizard-core/apidocs/io/dropwizard/Application.html) class.
+Add a `ConsulBundle` to your [Application](http://www.dropwizard.io/1.3.5/dropwizard-core/apidocs/io/dropwizard/Application.html) class.
 
 ```java
 @Override
@@ -78,7 +77,7 @@ You can execute this application by first starting Consul on your local machine 
 
 ```
 mvn clean package
-java -jar consul-example/target/consul-example-1.3.4-2-SNAPSHOT.jar server consul-example/hello-world.yml
+java -jar consul-example/target/consul-example-1.3.5-2-SNAPSHOT.jar server consul-example/hello-world.yml
 ```
 
 This will start the application on port `8080` (admin port `8180`). This application demonstrations the following Consul integration points:
