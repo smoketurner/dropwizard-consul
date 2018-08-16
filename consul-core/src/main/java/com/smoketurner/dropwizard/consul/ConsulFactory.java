@@ -22,6 +22,8 @@ import com.google.common.net.HostAndPort;
 import com.orbitz.consul.Consul;
 import io.dropwizard.util.Duration;
 import io.dropwizard.validation.MinDuration;
+
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
@@ -43,6 +45,7 @@ public class ConsulFactory {
   private Optional<String> serviceAddress = Optional.empty();
   private Optional<Iterable<String>> tags = Optional.empty();
   private Optional<String> aclToken = Optional.empty();
+  private Optional<Map<String, String>> serviceMeta = Optional.empty();
 
   @NotNull
   @MinDuration(value = 1, unit = TimeUnit.SECONDS)
@@ -139,6 +142,16 @@ public class ConsulFactory {
     this.aclToken = Optional.ofNullable(aclToken);
   }
 
+  @JsonProperty
+  public Optional<Map<String, String>> getServiceMeta() {
+    return serviceMeta;
+  }
+
+  @JsonProperty
+  public void setServiceMeta(Map<String, String> serviceMeta) {
+    this.serviceMeta = Optional.ofNullable(serviceMeta);
+  }
+
   @JsonIgnore
   public Consul build() {
 
@@ -168,7 +181,8 @@ public class ConsulFactory {
         serviceAddress,
         tags,
         checkInterval,
-        aclToken);
+        aclToken,
+        serviceMeta);
   }
 
   @Override
@@ -188,6 +202,7 @@ public class ConsulFactory {
         && Objects.equals(this.serviceAddress, other.serviceAddress)
         && Objects.equals(this.tags, other.tags)
         && Objects.equals(this.checkInterval, other.checkInterval)
-        && Objects.equals(this.aclToken, other.aclToken);
+        && Objects.equals(this.aclToken, other.aclToken)
+        && Objects.equals(this.serviceMeta, other.serviceMeta);
   }
 }

@@ -24,6 +24,7 @@ import com.orbitz.consul.model.agent.Registration;
 import com.smoketurner.dropwizard.consul.ConsulFactory;
 import io.dropwizard.setup.Environment;
 import io.dropwizard.util.Duration;
+import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
 import javax.annotation.Nonnull;
@@ -40,6 +41,7 @@ public class ConsulAdvertiser {
   private final AtomicReference<String> serviceAddress = new AtomicReference<>();
   private final AtomicReference<String> aclToken = new AtomicReference<>();
   private final AtomicReference<Iterable<String>> tags = new AtomicReference<>();
+  private final AtomicReference<Map<String, String>> serviceMeta = new AtomicReference<>();
   private final Environment environment;
   private final ConsulFactory configuration;
   private final Consul consul;
@@ -102,6 +104,14 @@ public class ConsulAdvertiser {
               LOGGER.info("Using \"{}\" as ACL token from the configuration file.", token);
               aclToken.set(token);
             });
+
+    configuration
+        .getServiceMeta()
+        .ifPresent(
+            newServiceMeta -> {
+                LOGGER.info("Using \"{}\" as serviceMeta from the configuration file", newServiceMeta);
+                serviceMeta.set(newServiceMeta);
+            });
   }
 
   /**
@@ -162,6 +172,11 @@ public class ConsulAdvertiser {
     // If we have tags, add them to the registration.
     if (tags.get() != null) {
       builder.tags(tags.get());
+    }
+
+    // If we have service meta, add them to the registration.
+    if (serviceMeta.get() != null) {
+      builder.meta(serviceMeta.get());
     }
 
     try {

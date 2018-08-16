@@ -36,7 +36,9 @@ import com.smoketurner.dropwizard.consul.ConsulFactory;
 import io.dropwizard.jetty.MutableServletContextHandler;
 import io.dropwizard.setup.Environment;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -173,6 +175,35 @@ public class ConsulAdvertiserTest {
             .build();
 
     verify(agent).register(registration);
+  }
+
+  @Test
+  public void testServiceMetaFromConfig() {
+    final Map<String, String> serviceMeta = new HashMap<>();
+    serviceMeta.put("meta1-key", "meta1-value");
+    serviceMeta.put("meta2-key", "meta2-value");
+    factory.setServiceMeta(serviceMeta);
+
+    when(agent.isRegistered(serviceId)).thenReturn(false);
+    final ConsulAdvertiser advertiser =
+        new ConsulAdvertiser(environment, factory, consul, serviceId);
+    advertiser.register(8080, 8081);
+
+    final ImmutableRegistration registration =
+        ImmutableRegistration.builder()
+            .meta(serviceMeta)
+            .check(
+                ImmutableRegCheck.builder()
+                    .http("http://127.0.0.1:8081/admin/healthcheck")
+                    .interval("1s")
+                    .deregisterCriticalServiceAfter("1m")
+                    .build())
+            .name("test")
+            .port(8080)
+            .id(serviceId)
+            .build();
+
+      verify(agent).register(registration);
   }
 
   @Test
