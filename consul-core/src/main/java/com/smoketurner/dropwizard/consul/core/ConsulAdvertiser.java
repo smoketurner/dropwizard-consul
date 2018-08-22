@@ -159,11 +159,12 @@ public class ConsulAdvertiser {
             .build();
 
     final ImmutableRegistration.Builder builder =
-        ImmutableRegistration.builder()
-            .port(servicePort.get())
-            .check(check)
-            .name(configuration.getServiceName())
-            .id(serviceId);
+        ImmutableRegistration.builder().port(servicePort.get()).check(check).id(serviceId);
+
+    final String serviceName = configuration.getServiceName();
+    if (serviceName != null) {
+      builder.name(serviceName);
+    }
 
     // If we have set the serviceAddress, add it to the registration.
     if (serviceAddress.get() != null) {
