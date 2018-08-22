@@ -18,7 +18,7 @@ package com.smoketurner.dropwizard.consul.managed;
 import com.smoketurner.dropwizard.consul.core.ConsulAdvertiser;
 import io.dropwizard.lifecycle.Managed;
 import java.util.Objects;
-import javax.annotation.Nonnull;
+import org.jetbrains.annotations.NotNull;
 
 public class ConsulAdvertiserManager implements Managed {
 
@@ -29,7 +29,7 @@ public class ConsulAdvertiserManager implements Managed {
    *
    * @param advertiser Consul advertiser
    */
-  public ConsulAdvertiserManager(@Nonnull final ConsulAdvertiser advertiser) {
+  public ConsulAdvertiserManager(@NotNull final ConsulAdvertiser advertiser) {
     this.advertiser = Objects.requireNonNull(advertiser);
   }
 

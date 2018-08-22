@@ -17,8 +17,8 @@ package com.smoketurner.dropwizard.consul.core;
 
 import io.dropwizard.lifecycle.ServerLifecycleListener;
 import java.util.Objects;
-import javax.annotation.Nonnull;
 import org.eclipse.jetty.server.Server;
+import org.jetbrains.annotations.NotNull;
 
 public class ConsulServiceListener implements ServerLifecycleListener {
 
@@ -29,7 +29,7 @@ public class ConsulServiceListener implements ServerLifecycleListener {
    *
    * @param advertiser Consul advertiser
    */
-  public ConsulServiceListener(@Nonnull final ConsulAdvertiser advertiser) {
+  public ConsulServiceListener(@NotNull final ConsulAdvertiser advertiser) {
     this.advertiser = Objects.requireNonNull(advertiser);
   }
 

@@ -35,7 +35,7 @@ import io.dropwizard.setup.Environment;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
-import javax.annotation.Nonnull;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,7 +62,7 @@ public abstract class ConsulBundle<C extends Configuration>
    *
    * @param name Service Name
    */
-  public ConsulBundle(@Nonnull final String name) {
+  public ConsulBundle(@NotNull final String name) {
     this(name, false);
   }
 
@@ -70,7 +70,7 @@ public abstract class ConsulBundle<C extends Configuration>
    * @param name Service Name
    * @param strict If true, the application fails fast if a key cannot be found in Consul KV
    */
-  public ConsulBundle(@Nonnull final String name, final boolean strict) {
+  public ConsulBundle(@NotNull final String name, final boolean strict) {
     this(name, strict, false);
   }
 
@@ -80,7 +80,7 @@ public abstract class ConsulBundle<C extends Configuration>
    * @param substitutionInVariables If true, substitution will be done within variable names.
    */
   public ConsulBundle(
-      @Nonnull final String name, final boolean strict, final boolean substitutionInVariables) {
+      @NotNull final String name, final boolean strict, final boolean substitutionInVariables) {
     this.defaultServiceName = Objects.requireNonNull(name);
     this.strict = strict;
     this.substitutionInVariables = substitutionInVariables;

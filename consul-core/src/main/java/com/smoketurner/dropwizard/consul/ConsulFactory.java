@@ -22,13 +22,12 @@ import com.google.common.net.HostAndPort;
 import com.orbitz.consul.Consul;
 import io.dropwizard.util.Duration;
 import io.dropwizard.validation.MinDuration;
-
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
-import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class ConsulFactory {
   private static final String CONSUL_AUTH_HEADER_KEY = "X-Consul-Token";

@@ -27,8 +27,8 @@ import io.dropwizard.client.JerseyClientBuilder;
 import io.dropwizard.lifecycle.Managed;
 import io.dropwizard.setup.Environment;
 import java.util.Objects;
-import javax.annotation.Nonnull;
 import javax.ws.rs.client.Client;
+import org.jetbrains.annotations.NotNull;
 
 public class RibbonJerseyClientBuilder {
 
@@ -44,9 +44,9 @@ public class RibbonJerseyClientBuilder {
    * @param configuration Load balancer Configuration
    */
   public RibbonJerseyClientBuilder(
-      @Nonnull final Environment environment,
-      @Nonnull final Consul consul,
-      @Nonnull final RibbonJerseyClientConfiguration configuration) {
+      @NotNull final Environment environment,
+      @NotNull final Consul consul,
+      @NotNull final RibbonJerseyClientConfiguration configuration) {
     this.environment = Objects.requireNonNull(environment);
     this.consul = Objects.requireNonNull(consul);
     this.configuration = Objects.requireNonNull(configuration);
@@ -58,7 +58,7 @@ public class RibbonJerseyClientBuilder {
    * @param name Service name
    * @return new RibbonJerseyClient
    */
-  public RibbonJerseyClient build(@Nonnull final String name) {
+  public RibbonJerseyClient build(@NotNull final String name) {
     return build(name, new HealthyConsulServiceDiscoverer(name));
   }
 
@@ -70,7 +70,7 @@ public class RibbonJerseyClientBuilder {
    * @return new RibbonJerseyClient
    */
   public RibbonJerseyClient build(
-      @Nonnull final String name, @Nonnull final ConsulServiceDiscoverer serviceDiscoverer) {
+      @NotNull final String name, @NotNull final ConsulServiceDiscoverer serviceDiscoverer) {
 
     // create a new Jersey client
     final Client jerseyClient =
@@ -86,7 +86,7 @@ public class RibbonJerseyClientBuilder {
    * @param jerseyClient Jersey Client
    * @return new {@link RibbonJerseyClient}
    */
-  public RibbonJerseyClient build(@Nonnull final String name, @Nonnull final Client jerseyClient) {
+  public RibbonJerseyClient build(@NotNull final String name, @NotNull final Client jerseyClient) {
     return build(name, jerseyClient, new HealthyConsulServiceDiscoverer(name));
   }
 
@@ -99,9 +99,9 @@ public class RibbonJerseyClientBuilder {
    * @return new RibbonJerseyClient
    */
   public RibbonJerseyClient build(
-      @Nonnull final String name,
-      @Nonnull final Client jerseyClient,
-      @Nonnull final ConsulServiceDiscoverer serviceDiscoverer) {
+      @NotNull final String name,
+      @NotNull final Client jerseyClient,
+      @NotNull final ConsulServiceDiscoverer serviceDiscoverer) {
 
     // dynamic server list that is refreshed from Consul
     final ConsulServerList serverList = new ConsulServerList(consul, serviceDiscoverer);

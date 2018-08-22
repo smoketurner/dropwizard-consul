@@ -27,8 +27,8 @@ import io.dropwizard.util.Duration;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
-import javax.annotation.Nonnull;
 import javax.ws.rs.core.UriBuilder;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,10 +56,10 @@ public class ConsulAdvertiser {
    * @param serviceId Consul service ID
    */
   public ConsulAdvertiser(
-      @Nonnull final Environment environment,
-      @Nonnull final ConsulFactory configuration,
-      @Nonnull final Consul consul,
-      @Nonnull final String serviceId) {
+      @NotNull final Environment environment,
+      @NotNull final ConsulFactory configuration,
+      @NotNull final Consul consul,
+      @NotNull final String serviceId) {
     this.environment = Objects.requireNonNull(environment);
     this.configuration = Objects.requireNonNull(configuration);
     this.consul = Objects.requireNonNull(consul);
@@ -109,8 +109,9 @@ public class ConsulAdvertiser {
         .getServiceMeta()
         .ifPresent(
             newServiceMeta -> {
-                LOGGER.info("Using \"{}\" as serviceMeta from the configuration file", newServiceMeta);
-                serviceMeta.set(newServiceMeta);
+              LOGGER.info(
+                  "Using \"{}\" as serviceMeta from the configuration file", newServiceMeta);
+              serviceMeta.set(newServiceMeta);
             });
   }
 

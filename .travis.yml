@@ -2,10 +2,11 @@ sudo: false
 dist: trusty
 language: java
 jdk:
-  - openjdk8
-  - oraclejdk8
+  - openjdk10
+  - oraclejdk10
 services: docker
 before_install:
+  - rm ~/.m2/settings.xml || true 
   - ulimit -c unlimited -S
   - mvn -N io.takari:maven:wrapper
   - docker run -d -p 127.0.0.1:8500:8500 consul:latest

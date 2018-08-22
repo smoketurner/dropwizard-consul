@@ -22,7 +22,6 @@ import java.net.URI;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import javax.annotation.Nonnull;
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLContext;
 import javax.ws.rs.client.Client;
@@ -31,6 +30,7 @@ import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Configuration;
 import javax.ws.rs.core.Link;
 import javax.ws.rs.core.UriBuilder;
+import org.jetbrains.annotations.NotNull;
 
 public class RibbonJerseyClient implements Client, Closeable {
   private final String scheme;
@@ -45,9 +45,9 @@ public class RibbonJerseyClient implements Client, Closeable {
    * @param delegate Jersey Client delegate
    */
   public RibbonJerseyClient(
-      @Nonnull final String scheme,
-      @Nonnull final ZoneAwareLoadBalancer<Server> loadBalancer,
-      @Nonnull final Client delegate) {
+      @NotNull final String scheme,
+      @NotNull final ZoneAwareLoadBalancer<Server> loadBalancer,
+      @NotNull final Client delegate) {
     this.scheme = Objects.requireNonNull(scheme);
     this.loadBalancer = Objects.requireNonNull(loadBalancer);
     this.delegate = Objects.requireNonNull(delegate);

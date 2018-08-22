@@ -203,7 +203,7 @@ public class ConsulAdvertiserTest {
             .id(serviceId)
             .build();
 
-      verify(agent).register(registration);
+    verify(agent).register(registration);
   }
 
   @Test

@@ -19,7 +19,7 @@ import com.orbitz.consul.Consul;
 import com.orbitz.consul.model.health.ServiceHealth;
 import java.util.Collection;
 import java.util.Objects;
-import javax.annotation.Nonnull;
+import org.jetbrains.annotations.NotNull;
 
 public class HealthyConsulServiceDiscoverer implements ConsulServiceDiscoverer {
 
@@ -30,12 +30,12 @@ public class HealthyConsulServiceDiscoverer implements ConsulServiceDiscoverer {
    *
    * @param service Service name
    */
-  public HealthyConsulServiceDiscoverer(@Nonnull final String service) {
+  public HealthyConsulServiceDiscoverer(@NotNull final String service) {
     this.service = Objects.requireNonNull(service);
   }
 
   @Override
-  public Collection<ServiceHealth> discover(@Nonnull final Consul consul) {
+  public Collection<ServiceHealth> discover(@NotNull final Consul consul) {
     return consul.healthClient().getHealthyServiceInstances(service).getResponse();
   }
 }
