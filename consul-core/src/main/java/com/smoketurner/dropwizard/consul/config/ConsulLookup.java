@@ -16,12 +16,11 @@
 package com.smoketurner.dropwizard.consul.config;
 
 import com.orbitz.consul.Consul;
+import edu.umd.cs.findbugs.annotations.Nullable;
 import io.dropwizard.configuration.UndefinedEnvironmentVariableException;
 import java.util.Objects;
 import java.util.Optional;
 import org.apache.commons.text.StrLookup;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,7 +39,7 @@ public class ConsulLookup extends StrLookup<Object> {
    *
    * @param consul Consul client
    */
-  public ConsulLookup(@NotNull final Consul consul) {
+  public ConsulLookup(final Consul consul) {
     this(consul, true);
   }
 
@@ -53,7 +52,7 @@ public class ConsulLookup extends StrLookup<Object> {
    * @throws UndefinedEnvironmentVariableException if the environment variable doesn't exist and
    *     strict behavior is enabled.
    */
-  public ConsulLookup(@NotNull final Consul consul, final boolean strict) {
+  public ConsulLookup(final Consul consul, final boolean strict) {
     this.consul = Objects.requireNonNull(consul);
     this.strict = strict;
   }

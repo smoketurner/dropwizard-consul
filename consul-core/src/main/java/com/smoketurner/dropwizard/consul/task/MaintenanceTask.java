@@ -21,7 +21,6 @@ import com.orbitz.consul.Consul;
 import io.dropwizard.servlets.tasks.Task;
 import java.io.PrintWriter;
 import java.util.Objects;
-import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,7 +36,7 @@ public class MaintenanceTask extends Task {
    * @param consul Consul client
    * @param serviceId Service ID to toggle maintenance mode
    */
-  public MaintenanceTask(@NotNull final Consul consul, @NotNull final String serviceId) {
+  public MaintenanceTask(final Consul consul, final String serviceId) {
     super("maintenance");
     this.consul = Objects.requireNonNull(consul);
     this.serviceId = Objects.requireNonNull(serviceId);

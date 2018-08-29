@@ -30,7 +30,6 @@ import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Configuration;
 import javax.ws.rs.core.Link;
 import javax.ws.rs.core.UriBuilder;
-import org.jetbrains.annotations.NotNull;
 
 public class RibbonJerseyClient implements Client, Closeable {
   private final String scheme;
@@ -45,9 +44,9 @@ public class RibbonJerseyClient implements Client, Closeable {
    * @param delegate Jersey Client delegate
    */
   public RibbonJerseyClient(
-      @NotNull final String scheme,
-      @NotNull final ZoneAwareLoadBalancer<Server> loadBalancer,
-      @NotNull final Client delegate) {
+      final String scheme,
+      final ZoneAwareLoadBalancer<Server> loadBalancer,
+      final Client delegate) {
     this.scheme = Objects.requireNonNull(scheme);
     this.loadBalancer = Objects.requireNonNull(loadBalancer);
     this.delegate = Objects.requireNonNull(delegate);

@@ -19,7 +19,6 @@ import com.codahale.metrics.health.HealthCheck;
 import com.orbitz.consul.Consul;
 import com.orbitz.consul.ConsulException;
 import java.util.Objects;
-import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,7 +32,7 @@ public class ConsulHealthCheck extends HealthCheck {
    *
    * @param consul Consul client
    */
-  public ConsulHealthCheck(@NotNull final Consul consul) {
+  public ConsulHealthCheck(final Consul consul) {
     this.consul = Objects.requireNonNull(consul);
   }
 

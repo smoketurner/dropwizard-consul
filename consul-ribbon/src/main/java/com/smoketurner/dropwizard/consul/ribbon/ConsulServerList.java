@@ -24,7 +24,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
-import org.jetbrains.annotations.NotNull;
 
 public class ConsulServerList implements ServerList<Server> {
 
@@ -37,8 +36,7 @@ public class ConsulServerList implements ServerList<Server> {
    * @param consul Consul client
    * @param serviceDiscoverer Discoverer
    */
-  public ConsulServerList(
-      @NotNull final Consul consul, @NotNull final ConsulServiceDiscoverer serviceDiscoverer) {
+  public ConsulServerList(final Consul consul, final ConsulServiceDiscoverer serviceDiscoverer) {
     this.consul = Objects.requireNonNull(consul);
     this.serviceDiscoverer = Objects.requireNonNull(serviceDiscoverer);
   }
@@ -59,7 +57,7 @@ public class ConsulServerList implements ServerList<Server> {
    * @param services list of healthy service instances
    * @return list of server instances
    */
-  private List<Server> buildServerList(@NotNull final Collection<ServiceHealth> services) {
+  private List<Server> buildServerList(final Collection<ServiceHealth> services) {
     return services.stream().map(this::buildServer).collect(Collectors.toList());
   }
 

@@ -23,19 +23,16 @@ import com.orbitz.consul.model.agent.ImmutableRegistration;
 import com.orbitz.consul.model.agent.Registration;
 import com.smoketurner.dropwizard.consul.ConsulFactory;
 import io.dropwizard.setup.Environment;
-import io.dropwizard.util.Duration;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
 import javax.ws.rs.core.UriBuilder;
-import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ConsulAdvertiser {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ConsulAdvertiser.class);
-  private static final Duration DEREGISTER_AFTER = Duration.minutes(1);
   private final AtomicReference<Integer> servicePort = new AtomicReference<>();
   private final AtomicReference<Integer> serviceAdminPort = new AtomicReference<>();
   private final AtomicReference<String> serviceAddress = new AtomicReference<>();
@@ -56,10 +53,10 @@ public class ConsulAdvertiser {
    * @param serviceId Consul service ID
    */
   public ConsulAdvertiser(
-      @NotNull final Environment environment,
-      @NotNull final ConsulFactory configuration,
-      @NotNull final Consul consul,
-      @NotNull final String serviceId) {
+      final Environment environment,
+      final ConsulFactory configuration,
+      final Consul consul,
+      final String serviceId) {
     this.environment = Objects.requireNonNull(environment);
     this.configuration = Objects.requireNonNull(configuration);
     this.consul = Objects.requireNonNull(consul);
@@ -155,7 +152,8 @@ public class ConsulAdvertiser {
         ImmutableRegCheck.builder()
             .http(getHealthCheckUrl())
             .interval(String.format("%ds", configuration.getCheckInterval().toSeconds()))
-            .deregisterCriticalServiceAfter(String.format("%dm", DEREGISTER_AFTER.toMinutes()))
+            .deregisterCriticalServiceAfter(
+                String.format("%dm", configuration.getDeregisterInterval().toMinutes()))
             .build();
 
     final ImmutableRegistration.Builder builder =

@@ -18,16 +18,15 @@ package com.smoketurner.dropwizard.consul.config;
 import com.orbitz.consul.Consul;
 import io.dropwizard.configuration.UndefinedEnvironmentVariableException;
 import org.apache.commons.text.StrSubstitutor;
-import org.jetbrains.annotations.NotNull;
 
 /** A custom {@link StrSubstitutor} using Consul KV as lookup source. */
 public class ConsulSubstitutor extends StrSubstitutor {
 
-  public ConsulSubstitutor(@NotNull final Consul consul) {
+  public ConsulSubstitutor(final Consul consul) {
     this(consul, true, false);
   }
 
-  public ConsulSubstitutor(@NotNull final Consul consul, boolean strict) {
+  public ConsulSubstitutor(final Consul consul, boolean strict) {
     this(consul, strict, false);
   }
 
@@ -41,8 +40,7 @@ public class ConsulSubstitutor extends StrSubstitutor {
    * @see io.dropwizard.configuration.EnvironmentVariableLookup#EnvironmentVariableLookup(boolean)
    * @see org.apache.commons.lang3.text.StrSubstitutor#setEnableSubstitutionInVariables(boolean)
    */
-  public ConsulSubstitutor(
-      @NotNull final Consul consul, boolean strict, boolean substitutionInVariables) {
+  public ConsulSubstitutor(final Consul consul, boolean strict, boolean substitutionInVariables) {
     super(new ConsulLookup(consul, strict));
     this.setEnableSubstitutionInVariables(substitutionInVariables);
   }

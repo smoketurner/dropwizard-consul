@@ -20,6 +20,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.net.HostAndPort;
 import com.orbitz.consul.Consul;
+import edu.umd.cs.findbugs.annotations.Nullable;
 import io.dropwizard.util.Duration;
 import io.dropwizard.validation.MinDuration;
 import java.util.Map;
@@ -27,7 +28,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import javax.validation.constraints.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 public class ConsulFactory {
   private static final String CONSUL_AUTH_HEADER_KEY = "X-Consul-Token";
@@ -49,6 +49,10 @@ public class ConsulFactory {
   @NotNull
   @MinDuration(value = 1, unit = TimeUnit.SECONDS)
   private Duration checkInterval = Duration.seconds(1);
+
+  @NotNull
+  @MinDuration(value = 1, unit = TimeUnit.MINUTES)
+  private Duration deregisterInterval = Duration.minutes(1);
 
   @JsonProperty
   public boolean isEnabled() {
@@ -127,8 +131,18 @@ public class ConsulFactory {
   }
 
   @JsonProperty
-  public void setCheckInterval(Duration checkInterval) {
-    this.checkInterval = checkInterval;
+  public void setCheckInterval(Duration interval) {
+    this.checkInterval = interval;
+  }
+
+  @JsonProperty
+  public Duration getDeregisterInterval() {
+    return deregisterInterval;
+  }
+
+  @JsonProperty
+  public void setDeregisterInterval(Duration interval) {
+    this.deregisterInterval = interval;
   }
 
   @JsonProperty
@@ -180,6 +194,7 @@ public class ConsulFactory {
         serviceAddress,
         tags,
         checkInterval,
+        deregisterInterval,
         aclToken,
         serviceMeta);
   }
@@ -201,6 +216,7 @@ public class ConsulFactory {
         && Objects.equals(this.serviceAddress, other.serviceAddress)
         && Objects.equals(this.tags, other.tags)
         && Objects.equals(this.checkInterval, other.checkInterval)
+        && Objects.equals(this.deregisterInterval, other.deregisterInterval)
         && Objects.equals(this.aclToken, other.aclToken)
         && Objects.equals(this.serviceMeta, other.serviceMeta);
   }
