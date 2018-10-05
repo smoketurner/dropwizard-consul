@@ -2,8 +2,7 @@ sudo: false
 dist: trusty
 language: java
 jdk:
-  - openjdk10
-  - oraclejdk10
+  - openjdk11
 services: docker
 before_install:
   - rm ~/.m2/settings.xml || true 
