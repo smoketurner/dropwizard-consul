@@ -21,7 +21,7 @@
     <parent>
         <groupId>com.smoketurner.dropwizard</groupId>
         <artifactId>dropwizard-pom</artifactId>
-        <version>0.0.13</version>
+        <version>0.0.14</version>
     </parent>
 
     <artifactId>dropwizard-consul</artifactId>
@@ -44,4 +44,14 @@
         <url>https://github.com/smoketurner/dropwizard-consul</url>
         <tag>HEAD</tag>
     </scm>
+    
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>com.squareup.okhttp3</groupId>
+                <artifactId>okhttp</artifactId>
+                <version>3.9.0</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 </project>

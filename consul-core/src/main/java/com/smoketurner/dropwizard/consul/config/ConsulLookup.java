@@ -16,10 +16,10 @@
 package com.smoketurner.dropwizard.consul.config;
 
 import com.orbitz.consul.Consul;
-import edu.umd.cs.findbugs.annotations.Nullable;
 import io.dropwizard.configuration.UndefinedEnvironmentVariableException;
 import java.util.Objects;
 import java.util.Optional;
+import javax.annotation.Nullable;
 import org.apache.commons.text.StrLookup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

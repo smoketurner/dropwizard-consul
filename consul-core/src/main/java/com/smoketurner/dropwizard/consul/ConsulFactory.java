@@ -20,13 +20,13 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.net.HostAndPort;
 import com.orbitz.consul.Consul;
-import edu.umd.cs.findbugs.annotations.Nullable;
 import io.dropwizard.util.Duration;
 import io.dropwizard.validation.MinDuration;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
+import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 
 public class ConsulFactory {
