@@ -208,6 +208,7 @@ public class ConsulFactory {
         adminPort,
         serviceAddress,
         tags,
+        retryInterval,
         checkInterval,
         deregisterInterval,
         aclToken,
@@ -230,6 +231,7 @@ public class ConsulFactory {
         && Objects.equals(this.adminPort, other.adminPort)
         && Objects.equals(this.serviceAddress, other.serviceAddress)
         && Objects.equals(this.tags, other.tags)
+        && Objects.equals(this.retryInterval, other.retryInterval)
         && Objects.equals(this.checkInterval, other.checkInterval)
         && Objects.equals(this.deregisterInterval, other.deregisterInterval)
         && Objects.equals(this.aclToken, other.aclToken)

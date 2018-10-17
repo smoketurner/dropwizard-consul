@@ -20,7 +20,6 @@ import io.dropwizard.lifecycle.ServerLifecycleListener;
 import io.dropwizard.util.Duration;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import javax.annotation.Nullable;
@@ -39,16 +38,15 @@ public class ConsulServiceListener implements ServerLifecycleListener {
    *
    * @param advertiser Consul advertiser
    * @param retryInterval When specified, will retry if service registration fails
+   * @param scheduler When specified, will retry if service registration fails
    */
   public ConsulServiceListener(
-      final ConsulAdvertiser advertiser, @Nullable final Duration retryInterval) {
+      final ConsulAdvertiser advertiser,
+      @Nullable final Duration retryInterval,
+      @Nullable final ScheduledExecutorService scheduler) {
     this.advertiser = Objects.requireNonNull(advertiser);
     this.retryInterval = Optional.ofNullable(retryInterval);
-    if (this.retryInterval.isPresent()) {
-      scheduler = Optional.of(Executors.newScheduledThreadPool(1));
-    } else {
-      scheduler = Optional.empty();
-    }
+    this.scheduler = Optional.ofNullable(scheduler);
   }
 
   @Override
@@ -61,6 +59,9 @@ public class ConsulServiceListener implements ServerLifecycleListener {
   void register(int applicationPort, int adminPort) {
     try {
       advertiser.register(applicationPort, adminPort);
+      if (scheduler.isPresent()) {
+        scheduler.get().shutdown();
+      }
     } catch (ConsulException e) {
       LOGGER.error("Failed to register service in Consul", e);
       if (scheduler.isPresent()) {

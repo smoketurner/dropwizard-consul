@@ -61,6 +61,7 @@ public class ConsulFactoryTest {
     consulFactory.setAdminPort(2000);
     consulFactory.setServiceAddress("localhost");
     consulFactory.setTags(ImmutableList.of("tag1", "tag2"));
+    consulFactory.setRetryInterval(Duration.seconds(5));
     consulFactory.setCheckInterval(Duration.seconds(1));
     consulFactory.setAclToken("acl-token");
     return consulFactory;

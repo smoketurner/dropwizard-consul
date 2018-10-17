@@ -32,9 +32,12 @@ import io.dropwizard.ConfiguredBundle;
 import io.dropwizard.configuration.SubstitutingSourceProvider;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
+import io.dropwizard.util.Duration;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -153,16 +156,20 @@ public abstract class ConsulBundle<C extends Configuration>
         new ConsulAdvertiser(environment, consulConfig, consul, serviceId);
 
     // Register a Jetty listener to get the listening host and port
+    Duration retryInterval = consulConfig.getRetryInterval();
+    ScheduledExecutorService scheduler =
+        retryInterval == null ? null : Executors.newScheduledThreadPool(1);
+
     environment
         .lifecycle()
         .addServerLifecycleListener(
-            new ConsulServiceListener(advertiser, consulConfig.getRetryInterval()));
+            new ConsulServiceListener(advertiser, retryInterval, scheduler));
 
     // Register a ping healthcheck to the Consul agent
     environment.healthChecks().register("consul", new ConsulHealthCheck(consul));
 
     // Register a shutdown manager to deregister the service
-    environment.lifecycle().manage(new ConsulAdvertiserManager(advertiser));
+    environment.lifecycle().manage(new ConsulAdvertiserManager(advertiser, scheduler));
 
     // Add an administrative task to toggle maintenance mode
     environment.admin().addTask(new MaintenanceTask(consul, serviceId));

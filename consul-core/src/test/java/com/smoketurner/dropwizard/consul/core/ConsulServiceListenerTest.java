@@ -20,6 +20,8 @@ import static org.mockito.Mockito.*;
 
 import com.orbitz.consul.ConsulException;
 import io.dropwizard.util.Duration;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import org.junit.Test;
 
 public class ConsulServiceListenerTest {
@@ -28,7 +30,9 @@ public class ConsulServiceListenerTest {
 
   @Test
   public void testRegister() {
-    ConsulServiceListener listener = new ConsulServiceListener(advertiser, Duration.seconds(5));
+    ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+    ConsulServiceListener listener =
+        new ConsulServiceListener(advertiser, Duration.seconds(5), scheduler);
     doThrow(new ConsulException("Cannot connect to Consul"))
         .when(advertiser)
         .register(anyInt(), anyInt());
