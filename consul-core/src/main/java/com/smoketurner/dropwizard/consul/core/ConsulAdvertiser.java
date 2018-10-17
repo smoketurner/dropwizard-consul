@@ -126,6 +126,7 @@ public class ConsulAdvertiser {
    *
    * @param applicationPort Port the service is listening on
    * @param adminPort Port the admin server is listening on
+   * @throws ConsulException When registration fails
    */
   public void register(final int applicationPort, final int adminPort) {
     final AgentClient agent = consul.agentClient();
@@ -179,11 +180,7 @@ public class ConsulAdvertiser {
       builder.meta(serviceMeta.get());
     }
 
-    try {
-      consul.agentClient().register(builder.build());
-    } catch (ConsulException e) {
-      LOGGER.error("Failed to register service in Consul", e);
-    }
+    consul.agentClient().register(builder.build());
   }
 
   /** Deregister a service from Consul */

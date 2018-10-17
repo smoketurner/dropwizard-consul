@@ -153,7 +153,10 @@ public abstract class ConsulBundle<C extends Configuration>
         new ConsulAdvertiser(environment, consulConfig, consul, serviceId);
 
     // Register a Jetty listener to get the listening host and port
-    environment.lifecycle().addServerLifecycleListener(new ConsulServiceListener(advertiser));
+    environment
+        .lifecycle()
+        .addServerLifecycleListener(
+            new ConsulServiceListener(advertiser, consulConfig.getRetryInterval()));
 
     // Register a ping healthcheck to the Consul agent
     environment.healthChecks().register("consul", new ConsulHealthCheck(consul));
