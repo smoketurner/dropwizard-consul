@@ -15,27 +15,65 @@
  */
 package com.smoketurner.dropwizard.consul.core;
 
+import com.orbitz.consul.ConsulException;
 import io.dropwizard.lifecycle.ServerLifecycleListener;
+import io.dropwizard.util.Duration;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import javax.annotation.Nullable;
 import org.eclipse.jetty.server.Server;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ConsulServiceListener implements ServerLifecycleListener {
-
+  private static final Logger LOGGER = LoggerFactory.getLogger(ConsulServiceListener.class);
   private final ConsulAdvertiser advertiser;
+  private final Optional<Duration> retryInterval;
+  private final Optional<ScheduledExecutorService> scheduler;
 
   /**
    * Constructor
    *
    * @param advertiser Consul advertiser
+   * @param retryInterval When specified, will retry if service registration fails
+   * @param scheduler When specified, will retry if service registration fails
    */
-  public ConsulServiceListener(final ConsulAdvertiser advertiser) {
+  public ConsulServiceListener(
+      final ConsulAdvertiser advertiser,
+      @Nullable final Duration retryInterval,
+      @Nullable final ScheduledExecutorService scheduler) {
     this.advertiser = Objects.requireNonNull(advertiser);
+    this.retryInterval = Optional.ofNullable(retryInterval);
+    this.scheduler = Optional.ofNullable(scheduler);
   }
 
   @Override
   public void serverStarted(final Server server) {
     final int applicationPort = getLocalPort(server);
     final int adminPort = getAdminPort(server);
-    advertiser.register(applicationPort, adminPort);
+    register(applicationPort, adminPort);
+  }
+
+  void register(int applicationPort, int adminPort) {
+    try {
+      advertiser.register(applicationPort, adminPort);
+      if (scheduler.isPresent()) {
+        scheduler.get().shutdown();
+      }
+    } catch (ConsulException e) {
+      LOGGER.error("Failed to register service in Consul", e);
+      if (scheduler.isPresent()) {
+        LOGGER.info(
+            "Will try to register service again in {} seconds", retryInterval.get().toSeconds());
+        scheduler
+            .get()
+            .schedule(
+                () -> register(applicationPort, adminPort),
+                retryInterval.get().toSeconds(),
+                TimeUnit.SECONDS);
+      }
+    }
   }
 }

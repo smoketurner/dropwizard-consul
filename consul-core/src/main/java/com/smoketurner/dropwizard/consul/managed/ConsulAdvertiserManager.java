@@ -18,18 +18,24 @@ package com.smoketurner.dropwizard.consul.managed;
 import com.smoketurner.dropwizard.consul.core.ConsulAdvertiser;
 import io.dropwizard.lifecycle.Managed;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.concurrent.ScheduledExecutorService;
+import javax.annotation.Nullable;
 
 public class ConsulAdvertiserManager implements Managed {
 
   private final ConsulAdvertiser advertiser;
+  private final Optional<ScheduledExecutorService> scheduler;
 
   /**
    * Constructor
    *
    * @param advertiser Consul advertiser
    */
-  public ConsulAdvertiserManager(final ConsulAdvertiser advertiser) {
+  public ConsulAdvertiserManager(
+      final ConsulAdvertiser advertiser, @Nullable final ScheduledExecutorService scheduler) {
     this.advertiser = Objects.requireNonNull(advertiser);
+    this.scheduler = Optional.ofNullable(scheduler);
   }
 
   @Override
@@ -40,5 +46,6 @@ public class ConsulAdvertiserManager implements Managed {
   @Override
   public void stop() throws Exception {
     advertiser.deregister();
+    scheduler.ifPresent(ScheduledExecutorService::shutdown);
   }
 }

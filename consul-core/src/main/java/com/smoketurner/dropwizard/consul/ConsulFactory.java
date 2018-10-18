@@ -46,6 +46,10 @@ public class ConsulFactory {
   private Optional<String> aclToken = Optional.empty();
   private Optional<Map<String, String>> serviceMeta = Optional.empty();
 
+  @Nullable
+  @MinDuration(value = 1, unit = TimeUnit.SECONDS)
+  private Duration retryInterval;
+
   @NotNull
   @MinDuration(value = 1, unit = TimeUnit.SECONDS)
   private Duration checkInterval = Duration.seconds(1);
@@ -125,6 +129,17 @@ public class ConsulFactory {
     this.serviceAddress = Optional.ofNullable(serviceAddress);
   }
 
+  @Nullable
+  @JsonProperty
+  public Duration getRetryInterval() {
+    return retryInterval;
+  }
+
+  @JsonProperty
+  public void setRetryInterval(@Nullable Duration interval) {
+    this.retryInterval = interval;
+  }
+
   @JsonProperty
   public Duration getCheckInterval() {
     return checkInterval;
@@ -193,6 +208,7 @@ public class ConsulFactory {
         adminPort,
         serviceAddress,
         tags,
+        retryInterval,
         checkInterval,
         deregisterInterval,
         aclToken,
@@ -215,6 +231,7 @@ public class ConsulFactory {
         && Objects.equals(this.adminPort, other.adminPort)
         && Objects.equals(this.serviceAddress, other.serviceAddress)
         && Objects.equals(this.tags, other.tags)
+        && Objects.equals(this.retryInterval, other.retryInterval)
         && Objects.equals(this.checkInterval, other.checkInterval)
         && Objects.equals(this.deregisterInterval, other.deregisterInterval)
         && Objects.equals(this.aclToken, other.aclToken)
