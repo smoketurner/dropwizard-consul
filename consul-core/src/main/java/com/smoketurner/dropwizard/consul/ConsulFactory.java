@@ -39,6 +39,7 @@ public class ConsulFactory {
   @Nullable private String serviceName;
 
   private boolean enabled = true;
+  private Optional<String> serviceId = Optional.empty();
   private Optional<Integer> servicePort = Optional.empty();
   private Optional<Integer> adminPort = Optional.empty();
   private Optional<String> serviceAddress = Optional.empty();
@@ -76,6 +77,16 @@ public class ConsulFactory {
   @JsonProperty
   public void setEndpoint(HostAndPort endpoint) {
     this.endpoint = endpoint;
+  }
+
+  @JsonProperty
+  public Optional<String> getServiceId() {
+    return serviceId;
+  }
+
+  @JsonProperty
+  public void setServiceId(@Nullable String serviceId) {
+    this.serviceId = Optional.ofNullable(serviceId);
   }
 
   @Nullable
@@ -129,10 +140,9 @@ public class ConsulFactory {
     this.serviceAddress = Optional.ofNullable(serviceAddress);
   }
 
-  @Nullable
   @JsonProperty
-  public Duration getRetryInterval() {
-    return retryInterval;
+  public Optional<Duration> getRetryInterval() {
+    return Optional.ofNullable(retryInterval);
   }
 
   @JsonProperty

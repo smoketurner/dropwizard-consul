@@ -151,15 +151,15 @@ public abstract class ConsulBundle<C extends Configuration>
   protected void setupEnvironment(ConsulFactory consulConfig, Environment environment) {
 
     final Consul consul = consulConfig.build();
-    final String serviceId = getConsulServiceId();
+    final String serviceId = consulConfig.getServiceId().orElse(UUID.randomUUID().toString());
     final ConsulAdvertiser advertiser =
         new ConsulAdvertiser(environment, consulConfig, consul, serviceId);
 
-    // Register a Jetty listener to get the listening host and port
-    Duration retryInterval = consulConfig.getRetryInterval();
-    ScheduledExecutorService scheduler =
-        retryInterval == null ? null : Executors.newScheduledThreadPool(1);
+    final Optional<Duration> retryInterval = consulConfig.getRetryInterval();
+    final Optional<ScheduledExecutorService> scheduler =
+        retryInterval.map(i -> Executors.newScheduledThreadPool(1));
 
+    // Register a Jetty listener to get the listening host and port
     environment
         .lifecycle()
         .addServerLifecycleListener(
@@ -176,7 +176,8 @@ public abstract class ConsulBundle<C extends Configuration>
   }
 
   /**
-   * Override as necessary to provide an alternative Consul Agent Host
+   * Override as necessary to provide an alternative Consul Agent Host. This is only required if
+   * using Consul KV for configuration variable substitution.
    *
    * @return By default, "localhost"
    */
@@ -186,7 +187,8 @@ public abstract class ConsulBundle<C extends Configuration>
   }
 
   /**
-   * Override as necessary to provide an alternative Consul Agent Port
+   * Override as necessary to provide an alternative Consul Agent Port. This is only required if
+   * using Consul KV for configuration variable substitution.
    *
    * @return By default, 8500
    */
@@ -196,17 +198,8 @@ public abstract class ConsulBundle<C extends Configuration>
   }
 
   /**
-   * Override as necessary to provide an alternative service ID
-   *
-   * @return By default, a random UUID v4
-   */
-  @VisibleForTesting
-  public String getConsulServiceId() {
-    return UUID.randomUUID().toString();
-  }
-
-  /**
-   * Override as necessary to provide an alternative ACL Token
+   * Override as necessary to provide an alternative ACL Token. This is only required if using
+   * Consul KV for configuration variable substitution.
    *
    * @return By default, empty string (no ACL support)
    */

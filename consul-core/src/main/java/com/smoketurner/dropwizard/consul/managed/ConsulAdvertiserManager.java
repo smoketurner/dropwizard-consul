@@ -20,7 +20,6 @@ import io.dropwizard.lifecycle.Managed;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ScheduledExecutorService;
-import javax.annotation.Nullable;
 
 public class ConsulAdvertiserManager implements Managed {
 
@@ -31,11 +30,12 @@ public class ConsulAdvertiserManager implements Managed {
    * Constructor
    *
    * @param advertiser Consul advertiser
+   * @param scheduler Optional retry scheduler
    */
   public ConsulAdvertiserManager(
-      final ConsulAdvertiser advertiser, @Nullable final ScheduledExecutorService scheduler) {
-    this.advertiser = Objects.requireNonNull(advertiser);
-    this.scheduler = Optional.ofNullable(scheduler);
+      final ConsulAdvertiser advertiser, final Optional<ScheduledExecutorService> scheduler) {
+    this.advertiser = Objects.requireNonNull(advertiser, "advertiser == null");
+    this.scheduler = Objects.requireNonNull(scheduler, "scheduler == null");
   }
 
   @Override
@@ -46,6 +46,6 @@ public class ConsulAdvertiserManager implements Managed {
   @Override
   public void stop() throws Exception {
     advertiser.deregister();
-    scheduler.ifPresent(ScheduledExecutorService::shutdown);
+    scheduler.ifPresent(ScheduledExecutorService::shutdownNow);
   }
 }
