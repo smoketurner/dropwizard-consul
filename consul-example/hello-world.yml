@@ -19,6 +19,8 @@ defaultName: ${helloworld/defaultName:-Stranger}
 
 consul:
   endpoint: localhost:8500
+  serviceId: test123
+  retryInterval: 5 seconds
 
 client:
   refreshInterval: 10 seconds

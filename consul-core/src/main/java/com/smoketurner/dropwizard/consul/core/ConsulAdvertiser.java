@@ -57,10 +57,11 @@ public class ConsulAdvertiser {
       final ConsulFactory configuration,
       final Consul consul,
       final String serviceId) {
-    this.environment = Objects.requireNonNull(environment);
-    this.configuration = Objects.requireNonNull(configuration);
-    this.consul = Objects.requireNonNull(consul);
-    this.serviceId = Objects.requireNonNull(serviceId);
+
+    this.environment = Objects.requireNonNull(environment, "environment == null");
+    this.configuration = Objects.requireNonNull(configuration, "configuration == null");
+    this.consul = Objects.requireNonNull(consul, "consul == null");
+    this.serviceId = Objects.requireNonNull(serviceId, "serviceId == null");
 
     configuration
         .getServicePort()

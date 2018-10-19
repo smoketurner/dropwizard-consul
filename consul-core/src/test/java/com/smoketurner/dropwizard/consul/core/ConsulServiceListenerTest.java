@@ -16,10 +16,15 @@
 package com.smoketurner.dropwizard.consul.core;
 
 import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 import com.orbitz.consul.ConsulException;
 import io.dropwizard.util.Duration;
+import java.util.Optional;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import org.junit.Test;
@@ -30,16 +35,20 @@ public class ConsulServiceListenerTest {
 
   @Test
   public void testRegister() {
-    ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
-    ConsulServiceListener listener =
-        new ConsulServiceListener(advertiser, Duration.seconds(5), scheduler);
+    final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+    final ConsulServiceListener listener =
+        new ConsulServiceListener(
+            advertiser, Optional.of(Duration.seconds(5)), Optional.of(scheduler));
+
     doThrow(new ConsulException("Cannot connect to Consul"))
         .when(advertiser)
         .register(anyInt(), anyInt());
+
     listener.register(100, 200);
     doNothing().when(advertiser).register(anyInt(), anyInt());
+
     try {
-      Thread.sleep(20_000L);
+      Thread.sleep(10_000L);
     } catch (InterruptedException ignore) {
     }
     verify(advertiser, times(2)).register(100, 200);

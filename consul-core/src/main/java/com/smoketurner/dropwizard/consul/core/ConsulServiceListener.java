@@ -22,7 +22,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import javax.annotation.Nullable;
 import org.eclipse.jetty.server.Server;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,11 +41,12 @@ public class ConsulServiceListener implements ServerLifecycleListener {
    */
   public ConsulServiceListener(
       final ConsulAdvertiser advertiser,
-      @Nullable final Duration retryInterval,
-      @Nullable final ScheduledExecutorService scheduler) {
-    this.advertiser = Objects.requireNonNull(advertiser);
-    this.retryInterval = Optional.ofNullable(retryInterval);
-    this.scheduler = Optional.ofNullable(scheduler);
+      final Optional<Duration> retryInterval,
+      final Optional<ScheduledExecutorService> scheduler) {
+
+    this.advertiser = Objects.requireNonNull(advertiser, "advertiser == null");
+    this.retryInterval = Objects.requireNonNull(retryInterval, "retryInterval == null");
+    this.scheduler = Objects.requireNonNull(scheduler, "scheduler == null");
   }
 
   @Override
@@ -59,21 +59,22 @@ public class ConsulServiceListener implements ServerLifecycleListener {
   void register(int applicationPort, int adminPort) {
     try {
       advertiser.register(applicationPort, adminPort);
-      if (scheduler.isPresent()) {
-        scheduler.get().shutdown();
-      }
+      scheduler.ifPresent(ScheduledExecutorService::shutdownNow);
     } catch (ConsulException e) {
       LOGGER.error("Failed to register service in Consul", e);
-      if (scheduler.isPresent()) {
-        LOGGER.info(
-            "Will try to register service again in {} seconds", retryInterval.get().toSeconds());
-        scheduler
-            .get()
-            .schedule(
-                () -> register(applicationPort, adminPort),
-                retryInterval.get().toSeconds(),
-                TimeUnit.SECONDS);
-      }
+
+      retryInterval.ifPresent(
+          (interval) -> {
+            scheduler.ifPresent(
+                (service) -> {
+                  LOGGER.info(
+                      "Will try to register service again in {} seconds", interval.toSeconds());
+                  service.schedule(
+                      () -> register(applicationPort, adminPort),
+                      interval.toSeconds(),
+                      TimeUnit.SECONDS);
+                });
+          });
     }
   }
 }
