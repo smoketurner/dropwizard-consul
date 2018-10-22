@@ -64,6 +64,7 @@ public class ConsulFactoryTest {
     consulFactory.setRetryInterval(Duration.seconds(5));
     consulFactory.setCheckInterval(Duration.seconds(1));
     consulFactory.setAclToken("acl-token");
+    consulFactory.setServicePing(false);
     return consulFactory;
   }
 }
