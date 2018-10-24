@@ -46,6 +46,7 @@ public class ConsulFactory {
   private Optional<Iterable<String>> tags = Optional.empty();
   private Optional<String> aclToken = Optional.empty();
   private Optional<Map<String, String>> serviceMeta = Optional.empty();
+  private boolean servicePing = true;
 
   @Nullable
   @MinDuration(value = 1, unit = TimeUnit.SECONDS)
@@ -190,10 +191,20 @@ public class ConsulFactory {
     this.serviceMeta = Optional.ofNullable(serviceMeta);
   }
 
+  @JsonProperty
+  public boolean isServicePing() {
+    return servicePing;
+  }
+
+  @JsonProperty
+  public void setServicePing(boolean servicePing) {
+    this.servicePing = servicePing;
+  }
+
   @JsonIgnore
   public Consul build() {
 
-    final Consul.Builder builder = Consul.builder().withHostAndPort(endpoint);
+    final Consul.Builder builder = Consul.builder().withHostAndPort(endpoint).withPing(servicePing);
 
     aclToken.ifPresent(
         token -> {
@@ -222,7 +233,8 @@ public class ConsulFactory {
         checkInterval,
         deregisterInterval,
         aclToken,
-        serviceMeta);
+        serviceMeta,
+        servicePing);
   }
 
   @Override
@@ -245,6 +257,7 @@ public class ConsulFactory {
         && Objects.equals(this.checkInterval, other.checkInterval)
         && Objects.equals(this.deregisterInterval, other.deregisterInterval)
         && Objects.equals(this.aclToken, other.aclToken)
-        && Objects.equals(this.serviceMeta, other.serviceMeta);
+        && Objects.equals(this.serviceMeta, other.serviceMeta)
+        && Objects.equals(this.servicePing, other.servicePing);
   }
 }
