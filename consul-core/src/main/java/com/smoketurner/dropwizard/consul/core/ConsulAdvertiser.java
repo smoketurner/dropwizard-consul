@@ -129,12 +129,12 @@ public class ConsulAdvertiser {
    * @param adminPort Port the admin server is listening on
    * @throws ConsulException When registration fails
    */
-  public void register(final int applicationPort, final int adminPort) {
+  public boolean register(final int applicationPort, final int adminPort) {
     final AgentClient agent = consul.agentClient();
     if (agent.isRegistered(serviceId)) {
       LOGGER.info(
           "Service ({}) [{}] already registered", configuration.getServiceName(), serviceId);
-      return;
+      return false;
     }
 
     // If we haven't set the servicePort via the configuration file already,
@@ -182,6 +182,7 @@ public class ConsulAdvertiser {
     }
 
     consul.agentClient().register(builder.build());
+    return true;
   }
 
   /** Deregister a service from Consul */
