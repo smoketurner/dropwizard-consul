@@ -15,12 +15,9 @@
  */
 package com.smoketurner.dropwizard.consul.ribbon;
 
-import java.util.Objects;
-import javax.ws.rs.client.Client;
 import com.google.common.primitives.Ints;
-import com.netflix.client.config.ClientConfigFactory;
 import com.netflix.client.config.CommonClientConfigKey;
-import com.netflix.client.config.IClientConfig;
+import com.netflix.client.config.DefaultClientConfigImpl;
 import com.netflix.loadbalancer.LoadBalancerBuilder;
 import com.netflix.loadbalancer.Server;
 import com.netflix.loadbalancer.WeightedResponseTimeRule;
@@ -29,6 +26,8 @@ import com.orbitz.consul.Consul;
 import io.dropwizard.client.JerseyClientBuilder;
 import io.dropwizard.lifecycle.Managed;
 import io.dropwizard.setup.Environment;
+import java.util.Objects;
+import javax.ws.rs.client.Client;
 
 public class RibbonJerseyClientBuilder {
 
@@ -107,7 +106,8 @@ public class RibbonJerseyClientBuilder {
     final ConsulServerList serverList = new ConsulServerList(consul, serviceDiscoverer);
 
     // build a new load balancer based on the configuration
-    final IClientConfig clientConfig = ClientConfigFactory.DEFAULT.newConfig();
+    final DefaultClientConfigImpl clientConfig = new DefaultClientConfigImpl();
+    clientConfig.setClientName(name);
     clientConfig.set(CommonClientConfigKey.AppName, name);
     clientConfig.set(
         CommonClientConfigKey.ServerListRefreshInterval,

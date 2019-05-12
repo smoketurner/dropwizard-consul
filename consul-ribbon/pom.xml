@@ -29,7 +29,7 @@
     <name>Dropwizard Consul Load Balancer</name>
 
     <properties>
-        <ribbon.version>2.7.0</ribbon.version>
+        <ribbon.version>2.7.2</ribbon.version>
     </properties>
 
     <dependencies>
@@ -66,6 +66,11 @@
         <dependency>
             <groupId>com.netflix.ribbon</groupId>
             <artifactId>ribbon-loadbalancer</artifactId>
+            <version>${ribbon.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.netflix.ribbon</groupId>
+            <artifactId>ribbon-archaius</artifactId>
             <version>${ribbon.version}</version>
         </dependency>
     </dependencies>
