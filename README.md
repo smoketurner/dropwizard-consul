@@ -19,12 +19,12 @@ Dependency Info
 <dependency>
     <groupId>com.smoketurner.dropwizard</groupId>
     <artifactId>consul-core</artifactId>
-    <version>1.3.8-1</version>
+    <version>1.3.10-1</version>
 </dependency>
 <dependency>
     <groupId>com.smoketurner.dropwizard</groupId>
     <artifactId>consul-ribbon</artifactId>
-    <version>1.3.8-1</version>
+    <version>1.3.10-1</version>
 </dependency>
 ```
 
@@ -77,7 +77,7 @@ You can execute this application by first starting Consul on your local machine 
 
 ```
 mvn clean package
-java -jar consul-example/target/consul-example-1.3.8-2-SNAPSHOT.jar server consul-example/hello-world.yml
+java -jar consul-example/target/consul-example-1.3.10-2-SNAPSHOT.jar server consul-example/hello-world.yml
 ```
 
 This will start the application on port `8080` (admin port `8180`). This application demonstrations the following Consul integration points:
@@ -139,7 +139,7 @@ Please file bug reports and feature requests in [GitHub issues](https://github.c
 
 License
 -------
-Copyright (c) 2018 Smoke Turner, LLC
+Copyright (c) 2019 Smoke Turner, LLC
 
 This library is licensed under the Apache License, Version 2.0.
 
