@@ -70,11 +70,14 @@ public class ConsulServerList implements ServerList<Server> {
    * @return Ribbon Server instance
    */
   private Server buildServer(final ServiceHealth service) {
+    final String scheme = service.getService().getMeta().get("scheme");
+
     final Server server;
     if (!Strings.isNullOrEmpty(service.getService().getAddress())) {
-      server = new Server(service.getService().getAddress(), service.getService().getPort());
+      server =
+          new Server(scheme, service.getService().getAddress(), service.getService().getPort());
     } else {
-      server = new Server(service.getNode().getAddress(), service.getService().getPort());
+      server = new Server(scheme, service.getNode().getAddress(), service.getService().getPort());
     }
     server.setZone(service.getNode().getDatacenter().orElse(Server.UNKNOWN_ZONE));
     return server;

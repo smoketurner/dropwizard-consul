@@ -125,11 +125,13 @@ public class ConsulAdvertiser {
   /**
    * Register the service with Consul
    *
+   * @param applicationScheme Scheme the server is listening on
    * @param applicationPort Port the service is listening on
    * @param adminPort Port the admin server is listening on
    * @throws ConsulException When registration fails
    */
-  public boolean register(final int applicationPort, final int adminPort) {
+  public boolean register(
+      final String applicationScheme, final int applicationPort, final int adminPort) {
     final AgentClient agent = consul.agentClient();
     if (agent.isRegistered(serviceId)) {
       LOGGER.info(
@@ -180,6 +182,8 @@ public class ConsulAdvertiser {
     if (serviceMeta.get() != null) {
       builder.meta(serviceMeta.get());
     }
+
+    builder.putMeta("scheme", applicationScheme);
 
     consul.agentClient().register(builder.build());
     return true;

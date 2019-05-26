@@ -16,6 +16,7 @@
 package com.smoketurner.dropwizard.consul.core;
 
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
@@ -53,12 +54,12 @@ public class ConsulServiceListenerTest {
         new ConsulServiceListener(
             advertiser, Optional.of(Duration.milliseconds(1)), Optional.of(scheduler));
 
-    when(advertiser.register(anyInt(), anyInt()))
+    when(advertiser.register(anyString(), anyInt(), anyInt()))
         .thenThrow(new ConsulException("Cannot connect to Consul"))
         .thenReturn(true);
 
-    listener.register(0, 0);
+    listener.register(null, 0, 0);
 
-    verify(advertiser, timeout(100).atLeast(1)).register(0, 0);
+    verify(advertiser, timeout(100).atLeast(1)).register(null, 0, 0);
   }
 }

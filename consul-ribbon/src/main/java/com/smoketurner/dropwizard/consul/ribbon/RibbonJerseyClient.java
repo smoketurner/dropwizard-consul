@@ -32,9 +32,20 @@ import javax.ws.rs.core.Link;
 import javax.ws.rs.core.UriBuilder;
 
 public class RibbonJerseyClient implements Client, Closeable {
-  private final String scheme;
   private final ZoneAwareLoadBalancer<Server> loadBalancer;
   private final Client delegate;
+
+  /**
+   * Constructor
+   *
+   * @param loadBalancer Load Balancer
+   * @param delegate Jersey Client delegate
+   */
+  public RibbonJerseyClient(
+      final ZoneAwareLoadBalancer<Server> loadBalancer, final Client delegate) {
+    this.loadBalancer = Objects.requireNonNull(loadBalancer);
+    this.delegate = Objects.requireNonNull(delegate);
+  }
 
   /**
    * Constructor
@@ -42,12 +53,13 @@ public class RibbonJerseyClient implements Client, Closeable {
    * @param scheme Communication scheme (usually http or https)
    * @param loadBalancer Load Balancer
    * @param delegate Jersey Client delegate
+   * @deprecated Use non-scheme constructor instead
    */
+  @Deprecated
   public RibbonJerseyClient(
       final String scheme,
       final ZoneAwareLoadBalancer<Server> loadBalancer,
       final Client delegate) {
-    this.scheme = Objects.requireNonNull(scheme);
     this.loadBalancer = Objects.requireNonNull(loadBalancer);
     this.delegate = Objects.requireNonNull(delegate);
   }
@@ -149,7 +161,7 @@ public class RibbonJerseyClient implements Client, Closeable {
   public WebTarget target(String uri) {
     final Server server = fetchServerOrThrow();
     final UriBuilder builder = UriBuilder.fromUri(uri);
-    builder.scheme(scheme);
+    builder.scheme(server.getScheme());
     builder.host(server.getHost());
     builder.port(server.getPort());
     return delegate.target(builder);
@@ -164,7 +176,7 @@ public class RibbonJerseyClient implements Client, Closeable {
   public WebTarget target(URI uri) {
     final Server server = fetchServerOrThrow();
     final UriBuilder builder = UriBuilder.fromUri(uri);
-    builder.scheme(scheme);
+    builder.scheme(server.getScheme());
     builder.host(server.getHost());
     builder.port(server.getPort());
     return delegate.target(builder);
@@ -178,7 +190,7 @@ public class RibbonJerseyClient implements Client, Closeable {
   @Override
   public WebTarget target(UriBuilder uriBuilder) {
     final Server server = fetchServerOrThrow();
-    uriBuilder.scheme(scheme);
+    uriBuilder.scheme(server.getScheme());
     uriBuilder.host(server.getHost());
     uriBuilder.port(server.getPort());
     return delegate.target(uriBuilder);
@@ -193,7 +205,7 @@ public class RibbonJerseyClient implements Client, Closeable {
   public WebTarget target(Link link) {
     final Server server = fetchServerOrThrow();
     final UriBuilder builder = UriBuilder.fromLink(link);
-    builder.scheme(scheme);
+    builder.scheme(server.getScheme());
     builder.host(server.getHost());
     builder.port(server.getPort());
     return delegate.target(builder);

@@ -27,6 +27,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.google.common.collect.ImmutableMap;
 import com.orbitz.consul.AgentClient;
 import com.orbitz.consul.Consul;
 import com.orbitz.consul.ConsulException;
@@ -70,7 +71,7 @@ public class ConsulAdvertiserTest {
   @Test
   public void testRegister() {
     when(agent.isRegistered(serviceId)).thenReturn(false);
-    advertiser.register(8080, 8081);
+    advertiser.register("http", 8080, 8081);
 
     final ImmutableRegistration registration =
         ImmutableRegistration.builder()
@@ -82,6 +83,7 @@ public class ConsulAdvertiserTest {
                     .deregisterCriticalServiceAfter("1m")
                     .build())
             .name("test")
+            .meta(ImmutableMap.of("scheme", "http"))
             .id(serviceId)
             .build();
 
@@ -91,7 +93,7 @@ public class ConsulAdvertiserTest {
   @Test
   public void testRegisterAlreadyRegistered() {
     when(agent.isRegistered(anyString())).thenReturn(true);
-    advertiser.register(8080, 8081);
+    advertiser.register("http", 8080, 8081);
     verify(agent, never())
         .register(anyInt(), anyString(), anyLong(), anyString(), anyString(), anyList(), anyMap());
   }
@@ -104,7 +106,7 @@ public class ConsulAdvertiserTest {
     when(agent.isRegistered(anyString())).thenReturn(false);
     final ConsulAdvertiser advertiser =
         new ConsulAdvertiser(environment, factory, consul, serviceId);
-    advertiser.register(8080, 8081);
+    advertiser.register("http", 8080, 8081);
 
     final ImmutableRegistration registration =
         ImmutableRegistration.builder()
@@ -118,6 +120,7 @@ public class ConsulAdvertiserTest {
                     .deregisterCriticalServiceAfter("1m")
                     .build())
             .name("test")
+            .meta(ImmutableMap.of("scheme", "http"))
             .build();
 
     verify(agent).register(registration);
@@ -131,7 +134,7 @@ public class ConsulAdvertiserTest {
     when(agent.isRegistered(serviceId)).thenReturn(false);
     final ConsulAdvertiser advertiser =
         new ConsulAdvertiser(environment, factory, consul, serviceId);
-    advertiser.register(8080, 8081);
+    advertiser.register("http", 8080, 8081);
 
     final ImmutableRegistration registration =
         ImmutableRegistration.builder()
@@ -143,6 +146,7 @@ public class ConsulAdvertiserTest {
                     .deregisterCriticalServiceAfter("1m")
                     .build())
             .name("test")
+            .meta(ImmutableMap.of("scheme", "http"))
             .port(8080)
             .id(serviceId)
             .build();
@@ -158,7 +162,7 @@ public class ConsulAdvertiserTest {
     when(agent.isRegistered(serviceId)).thenReturn(false);
     final ConsulAdvertiser advertiser =
         new ConsulAdvertiser(environment, factory, consul, serviceId);
-    advertiser.register(8080, 8081);
+    advertiser.register("http", 8080, 8081);
 
     final ImmutableRegistration registration =
         ImmutableRegistration.builder()
@@ -171,6 +175,7 @@ public class ConsulAdvertiserTest {
                     .build())
             .name("test")
             .port(8080)
+            .meta(ImmutableMap.of("scheme", "http"))
             .id(serviceId)
             .build();
 
@@ -187,11 +192,12 @@ public class ConsulAdvertiserTest {
     when(agent.isRegistered(serviceId)).thenReturn(false);
     final ConsulAdvertiser advertiser =
         new ConsulAdvertiser(environment, factory, consul, serviceId);
-    advertiser.register(8080, 8081);
+    advertiser.register("http", 8080, 8081);
 
     final ImmutableRegistration registration =
         ImmutableRegistration.builder()
             .meta(serviceMeta)
+            .putMeta("scheme", "http")
             .check(
                 ImmutableRegCheck.builder()
                     .http("http://127.0.0.1:8081/admin/healthcheck")
