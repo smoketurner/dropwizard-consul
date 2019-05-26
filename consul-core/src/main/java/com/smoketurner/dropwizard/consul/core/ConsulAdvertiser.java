@@ -192,8 +192,13 @@ public class ConsulAdvertiser {
   /** Deregister a service from Consul */
   public void deregister() {
     final AgentClient agent = consul.agentClient();
-    if (!agent.isRegistered(serviceId)) {
-      LOGGER.info("No service registered with ID \"{}\"", serviceId);
+    try {
+      if (!agent.isRegistered(serviceId)) {
+        LOGGER.info("No service registered with ID \"{}\"", serviceId);
+        return;
+      }
+    } catch (ConsulException e) {
+      LOGGER.error("Failed to determine if service ID \"{}\" is registered", e);
       return;
     }
 
