@@ -107,7 +107,6 @@ public class RibbonJerseyClientBuilder {
 
     // build a new load balancer based on the configuration
     final DefaultClientConfigImpl clientConfig = new DefaultClientConfigImpl();
-    clientConfig.setClientName(name);
     clientConfig.set(CommonClientConfigKey.AppName, name);
     clientConfig.set(
         CommonClientConfigKey.ServerListRefreshInterval,
@@ -120,8 +119,7 @@ public class RibbonJerseyClientBuilder {
             .withDynamicServerList(serverList)
             .buildDynamicServerListLoadBalancer();
 
-    final RibbonJerseyClient client =
-        new RibbonJerseyClient(configuration.getScheme(), loadBalancer, jerseyClient);
+    final RibbonJerseyClient client = new RibbonJerseyClient(loadBalancer, jerseyClient);
 
     environment
         .lifecycle()

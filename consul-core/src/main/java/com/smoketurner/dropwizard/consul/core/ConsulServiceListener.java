@@ -18,16 +18,23 @@ package com.smoketurner.dropwizard.consul.core;
 import com.orbitz.consul.ConsulException;
 import io.dropwizard.lifecycle.ServerLifecycleListener;
 import io.dropwizard.util.Duration;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.ServerConnector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ConsulServiceListener implements ServerLifecycleListener {
   private static final Logger LOGGER = LoggerFactory.getLogger(ConsulServiceListener.class);
+
+  private static final String APPLICATION_NAME = "application";
+  private static final String ADMIN_NAME = "admin";
+
   private final ConsulAdvertiser advertiser;
   private final Optional<Duration> retryInterval;
   private final Optional<ScheduledExecutorService> scheduler;
@@ -51,14 +58,58 @@ public class ConsulServiceListener implements ServerLifecycleListener {
 
   @Override
   public void serverStarted(final Server server) {
-    final int applicationPort = getLocalPort(server);
-    final int adminPort = getAdminPort(server);
-    register(applicationPort, adminPort);
+
+    String applicationScheme = null;
+    int applicationPort = -1;
+    int adminPort = -1;
+
+    for (Connector connector : server.getConnectors()) {
+      @SuppressWarnings("resource")
+      final ServerConnector serverConnector = (ServerConnector) connector;
+      if (APPLICATION_NAME.equals(connector.getName())) {
+        applicationPort = serverConnector.getLocalPort();
+        applicationScheme = getScheme(connector.getProtocols());
+      } else if (ADMIN_NAME.equals(connector.getName())) {
+        adminPort = serverConnector.getLocalPort();
+      } else {
+        applicationPort = serverConnector.getLocalPort();
+        applicationScheme = getScheme(connector.getProtocols());
+        adminPort = applicationPort;
+      }
+    }
+
+    LOGGER.debug(
+        "applicationScheme: {}, applicationPort: {}, adminPort: {}",
+        applicationScheme,
+        applicationPort,
+        adminPort);
+
+    register(applicationScheme, applicationPort, adminPort);
   }
 
-  void register(int applicationPort, int adminPort) {
+  /**
+   * Return the protocol scheme from a list of protocols.
+   *
+   * @param protocols Configured protocols
+   * @return protocol scheme
+   */
+  private static String getScheme(List<String> protocols) {
+    if (protocols.contains("ssl")) {
+      return "https";
+    }
+    return "http";
+  }
+
+  /**
+   * Register ports with Consul and retry if unavailable
+   *
+   * @param applicationScheme Application protocol scheme
+   * @param applicationPort Application listening port
+   * @param adminPort Administration listening port
+   */
+  void register(String applicationScheme, int applicationPort, int adminPort) {
     try {
-      advertiser.register(applicationPort, adminPort);
+      advertiser.register(applicationScheme, applicationPort, adminPort);
       scheduler.ifPresent(ScheduledExecutorService::shutdownNow);
     } catch (ConsulException e) {
       LOGGER.error("Failed to register service in Consul", e);
@@ -70,7 +121,7 @@ public class ConsulServiceListener implements ServerLifecycleListener {
                   LOGGER.info(
                       "Will try to register service again in {} seconds", interval.toSeconds());
                   service.schedule(
-                      () -> register(applicationPort, adminPort),
+                      () -> register(applicationScheme, applicationPort, adminPort),
                       interval.toSeconds(),
                       TimeUnit.SECONDS);
                 });

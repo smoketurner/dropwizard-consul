@@ -125,11 +125,13 @@ public class ConsulAdvertiser {
   /**
    * Register the service with Consul
    *
+   * @param applicationScheme Scheme the server is listening on
    * @param applicationPort Port the service is listening on
    * @param adminPort Port the admin server is listening on
    * @throws ConsulException When registration fails
    */
-  public boolean register(final int applicationPort, final int adminPort) {
+  public boolean register(
+      final String applicationScheme, final int applicationPort, final int adminPort) {
     final AgentClient agent = consul.agentClient();
     if (agent.isRegistered(serviceId)) {
       LOGGER.info(
@@ -181,6 +183,8 @@ public class ConsulAdvertiser {
       builder.meta(serviceMeta.get());
     }
 
+    builder.putMeta("scheme", applicationScheme);
+
     consul.agentClient().register(builder.build());
     return true;
   }
@@ -188,8 +192,13 @@ public class ConsulAdvertiser {
   /** Deregister a service from Consul */
   public void deregister() {
     final AgentClient agent = consul.agentClient();
-    if (!agent.isRegistered(serviceId)) {
-      LOGGER.info("No service registered with ID \"{}\"", serviceId);
+    try {
+      if (!agent.isRegistered(serviceId)) {
+        LOGGER.info("No service registered with ID \"{}\"", serviceId);
+        return;
+      }
+    } catch (ConsulException e) {
+      LOGGER.error("Failed to determine if service ID \"{}\" is registered", e);
       return;
     }
 
