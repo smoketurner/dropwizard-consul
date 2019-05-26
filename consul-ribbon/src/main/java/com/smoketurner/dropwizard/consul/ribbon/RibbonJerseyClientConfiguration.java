@@ -32,6 +32,7 @@ public class RibbonJerseyClientConfiguration extends JerseyClientConfiguration {
 
   @NotEmpty
   @OneOf(value = {"http", "https"})
+  @Deprecated
   private String scheme = "http";
 
   @JsonProperty
@@ -44,11 +45,13 @@ public class RibbonJerseyClientConfiguration extends JerseyClientConfiguration {
     this.refreshInterval = refreshInterval;
   }
 
+  @Deprecated
   @JsonProperty
   public String getScheme() {
     return scheme;
   }
 
+  @Deprecated
   @JsonProperty
   public void setScheme(String scheme) {
     this.scheme = scheme;

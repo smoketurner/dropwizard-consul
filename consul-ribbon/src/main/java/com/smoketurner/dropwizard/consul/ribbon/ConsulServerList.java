@@ -24,6 +24,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import javax.annotation.Nullable;
 
 public class ConsulServerList implements ServerList<Server> {
 
@@ -70,16 +71,20 @@ public class ConsulServerList implements ServerList<Server> {
    * @return Ribbon Server instance
    */
   private Server buildServer(final ServiceHealth service) {
-    final String scheme = service.getService().getMeta().get("scheme");
+    @Nullable final String scheme = service.getService().getMeta().get("scheme");
+    final int port = service.getService().getPort();
 
-    final Server server;
+    final String address;
     if (!Strings.isNullOrEmpty(service.getService().getAddress())) {
-      server =
-          new Server(scheme, service.getService().getAddress(), service.getService().getPort());
+      address = service.getService().getAddress();
     } else {
-      server = new Server(scheme, service.getNode().getAddress(), service.getService().getPort());
+      address = service.getNode().getAddress();
     }
+
+    final Server server = new Server(scheme, address, port);
     server.setZone(service.getNode().getDatacenter().orElse(Server.UNKNOWN_ZONE));
+    server.setReadyToServe(true);
+
     return server;
   }
 }

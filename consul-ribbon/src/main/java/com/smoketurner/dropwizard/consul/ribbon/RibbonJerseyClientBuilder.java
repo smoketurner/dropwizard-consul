@@ -119,8 +119,7 @@ public class RibbonJerseyClientBuilder {
             .withDynamicServerList(serverList)
             .buildDynamicServerListLoadBalancer();
 
-    final RibbonJerseyClient client =
-        new RibbonJerseyClient(configuration.getScheme(), loadBalancer, jerseyClient);
+    final RibbonJerseyClient client = new RibbonJerseyClient(loadBalancer, jerseyClient);
 
     environment
         .lifecycle()
