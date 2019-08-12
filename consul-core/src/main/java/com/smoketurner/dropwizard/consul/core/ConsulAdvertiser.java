@@ -23,12 +23,13 @@ import com.orbitz.consul.model.agent.ImmutableRegistration;
 import com.orbitz.consul.model.agent.Registration;
 import com.smoketurner.dropwizard.consul.ConsulFactory;
 import io.dropwizard.setup.Environment;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.ws.rs.core.UriBuilder;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
-import javax.ws.rs.core.UriBuilder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class ConsulAdvertiser {
 
@@ -154,7 +155,7 @@ public class ConsulAdvertiser {
 
     final Registration.RegCheck check =
         ImmutableRegCheck.builder()
-            .http(getHealthCheckUrl())
+            .http(getHealthCheckUrl(applicationScheme))
             .interval(String.format("%ds", configuration.getCheckInterval().toSeconds()))
             .deregisterCriticalServiceAfter(
                 String.format("%dm", configuration.getDeregisterInterval().toMinutes()))
@@ -211,10 +212,10 @@ public class ConsulAdvertiser {
     }
   }
 
-  protected String getHealthCheckUrl() {
+    protected String getHealthCheckUrl(String applicationScheme) {
     final UriBuilder builder = UriBuilder.fromPath(environment.getAdminContext().getContextPath());
     builder.path("healthcheck");
-    builder.scheme("http");
+        builder.scheme(applicationScheme);
     if (serviceAddress.get() == null) {
       builder.host("127.0.0.1");
     } else {

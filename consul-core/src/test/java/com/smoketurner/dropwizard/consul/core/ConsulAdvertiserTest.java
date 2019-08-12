@@ -15,18 +15,6 @@
  */
 package com.smoketurner.dropwizard.consul.core;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.anyList;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.ArgumentMatchers.anyMap;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 import com.google.common.collect.ImmutableMap;
 import com.orbitz.consul.AgentClient;
 import com.orbitz.consul.Consul;
@@ -36,12 +24,17 @@ import com.orbitz.consul.model.agent.ImmutableRegistration;
 import com.smoketurner.dropwizard.consul.ConsulFactory;
 import io.dropwizard.jetty.MutableServletContextHandler;
 import io.dropwizard.setup.Environment;
+import org.junit.Before;
+import org.junit.Test;
+
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.junit.Before;
-import org.junit.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
 
 public class ConsulAdvertiserTest {
 
@@ -91,12 +84,34 @@ public class ConsulAdvertiserTest {
   }
 
   @Test
-  public void testRegisterAlreadyRegistered() {
-    when(agent.isRegistered(anyString())).thenReturn(true);
-    advertiser.register("http", 8080, 8081);
-    verify(agent, never())
-        .register(anyInt(), anyString(), anyLong(), anyString(), anyString(), anyList(), anyMap());
+  public void testRegisterWithHttps() {
+      when(agent.isRegistered(serviceId)).thenReturn(false);
+      advertiser.register("https", 8080, 8081);
+
+      final ImmutableRegistration registration =
+          ImmutableRegistration.builder()
+              .port(8080)
+              .check(
+                  ImmutableRegCheck.builder()
+                      .http("https://127.0.0.1:8081/admin/healthcheck")
+                      .interval("1s")
+                      .deregisterCriticalServiceAfter("1m")
+                      .build())
+              .name("test")
+              .meta(ImmutableMap.of("scheme", "https"))
+              .id(serviceId)
+              .build();
+
+      verify(agent).register(registration);
   }
+
+    @Test
+    public void testRegisterAlreadyRegistered() {
+        when(agent.isRegistered(anyString())).thenReturn(true);
+        advertiser.register("http", 8080, 8081);
+        verify(agent, never())
+            .register(anyInt(), anyString(), anyLong(), anyString(), anyString(), anyList(), anyMap());
+    }
 
   @Test
   public void testHostFromConfig() {
