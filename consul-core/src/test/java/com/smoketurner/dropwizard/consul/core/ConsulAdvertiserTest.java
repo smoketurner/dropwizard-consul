@@ -92,33 +92,33 @@ public class ConsulAdvertiserTest {
 
   @Test
   public void testRegisterWithHttps() {
-      when(agent.isRegistered(serviceId)).thenReturn(false);
-      advertiser.register("https", 8080, 8081);
+    when(agent.isRegistered(serviceId)).thenReturn(false);
+    advertiser.register("https", 8080, 8081);
 
-      final ImmutableRegistration registration =
-          ImmutableRegistration.builder()
-              .port(8080)
-              .check(
-                  ImmutableRegCheck.builder()
-                      .http("https://127.0.0.1:8081/admin/healthcheck")
-                      .interval("1s")
-                      .deregisterCriticalServiceAfter("1m")
-                      .build())
-              .name("test")
-              .meta(ImmutableMap.of("scheme", "https"))
-              .id(serviceId)
-              .build();
+    final ImmutableRegistration registration =
+        ImmutableRegistration.builder()
+            .port(8080)
+            .check(
+                ImmutableRegCheck.builder()
+                    .http("https://127.0.0.1:8081/admin/healthcheck")
+                    .interval("1s")
+                    .deregisterCriticalServiceAfter("1m")
+                    .build())
+            .name("test")
+            .meta(ImmutableMap.of("scheme", "https"))
+            .id(serviceId)
+            .build();
 
-      verify(agent).register(registration);
+    verify(agent).register(registration);
   }
 
-    @Test
-    public void testRegisterAlreadyRegistered() {
-        when(agent.isRegistered(anyString())).thenReturn(true);
-        advertiser.register("http", 8080, 8081);
-        verify(agent, never())
-            .register(anyInt(), anyString(), anyLong(), anyString(), anyString(), anyList(), anyMap());
-    }
+  @Test
+  public void testRegisterAlreadyRegistered() {
+    when(agent.isRegistered(anyString())).thenReturn(true);
+    advertiser.register("http", 8080, 8081);
+    verify(agent, never())
+        .register(anyInt(), anyString(), anyLong(), anyString(), anyString(), anyList(), anyMap());
+  }
 
   @Test
   public void testHostFromConfig() {
