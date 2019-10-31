@@ -16,32 +16,34 @@
 package com.smoketurner.dropwizard.consul.config;
 
 import com.orbitz.consul.Consul;
+import io.dropwizard.configuration.EnvironmentVariableSubstitutor;
 import io.dropwizard.configuration.UndefinedEnvironmentVariableException;
 import org.apache.commons.text.StrSubstitutor;
 
 /** A custom {@link StrSubstitutor} using Consul KV as lookup source. */
-public class ConsulSubstitutor extends StrSubstitutor {
+public class ConsulSubstitutor extends EnvironmentVariableSubstitutor {
 
-  public ConsulSubstitutor(final Consul consul) {
-    this(consul, true, false);
-  }
+    public ConsulSubstitutor(final Consul consul) {
+        this(consul, true, false);
+    }
 
-  public ConsulSubstitutor(final Consul consul, boolean strict) {
-    this(consul, strict, false);
-  }
+    public ConsulSubstitutor(final Consul consul, boolean strict) {
+        this(consul, strict, false);
+    }
 
-  /**
-   * Constructor
-   *
-   * @param consul Consul client
-   * @param strict {@code true} if looking up undefined environment variables should throw a {@link
-   *     UndefinedEnvironmentVariableException}, {@code false} otherwise.
-   * @param substitutionInVariables a flag whether substitution is done in variable names.
-   * @see io.dropwizard.configuration.EnvironmentVariableLookup#EnvironmentVariableLookup(boolean)
-   * @see org.apache.commons.lang3.text.StrSubstitutor#setEnableSubstitutionInVariables(boolean)
-   */
-  public ConsulSubstitutor(final Consul consul, boolean strict, boolean substitutionInVariables) {
-    super(new ConsulLookup(consul, strict));
-    this.setEnableSubstitutionInVariables(substitutionInVariables);
-  }
+    /**
+     * Constructor
+     *
+     * @param consul Consul client
+     * @param strict {@code true} if looking up undefined environment variables should throw a {@link
+     *     UndefinedEnvironmentVariableException}, {@code false} otherwise.
+     * @param substitutionInVariables a flag whether substitution is done in variable names.
+     * @see io.dropwizard.configuration.EnvironmentVariableLookup#EnvironmentVariableLookup(boolean)
+     * @see org.apache.commons.lang3.text.StrSubstitutor#setEnableSubstitutionInVariables(boolean)
+     */
+    public ConsulSubstitutor(final Consul consul, boolean strict, boolean substitutionInVariables) {
+        super(strict);
+        this.setVariableResolver(new ConsulLookup(consul, strict));
+        this.setEnableSubstitutionInVariables(substitutionInVariables);
+    }
 }

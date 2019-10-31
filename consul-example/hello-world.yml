@@ -18,7 +18,7 @@ template: ${helloworld/template:-Hello, %s!}
 defaultName: ${helloworld/defaultName:-Stranger}
 
 consul:
-  endpoint: localhost:8500
+  endpoint: ${CONSUL-URL:-localhost:8500}
   serviceId: test123
   retryInterval: 5 seconds
 
