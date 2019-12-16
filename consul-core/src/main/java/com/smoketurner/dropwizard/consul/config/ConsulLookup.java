@@ -15,14 +15,14 @@
  */
 package com.smoketurner.dropwizard.consul.config;
 
+import com.orbitz.consul.Consul;
+import io.dropwizard.configuration.UndefinedEnvironmentVariableException;
 import java.util.Objects;
 import java.util.Optional;
 import javax.annotation.Nullable;
 import org.apache.commons.text.lookup.StringLookup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.orbitz.consul.Consul;
-import io.dropwizard.configuration.UndefinedEnvironmentVariableException;
 
 /**
  * A custom {@link org.apache.commons.text.lookup.StringLookup} implementation using Consul KV as

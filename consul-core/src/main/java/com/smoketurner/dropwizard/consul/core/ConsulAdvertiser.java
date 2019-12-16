@@ -15,12 +15,6 @@
  */
 package com.smoketurner.dropwizard.consul.core;
 
-import java.util.Map;
-import java.util.Objects;
-import java.util.concurrent.atomic.AtomicReference;
-import javax.ws.rs.core.UriBuilder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import com.orbitz.consul.AgentClient;
 import com.orbitz.consul.Consul;
 import com.orbitz.consul.ConsulException;
@@ -29,6 +23,12 @@ import com.orbitz.consul.model.agent.ImmutableRegistration;
 import com.orbitz.consul.model.agent.Registration;
 import com.smoketurner.dropwizard.consul.ConsulFactory;
 import io.dropwizard.setup.Environment;
+import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.atomic.AtomicReference;
+import javax.ws.rs.core.UriBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ConsulAdvertiser {
 
