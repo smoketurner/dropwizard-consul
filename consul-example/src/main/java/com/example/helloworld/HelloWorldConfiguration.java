@@ -20,8 +20,8 @@ import com.smoketurner.dropwizard.consul.ConsulFactory;
 import com.smoketurner.dropwizard.consul.ribbon.RibbonJerseyClientConfiguration;
 import io.dropwizard.Configuration;
 import javax.validation.Valid;
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
-import org.hibernate.validator.constraints.NotEmpty;
 
 public class HelloWorldConfiguration extends Configuration {
 

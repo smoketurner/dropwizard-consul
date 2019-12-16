@@ -16,10 +16,11 @@
 package com.smoketurner.dropwizard.consul.task;
 
 import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableMultimap;
 import com.orbitz.consul.Consul;
 import io.dropwizard.servlets.tasks.Task;
 import java.io.PrintWriter;
+import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,17 +44,16 @@ public class MaintenanceTask extends Task {
   }
 
   @Override
-  public void execute(ImmutableMultimap<String, String> parameters, PrintWriter output)
-      throws Exception {
+  public void execute(Map<String, List<String>> parameters, PrintWriter output) throws Exception {
 
     if (!parameters.containsKey("enable")) {
       throw new IllegalArgumentException("Parameter \"enable\" not found");
     }
 
-    final boolean enable = Boolean.parseBoolean(parameters.get("enable").asList().get(0));
+    final boolean enable = Boolean.parseBoolean(parameters.get("enable").get(0));
     final String reason;
     if (parameters.containsKey("reason")) {
-      reason = Strings.nullToEmpty(parameters.get("reason").asList().get(0));
+      reason = Strings.nullToEmpty(parameters.get("reason").get(0));
     } else {
       reason = "";
     }

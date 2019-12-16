@@ -20,7 +20,7 @@ import io.dropwizard.configuration.UndefinedEnvironmentVariableException;
 import java.util.Objects;
 import java.util.Optional;
 import javax.annotation.Nullable;
-import org.apache.commons.text.StrLookup;
+import org.apache.commons.text.lookup.StringLookup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,7 +28,7 @@ import org.slf4j.LoggerFactory;
  * A custom {@link org.apache.commons.lang3.text.StrLookup} implementation using Consul KV as lookup
  * source.
  */
-public class ConsulLookup extends StrLookup<Object> {
+public class ConsulLookup implements StringLookup {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ConsulLookup.class);
   private final boolean strict;

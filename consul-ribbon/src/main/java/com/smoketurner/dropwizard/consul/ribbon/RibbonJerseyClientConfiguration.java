@@ -19,10 +19,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import io.dropwizard.client.JerseyClientConfiguration;
 import io.dropwizard.util.Duration;
 import io.dropwizard.validation.MinDuration;
-import io.dropwizard.validation.OneOf;
 import java.util.concurrent.TimeUnit;
 import javax.validation.constraints.NotNull;
-import org.hibernate.validator.constraints.NotEmpty;
 
 public class RibbonJerseyClientConfiguration extends JerseyClientConfiguration {
 
@@ -30,30 +28,13 @@ public class RibbonJerseyClientConfiguration extends JerseyClientConfiguration {
   @MinDuration(value = 1, unit = TimeUnit.SECONDS)
   private Duration refreshInterval = Duration.seconds(10);
 
-  @NotEmpty
-  @OneOf(value = {"http", "https"})
-  @Deprecated
-  private String scheme = "http";
-
   @JsonProperty
   public Duration getRefreshInterval() {
     return refreshInterval;
   }
 
   @JsonProperty
-  public void setRefreshInterval(Duration refreshInterval) {
-    this.refreshInterval = refreshInterval;
-  }
-
-  @Deprecated
-  @JsonProperty
-  public String getScheme() {
-    return scheme;
-  }
-
-  @Deprecated
-  @JsonProperty
-  public void setScheme(String scheme) {
-    this.scheme = scheme;
+  public void setRefreshInterval(Duration interval) {
+    refreshInterval = interval;
   }
 }

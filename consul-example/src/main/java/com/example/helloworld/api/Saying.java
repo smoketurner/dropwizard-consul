@@ -19,11 +19,11 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.hibernate.validator.constraints.Length;
 
-public class Saying {
-  private long id;
+public final class Saying {
+  private final long id;
 
   @Length(max = 3)
-  private String content;
+  private final String content;
 
   @JsonCreator
   public Saying(@JsonProperty("id") long id, @JsonProperty("content") String content) {
