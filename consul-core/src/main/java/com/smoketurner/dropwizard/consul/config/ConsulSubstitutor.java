@@ -19,7 +19,7 @@ import com.orbitz.consul.Consul;
 import io.dropwizard.configuration.EnvironmentVariableSubstitutor;
 import io.dropwizard.configuration.UndefinedEnvironmentVariableException;
 
-/** A custom {@link StrSubstitutor} using Consul KV as lookup source. */
+/** A custom {@link EnvironmentVariableSubstitutor} using Consul KV as lookup source. */
 public class ConsulSubstitutor extends EnvironmentVariableSubstitutor {
 
   public ConsulSubstitutor(final Consul consul) {
@@ -37,8 +37,7 @@ public class ConsulSubstitutor extends EnvironmentVariableSubstitutor {
    * @param strict {@code true} if looking up undefined environment variables should throw a {@link
    *     UndefinedEnvironmentVariableException}, {@code false} otherwise.
    * @param substitutionInVariables a flag whether substitution is done in variable names.
-   * @see io.dropwizard.configuration.EnvironmentVariableLookup#EnvironmentVariableLookup(boolean)
-   * @see org.apache.commons.lang3.text.StrSubstitutor#setEnableSubstitutionInVariables(boolean)
+   * @see org.apache.commons.text.StringSubstitutor#setEnableSubstitutionInVariables(boolean)
    */
   public ConsulSubstitutor(final Consul consul, boolean strict, boolean substitutionInVariables) {
     super(strict);

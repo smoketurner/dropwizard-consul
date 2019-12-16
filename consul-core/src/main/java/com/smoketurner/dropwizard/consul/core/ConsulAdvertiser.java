@@ -15,6 +15,12 @@
  */
 package com.smoketurner.dropwizard.consul.core;
 
+import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.atomic.AtomicReference;
+import javax.ws.rs.core.UriBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import com.orbitz.consul.AgentClient;
 import com.orbitz.consul.Consul;
 import com.orbitz.consul.ConsulException;
@@ -23,12 +29,6 @@ import com.orbitz.consul.model.agent.ImmutableRegistration;
 import com.orbitz.consul.model.agent.Registration;
 import com.smoketurner.dropwizard.consul.ConsulFactory;
 import io.dropwizard.setup.Environment;
-import java.util.Map;
-import java.util.Objects;
-import java.util.concurrent.atomic.AtomicReference;
-import javax.ws.rs.core.UriBuilder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class ConsulAdvertiser {
 
@@ -128,6 +128,7 @@ public class ConsulAdvertiser {
    * @param applicationScheme Scheme the server is listening on
    * @param applicationPort Port the service is listening on
    * @param adminPort Port the admin server is listening on
+   * @return true if successfully registered, otherwise false
    * @throws ConsulException When registration fails
    */
   public boolean register(
