@@ -60,6 +60,6 @@ public class ConsulServiceListenerTest {
 
     listener.register(null, 0, 0);
 
-    verify(advertiser, timeout(java.time.Duration.ofMillis(100)).atLeast(1)).register(null, 0, 0);
+    verify(advertiser, timeout(100).atLeast(1)).register(null, 0, 0);
   }
 }
