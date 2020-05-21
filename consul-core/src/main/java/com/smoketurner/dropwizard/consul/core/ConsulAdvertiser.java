@@ -220,7 +220,8 @@ public class ConsulAdvertiser {
   /**
    * Returns the service address from best provided options.
    * The order of precedence is as follows: serviceAddress, if provided, then
-   * the subnet resolution. If neither is provided or matched, Optional.empty()
+   * the subnet resolution, lastly the supplier. If none of the above is
+   * provided or matched, Optional.empty()
    * is returned.
    *
    * @param ipAddresses List of ipAddresses the application is listening on.
