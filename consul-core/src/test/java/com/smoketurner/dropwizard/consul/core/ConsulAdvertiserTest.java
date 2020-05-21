@@ -36,19 +36,27 @@ import com.orbitz.consul.model.agent.ImmutableRegistration;
 import com.smoketurner.dropwizard.consul.ConsulFactory;
 import io.dropwizard.jetty.MutableServletContextHandler;
 import io.dropwizard.setup.Environment;
+
+import java.net.InetAddress;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Supplier;
+
 import org.junit.Before;
 import org.junit.Test;
 
 public class ConsulAdvertiserTest {
 
+  public static final String SECOND_SUBNET_IP = "192.168.2.99";
+  public static final String FIRST_SUBNET_IP = "192.168.1.53";
+  public static final String THIRD_SUBNET_IP = "192.168.3.32";
   private final Consul consul = mock(Consul.class);
   private final AgentClient agent = mock(AgentClient.class);
   private final Environment environment = mock(Environment.class);
   private final MutableServletContextHandler handler = mock(MutableServletContextHandler.class);
+  private final Supplier<String> supplierMock = mock(Supplier.class);
   private final String serviceId = "test";
   private ConsulAdvertiser advertiser;
   private ConsulFactory factory;
@@ -58,8 +66,11 @@ public class ConsulAdvertiserTest {
     when(consul.agentClient()).thenReturn(agent);
     when(environment.getAdminContext()).thenReturn(handler);
     when(handler.getContextPath()).thenReturn("admin");
+    when(supplierMock.get()).thenReturn(null);
     factory = new ConsulFactory();
     factory.setSeviceName("test");
+    factory.setServiceSubnet("192.168.2.0/24");
+    factory.setServiceAddressSupplier(supplierMock);
     advertiser = new ConsulAdvertiser(environment, factory, consul, serviceId);
   }
 
@@ -89,6 +100,102 @@ public class ConsulAdvertiserTest {
 
     verify(agent).register(registration);
   }
+
+  @Test
+  public void testRegisterWithSubnet() {
+    when(agent.isRegistered(serviceId)).thenReturn(false);
+    advertiser.register("http", 8080, 8081,
+        Arrays.asList(FIRST_SUBNET_IP, SECOND_SUBNET_IP, THIRD_SUBNET_IP));
+
+    final ImmutableRegistration registration =
+        ImmutableRegistration.builder()
+            .port(8080)
+            .check(
+                ImmutableRegCheck.builder()
+                    .http("http://192.168.2.99:8081/admin/healthcheck")
+                    .interval("1s")
+                    .deregisterCriticalServiceAfter("1m")
+                    .build())
+            .name("test")
+            .address(SECOND_SUBNET_IP)
+            .meta(ImmutableMap.of("scheme", "http"))
+            .id(serviceId)
+            .build();
+
+    verify(agent).register(registration);
+  }
+
+  @Test
+  public void testRegisterWithSubnetNoEligibleIps() {
+    when(agent.isRegistered(serviceId)).thenReturn(false);
+    advertiser.register("http", 8080, 8081,
+        Arrays.asList(FIRST_SUBNET_IP, "192.168.7.23", THIRD_SUBNET_IP));
+
+    final ImmutableRegistration registration =
+        ImmutableRegistration.builder()
+            .port(8080)
+            .check(
+                ImmutableRegCheck.builder()
+                    .http("http://127.0.0.1:8081/admin/healthcheck")
+                    .interval("1s")
+                    .deregisterCriticalServiceAfter("1m")
+                    .build())
+            .name("test")
+            .meta(ImmutableMap.of("scheme", "http"))
+            .id(serviceId)
+            .build();
+
+    verify(agent).register(registration);
+  }
+
+  @Test
+  public void testRegisterWithSupplier() {
+    when(agent.isRegistered(serviceId)).thenReturn(false);
+    when(supplierMock.get()).thenReturn("192.168.8.99");
+    advertiser.register("http", 8080, 8081,
+        Arrays.asList(FIRST_SUBNET_IP, "192.168.7.23", THIRD_SUBNET_IP));
+
+    final ImmutableRegistration registration =
+        ImmutableRegistration.builder()
+            .port(8080)
+            .check(
+                ImmutableRegCheck.builder()
+                    .http("http://192.168.8.99:8081/admin/healthcheck")
+                    .interval("1s")
+                    .deregisterCriticalServiceAfter("1m")
+                    .build())
+            .name("test")
+            .meta(ImmutableMap.of("scheme", "http"))
+            .address("192.168.8.99")
+            .id(serviceId)
+            .build();
+
+    verify(agent).register(registration);
+  }
+
+    @Test
+    public void testRegisterWithSupplierException() {
+        when(agent.isRegistered(serviceId)).thenReturn(false);
+        when(supplierMock.get()).thenThrow(new IllegalArgumentException());
+        advertiser.register("http", 8080, 8081,
+            Arrays.asList(FIRST_SUBNET_IP, "192.168.7.23", THIRD_SUBNET_IP));
+
+        final ImmutableRegistration registration =
+            ImmutableRegistration.builder()
+                .port(8080)
+                .check(
+                    ImmutableRegCheck.builder()
+                        .http("http://127.0.0.1:8081/admin/healthcheck")
+                        .interval("1s")
+                        .deregisterCriticalServiceAfter("1m")
+                        .build())
+                .name("test")
+                .meta(ImmutableMap.of("scheme", "http"))
+                .id(serviceId)
+                .build();
+
+        verify(agent).register(registration);
+    }
 
   @Test
   public void testRegisterWithHttps() {
