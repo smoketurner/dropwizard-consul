@@ -16,6 +16,7 @@
 package com.smoketurner.dropwizard.consul;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 import com.google.common.collect.ImmutableList;
 import io.dropwizard.util.Duration;
@@ -29,6 +30,22 @@ public class ConsulFactoryTest {
     final ConsulFactory expected = createFullyPopulatedConsulFactory();
     assertThat(actual).isEqualTo(expected);
   }
+
+  @Test
+  public void testCorrectlyFormattedSubnet(){
+      final ConsulFactory factory = createFullyPopulatedConsulFactory();
+      factory.setServiceSubnet("192.168.3.0/24");
+      assertThat(factory.getServiceSubnet())
+          .isPresent()
+          .contains("192.168.3.0/24");
+  }
+
+    @Test
+  public void testIncorrectlyFormattedSubnet(){
+      final ConsulFactory factory = createFullyPopulatedConsulFactory();
+      assertThatIllegalArgumentException()
+          .isThrownBy(()->factory.setServiceSubnet("192.168.3.0/"));
+   }
 
   @Test
   public void testNotEqual() {
@@ -59,6 +76,7 @@ public class ConsulFactoryTest {
     consulFactory.setEnabled(true);
     consulFactory.setServicePort(1000);
     consulFactory.setAdminPort(2000);
+    consulFactory.setServiceSubnet("192.168.1.0/24");
     consulFactory.setServiceAddress("localhost");
     consulFactory.setTags(ImmutableList.of("tag1", "tag2"));
     consulFactory.setRetryInterval(Duration.seconds(5));

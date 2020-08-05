@@ -18,9 +18,12 @@ package com.smoketurner.dropwizard.consul.core;
 import com.orbitz.consul.ConsulException;
 import io.dropwizard.lifecycle.ServerLifecycleListener;
 import io.dropwizard.util.Duration;
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
+import java.util.HashSet;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import org.eclipse.jetty.server.Connector;
@@ -62,10 +65,12 @@ public class ConsulServiceListener implements ServerLifecycleListener {
     String applicationScheme = null;
     int applicationPort = -1;
     int adminPort = -1;
+    Set<String> hosts = new HashSet<>();
 
     for (Connector connector : server.getConnectors()) {
       @SuppressWarnings("resource")
       final ServerConnector serverConnector = (ServerConnector) connector;
+      hosts.add(serverConnector.getHost());
       if (APPLICATION_NAME.equals(connector.getName())) {
         applicationPort = serverConnector.getLocalPort();
         applicationScheme = getScheme(connector.getProtocols());
@@ -84,7 +89,7 @@ public class ConsulServiceListener implements ServerLifecycleListener {
         applicationPort,
         adminPort);
 
-    register(applicationScheme, applicationPort, adminPort);
+    register(applicationScheme, applicationPort, adminPort, hosts);
   }
 
   /**
@@ -106,10 +111,11 @@ public class ConsulServiceListener implements ServerLifecycleListener {
    * @param applicationScheme Application protocol scheme
    * @param applicationPort Application listening port
    * @param adminPort Administration listening port
+   * @param hosts List of addresses the service is bound to.
    */
-  void register(String applicationScheme, int applicationPort, int adminPort) {
+  void register(String applicationScheme, int applicationPort, int adminPort, Collection<String> hosts) {
     try {
-      advertiser.register(applicationScheme, applicationPort, adminPort);
+      advertiser.register(applicationScheme, applicationPort, adminPort, hosts);
       scheduler.ifPresent(ScheduledExecutorService::shutdownNow);
     } catch (ConsulException e) {
       LOGGER.error("Failed to register service in Consul", e);
@@ -121,7 +127,7 @@ public class ConsulServiceListener implements ServerLifecycleListener {
                   LOGGER.info(
                       "Will try to register service again in {} seconds", interval.toSeconds());
                   service.schedule(
-                      () -> register(applicationScheme, applicationPort, adminPort),
+                      () -> register(applicationScheme, applicationPort, adminPort, hosts),
                       interval.toSeconds(),
                       TimeUnit.SECONDS);
                 });

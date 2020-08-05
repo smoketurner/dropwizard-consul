@@ -17,15 +17,18 @@ package com.smoketurner.dropwizard.consul;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.net.HostAndPort;
 import com.orbitz.consul.Consul;
 import io.dropwizard.util.Duration;
 import io.dropwizard.validation.MinDuration;
+import org.apache.commons.net.util.SubnetUtils;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
 import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 
@@ -43,6 +46,8 @@ public class ConsulFactory {
   private Optional<Integer> servicePort = Optional.empty();
   private Optional<Integer> adminPort = Optional.empty();
   private Optional<String> serviceAddress = Optional.empty();
+  private Optional<String> serviceSubnet = Optional.empty();
+  private Optional<Supplier<String>> serviceAddressSupplier = Optional.empty();
   private Optional<Iterable<String>> tags = Optional.empty();
   private Optional<String> aclToken = Optional.empty();
   private Optional<Map<String, String>> serviceMeta = Optional.empty();
@@ -201,6 +206,23 @@ public class ConsulFactory {
     this.servicePing = servicePing;
   }
 
+  public Optional<String> getServiceSubnet() {
+    return serviceSubnet;
+  }
+
+  public void setServiceSubnet(String serviceSubnet) {
+    Preconditions.checkArgument(isValidCidrIp(serviceSubnet), "%s is not a valid Subnet in CIDR notation",serviceSubnet);
+    this.serviceSubnet = Optional.ofNullable(serviceSubnet);
+  }
+
+  public void setServiceAddressSupplier(Supplier<String> serviceAddressSupplier) {
+    this.serviceAddressSupplier = Optional.ofNullable(serviceAddressSupplier);
+  }
+
+  public Optional<Supplier<String>> getServiceAddressSupplier() {
+    return serviceAddressSupplier;
+  }
+
   @JsonIgnore
   public Consul build() {
 
@@ -259,5 +281,15 @@ public class ConsulFactory {
         && Objects.equals(this.aclToken, other.aclToken)
         && Objects.equals(this.serviceMeta, other.serviceMeta)
         && Objects.equals(this.servicePing, other.servicePing);
+  }
+
+  private static boolean isValidCidrIp(String cidrIp) {
+    boolean isValid = true;
+      try {
+         new SubnetUtils(cidrIp);
+      } catch (IllegalArgumentException e) {
+         isValid = false;
+      }
+      return isValid;
   }
 }

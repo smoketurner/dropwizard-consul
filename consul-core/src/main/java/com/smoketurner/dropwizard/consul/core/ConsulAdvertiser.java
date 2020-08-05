@@ -23,12 +23,18 @@ import com.orbitz.consul.model.agent.ImmutableRegistration;
 import com.orbitz.consul.model.agent.Registration;
 import com.smoketurner.dropwizard.consul.ConsulFactory;
 import io.dropwizard.setup.Environment;
+import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Supplier;
 import javax.ws.rs.core.UriBuilder;
+import org.apache.commons.net.util.SubnetUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static java.util.Objects.nonNull;
 
 public class ConsulAdvertiser {
 
@@ -36,6 +42,8 @@ public class ConsulAdvertiser {
   private final AtomicReference<Integer> servicePort = new AtomicReference<>();
   private final AtomicReference<Integer> serviceAdminPort = new AtomicReference<>();
   private final AtomicReference<String> serviceAddress = new AtomicReference<>();
+  private final AtomicReference<String> serviceSubnet = new AtomicReference<>();
+  private final AtomicReference<Supplier<String>> serviceAddressSupplier = new AtomicReference<>();
   private final AtomicReference<String> aclToken = new AtomicReference<>();
   private final AtomicReference<Iterable<String>> tags = new AtomicReference<>();
   private final AtomicReference<Map<String, String>> serviceMeta = new AtomicReference<>();
@@ -88,6 +96,22 @@ public class ConsulAdvertiser {
             });
 
     configuration
+        .getServiceSubnet()
+        .ifPresent(
+            subnet -> {
+              LOGGER.info("Using \"{}\" as serviceSubnet from configuration file", subnet);
+              serviceSubnet.set(subnet);
+            });
+
+    configuration
+        .getServiceAddressSupplier()
+        .ifPresent(
+            supplier -> {
+              LOGGER.info("Using \"{}\" as serviceSupplier from configuration file", supplier);
+              serviceAddressSupplier.set(supplier);
+            });
+
+    configuration
         .getTags()
         .ifPresent(
             newTags -> {
@@ -122,17 +146,22 @@ public class ConsulAdvertiser {
     return serviceId;
   }
 
+  public boolean register(final String applicationScheme, final int applicationPort, final int adminPort) {
+      return register(applicationScheme, applicationPort, adminPort, null);
+  }
+
   /**
    * Register the service with Consul
    *
    * @param applicationScheme Scheme the server is listening on
    * @param applicationPort Port the service is listening on
    * @param adminPort Port the admin server is listening on
+   * @param ipAddresses IP addresses of the available that the application is listening on
    * @return true if successfully registered, otherwise false
    * @throws ConsulException When registration fails
    */
   public boolean register(
-      final String applicationScheme, final int applicationPort, final int adminPort) {
+      final String applicationScheme, final int applicationPort, final int adminPort, Collection<String> ipAddresses) {
     final AgentClient agent = consul.agentClient();
     if (agent.isRegistered(serviceId)) {
       LOGGER.info(
@@ -155,7 +184,7 @@ public class ConsulAdvertiser {
 
     final Registration.RegCheck check =
         ImmutableRegCheck.builder()
-            .http(getHealthCheckUrl(applicationScheme))
+            .http(getHealthCheckUrl(applicationScheme, ipAddresses))
             .interval(String.format("%ds", configuration.getCheckInterval().toSeconds()))
             .deregisterCriticalServiceAfter(
                 String.format("%dm", configuration.getDeregisterInterval().toMinutes()))
@@ -170,9 +199,7 @@ public class ConsulAdvertiser {
     }
 
     // If we have set the serviceAddress, add it to the registration.
-    if (serviceAddress.get() != null) {
-      builder.address(serviceAddress.get());
-    }
+    getServiceAddress(ipAddresses).ifPresent(builder::address);
 
     // If we have tags, add them to the registration.
     if (tags.get() != null) {
@@ -188,6 +215,54 @@ public class ConsulAdvertiser {
 
     consul.agentClient().register(builder.build());
     return true;
+}
+
+  /**
+   * Returns the service address from best provided options.
+   * The order of precedence is as follows: serviceAddress, if provided, then
+   * the subnet resolution, lastly the supplier. If none of the above is
+   * provided or matched, Optional.empty()
+   * is returned.
+   *
+   * @param ipAddresses List of ipAddresses the application is listening on.
+   * @return Optional of the host to register as the service address or empty otherwise
+   */
+  private Optional<String> getServiceAddress(Collection<String> ipAddresses) {
+      if (nonNull(serviceAddress.get())) {
+          return Optional.of(serviceAddress.get());
+      }
+
+      if (nonNull(ipAddresses) && !ipAddresses.isEmpty() && nonNull(serviceSubnet.get())) {
+          Optional<String> ip = findFirstEligibleIpBySubnet(ipAddresses);
+          if (ip.isPresent()){
+              return ip;
+          }
+      }
+
+      if (nonNull(serviceAddressSupplier.get())){
+          try{
+              return Optional.ofNullable(serviceAddressSupplier.get().get());
+          } catch (Exception ex){
+              LOGGER.debug("Service address supplier threw an exception.", ex);
+          }
+      }
+      return Optional.empty();
+  }
+
+ /**
+   * Returns the service address from the list of hosts. It iterates through
+   * the list and finds the first host tht matched the subnet. If none is found,
+   * an empty Optional is returned.
+   *
+   * @param ipAddresses List of ipAddresses the application is listening on.
+   * @return Optional of the host to register as the service address or empty otherwise
+   */
+  private Optional<String> findFirstEligibleIpBySubnet(Collection<String> ipAddresses) {
+      SubnetUtils subnetUtils = new SubnetUtils(serviceSubnet.get());
+      SubnetUtils.SubnetInfo subNetInfo = subnetUtils.getInfo();
+      return ipAddresses.stream()
+          .filter(subNetInfo::isInRange)
+          .findFirst();
   }
 
   /** Deregister a service from Consul */
@@ -199,7 +274,7 @@ public class ConsulAdvertiser {
         return;
       }
     } catch (ConsulException e) {
-      LOGGER.error("Failed to determine if service ID \"{}\" is registered", e);
+      LOGGER.error("Failed to determine if service ID \"{}\" is registered", serviceId, e);
       return;
     }
 
@@ -218,16 +293,12 @@ public class ConsulAdvertiser {
    * @param applicationScheme Scheme the server is listening on
    * @return health check URL
    */
-  protected String getHealthCheckUrl(String applicationScheme) {
+  protected String getHealthCheckUrl(String applicationScheme, Collection<String> hosts) {
     final UriBuilder builder = UriBuilder.fromPath(environment.getAdminContext().getContextPath());
-    builder.path("healthcheck");
-    builder.scheme(applicationScheme);
-    if (serviceAddress.get() == null) {
-      builder.host("127.0.0.1");
-    } else {
-      builder.host(serviceAddress.get());
-    }
-    builder.port(serviceAdminPort.get());
+    builder.path("healthcheck")
+      .scheme(applicationScheme)
+      .host(getServiceAddress(hosts).orElse("127.0.0.1"))
+      .port(serviceAdminPort.get());
     return builder.build().toString();
   }
 }
