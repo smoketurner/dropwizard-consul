@@ -36,14 +36,11 @@ import com.orbitz.consul.model.agent.ImmutableRegistration;
 import com.smoketurner.dropwizard.consul.ConsulFactory;
 import io.dropwizard.jetty.MutableServletContextHandler;
 import io.dropwizard.setup.Environment;
-
-import java.net.InetAddress;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
-
 import org.junit.Before;
 import org.junit.Test;
 
@@ -104,8 +101,8 @@ public class ConsulAdvertiserTest {
   @Test
   public void testRegisterWithSubnet() {
     when(agent.isRegistered(serviceId)).thenReturn(false);
-    advertiser.register("http", 8080, 8081,
-        Arrays.asList(FIRST_SUBNET_IP, SECOND_SUBNET_IP, THIRD_SUBNET_IP));
+    advertiser.register(
+        "http", 8080, 8081, Arrays.asList(FIRST_SUBNET_IP, SECOND_SUBNET_IP, THIRD_SUBNET_IP));
 
     final ImmutableRegistration registration =
         ImmutableRegistration.builder()
@@ -128,8 +125,8 @@ public class ConsulAdvertiserTest {
   @Test
   public void testRegisterWithSubnetNoEligibleIps() {
     when(agent.isRegistered(serviceId)).thenReturn(false);
-    advertiser.register("http", 8080, 8081,
-        Arrays.asList(FIRST_SUBNET_IP, "192.168.7.23", THIRD_SUBNET_IP));
+    advertiser.register(
+        "http", 8080, 8081, Arrays.asList(FIRST_SUBNET_IP, "192.168.7.23", THIRD_SUBNET_IP));
 
     final ImmutableRegistration registration =
         ImmutableRegistration.builder()
@@ -152,8 +149,8 @@ public class ConsulAdvertiserTest {
   public void testRegisterWithSupplier() {
     when(agent.isRegistered(serviceId)).thenReturn(false);
     when(supplierMock.get()).thenReturn("192.168.8.99");
-    advertiser.register("http", 8080, 8081,
-        Arrays.asList(FIRST_SUBNET_IP, "192.168.7.23", THIRD_SUBNET_IP));
+    advertiser.register(
+        "http", 8080, 8081, Arrays.asList(FIRST_SUBNET_IP, "192.168.7.23", THIRD_SUBNET_IP));
 
     final ImmutableRegistration registration =
         ImmutableRegistration.builder()
@@ -173,29 +170,29 @@ public class ConsulAdvertiserTest {
     verify(agent).register(registration);
   }
 
-    @Test
-    public void testRegisterWithSupplierException() {
-        when(agent.isRegistered(serviceId)).thenReturn(false);
-        when(supplierMock.get()).thenThrow(new IllegalArgumentException());
-        advertiser.register("http", 8080, 8081,
-            Arrays.asList(FIRST_SUBNET_IP, "192.168.7.23", THIRD_SUBNET_IP));
+  @Test
+  public void testRegisterWithSupplierException() {
+    when(agent.isRegistered(serviceId)).thenReturn(false);
+    when(supplierMock.get()).thenThrow(new IllegalArgumentException());
+    advertiser.register(
+        "http", 8080, 8081, Arrays.asList(FIRST_SUBNET_IP, "192.168.7.23", THIRD_SUBNET_IP));
 
-        final ImmutableRegistration registration =
-            ImmutableRegistration.builder()
-                .port(8080)
-                .check(
-                    ImmutableRegCheck.builder()
-                        .http("http://127.0.0.1:8081/admin/healthcheck")
-                        .interval("1s")
-                        .deregisterCriticalServiceAfter("1m")
-                        .build())
-                .name("test")
-                .meta(ImmutableMap.of("scheme", "http"))
-                .id(serviceId)
-                .build();
+    final ImmutableRegistration registration =
+        ImmutableRegistration.builder()
+            .port(8080)
+            .check(
+                ImmutableRegCheck.builder()
+                    .http("http://127.0.0.1:8081/admin/healthcheck")
+                    .interval("1s")
+                    .deregisterCriticalServiceAfter("1m")
+                    .build())
+            .name("test")
+            .meta(ImmutableMap.of("scheme", "http"))
+            .id(serviceId)
+            .build();
 
-        verify(agent).register(registration);
-    }
+    verify(agent).register(registration);
+  }
 
   @Test
   public void testRegisterWithHttps() {

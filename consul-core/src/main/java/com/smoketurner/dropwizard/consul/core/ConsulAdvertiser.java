@@ -15,6 +15,8 @@
  */
 package com.smoketurner.dropwizard.consul.core;
 
+import static java.util.Objects.nonNull;
+
 import com.orbitz.consul.AgentClient;
 import com.orbitz.consul.Consul;
 import com.orbitz.consul.ConsulException;
@@ -33,8 +35,6 @@ import javax.ws.rs.core.UriBuilder;
 import org.apache.commons.net.util.SubnetUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import static java.util.Objects.nonNull;
 
 public class ConsulAdvertiser {
 
@@ -146,8 +146,9 @@ public class ConsulAdvertiser {
     return serviceId;
   }
 
-  public boolean register(final String applicationScheme, final int applicationPort, final int adminPort) {
-      return register(applicationScheme, applicationPort, adminPort, null);
+  public boolean register(
+      final String applicationScheme, final int applicationPort, final int adminPort) {
+    return register(applicationScheme, applicationPort, adminPort, null);
   }
 
   /**
@@ -161,7 +162,10 @@ public class ConsulAdvertiser {
    * @throws ConsulException When registration fails
    */
   public boolean register(
-      final String applicationScheme, final int applicationPort, final int adminPort, Collection<String> ipAddresses) {
+      final String applicationScheme,
+      final int applicationPort,
+      final int adminPort,
+      Collection<String> ipAddresses) {
     final AgentClient agent = consul.agentClient();
     if (agent.isRegistered(serviceId)) {
       LOGGER.info(
@@ -215,54 +219,49 @@ public class ConsulAdvertiser {
 
     consul.agentClient().register(builder.build());
     return true;
-}
+  }
 
   /**
-   * Returns the service address from best provided options.
-   * The order of precedence is as follows: serviceAddress, if provided, then
-   * the subnet resolution, lastly the supplier. If none of the above is
-   * provided or matched, Optional.empty()
-   * is returned.
+   * Returns the service address from best provided options. The order of precedence is as follows:
+   * serviceAddress, if provided, then the subnet resolution, lastly the supplier. If none of the
+   * above is provided or matched, Optional.empty() is returned.
    *
    * @param ipAddresses List of ipAddresses the application is listening on.
    * @return Optional of the host to register as the service address or empty otherwise
    */
   private Optional<String> getServiceAddress(Collection<String> ipAddresses) {
-      if (nonNull(serviceAddress.get())) {
-          return Optional.of(serviceAddress.get());
-      }
+    if (nonNull(serviceAddress.get())) {
+      return Optional.of(serviceAddress.get());
+    }
 
-      if (nonNull(ipAddresses) && !ipAddresses.isEmpty() && nonNull(serviceSubnet.get())) {
-          Optional<String> ip = findFirstEligibleIpBySubnet(ipAddresses);
-          if (ip.isPresent()){
-              return ip;
-          }
+    if (nonNull(ipAddresses) && !ipAddresses.isEmpty() && nonNull(serviceSubnet.get())) {
+      Optional<String> ip = findFirstEligibleIpBySubnet(ipAddresses);
+      if (ip.isPresent()) {
+        return ip;
       }
+    }
 
-      if (nonNull(serviceAddressSupplier.get())){
-          try{
-              return Optional.ofNullable(serviceAddressSupplier.get().get());
-          } catch (Exception ex){
-              LOGGER.debug("Service address supplier threw an exception.", ex);
-          }
+    if (nonNull(serviceAddressSupplier.get())) {
+      try {
+        return Optional.ofNullable(serviceAddressSupplier.get().get());
+      } catch (Exception ex) {
+        LOGGER.debug("Service address supplier threw an exception.", ex);
       }
-      return Optional.empty();
+    }
+    return Optional.empty();
   }
 
- /**
-   * Returns the service address from the list of hosts. It iterates through
-   * the list and finds the first host tht matched the subnet. If none is found,
-   * an empty Optional is returned.
+  /**
+   * Returns the service address from the list of hosts. It iterates through the list and finds the
+   * first host tht matched the subnet. If none is found, an empty Optional is returned.
    *
    * @param ipAddresses List of ipAddresses the application is listening on.
    * @return Optional of the host to register as the service address or empty otherwise
    */
   private Optional<String> findFirstEligibleIpBySubnet(Collection<String> ipAddresses) {
-      SubnetUtils subnetUtils = new SubnetUtils(serviceSubnet.get());
-      SubnetUtils.SubnetInfo subNetInfo = subnetUtils.getInfo();
-      return ipAddresses.stream()
-          .filter(subNetInfo::isInRange)
-          .findFirst();
+    SubnetUtils subnetUtils = new SubnetUtils(serviceSubnet.get());
+    SubnetUtils.SubnetInfo subNetInfo = subnetUtils.getInfo();
+    return ipAddresses.stream().filter(subNetInfo::isInRange).findFirst();
   }
 
   /** Deregister a service from Consul */
@@ -295,10 +294,11 @@ public class ConsulAdvertiser {
    */
   protected String getHealthCheckUrl(String applicationScheme, Collection<String> hosts) {
     final UriBuilder builder = UriBuilder.fromPath(environment.getAdminContext().getContextPath());
-    builder.path("healthcheck")
-      .scheme(applicationScheme)
-      .host(getServiceAddress(hosts).orElse("127.0.0.1"))
-      .port(serviceAdminPort.get());
+    builder
+        .path("healthcheck")
+        .scheme(applicationScheme)
+        .host(getServiceAddress(hosts).orElse("127.0.0.1"))
+        .port(serviceAdminPort.get());
     return builder.build().toString();
   }
 }

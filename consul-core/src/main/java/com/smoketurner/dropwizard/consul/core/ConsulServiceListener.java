@@ -19,11 +19,11 @@ import com.orbitz.consul.ConsulException;
 import io.dropwizard.lifecycle.ServerLifecycleListener;
 import io.dropwizard.util.Duration;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.HashSet;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import org.eclipse.jetty.server.Connector;
@@ -113,7 +113,8 @@ public class ConsulServiceListener implements ServerLifecycleListener {
    * @param adminPort Administration listening port
    * @param hosts List of addresses the service is bound to.
    */
-  void register(String applicationScheme, int applicationPort, int adminPort, Collection<String> hosts) {
+  void register(
+      String applicationScheme, int applicationPort, int adminPort, Collection<String> hosts) {
     try {
       advertiser.register(applicationScheme, applicationPort, adminPort, hosts);
       scheduler.ifPresent(ScheduledExecutorService::shutdownNow);

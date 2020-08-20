@@ -32,20 +32,17 @@ public class ConsulFactoryTest {
   }
 
   @Test
-  public void testCorrectlyFormattedSubnet(){
-      final ConsulFactory factory = createFullyPopulatedConsulFactory();
-      factory.setServiceSubnet("192.168.3.0/24");
-      assertThat(factory.getServiceSubnet())
-          .isPresent()
-          .contains("192.168.3.0/24");
+  public void testCorrectlyFormattedSubnet() {
+    final ConsulFactory factory = createFullyPopulatedConsulFactory();
+    factory.setServiceSubnet("192.168.3.0/24");
+    assertThat(factory.getServiceSubnet()).isPresent().contains("192.168.3.0/24");
   }
 
-    @Test
-  public void testIncorrectlyFormattedSubnet(){
-      final ConsulFactory factory = createFullyPopulatedConsulFactory();
-      assertThatIllegalArgumentException()
-          .isThrownBy(()->factory.setServiceSubnet("192.168.3.0/"));
-   }
+  @Test
+  public void testIncorrectlyFormattedSubnet() {
+    final ConsulFactory factory = createFullyPopulatedConsulFactory();
+    assertThatIllegalArgumentException().isThrownBy(() -> factory.setServiceSubnet("192.168.3.0/"));
+  }
 
   @Test
   public void testNotEqual() {

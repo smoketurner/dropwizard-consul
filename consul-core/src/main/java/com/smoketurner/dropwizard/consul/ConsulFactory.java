@@ -23,7 +23,6 @@ import com.google.common.net.HostAndPort;
 import com.orbitz.consul.Consul;
 import io.dropwizard.util.Duration;
 import io.dropwizard.validation.MinDuration;
-import org.apache.commons.net.util.SubnetUtils;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -31,6 +30,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
+import org.apache.commons.net.util.SubnetUtils;
 
 public class ConsulFactory {
   private static final String CONSUL_AUTH_HEADER_KEY = "X-Consul-Token";
@@ -211,7 +211,8 @@ public class ConsulFactory {
   }
 
   public void setServiceSubnet(String serviceSubnet) {
-    Preconditions.checkArgument(isValidCidrIp(serviceSubnet), "%s is not a valid Subnet in CIDR notation",serviceSubnet);
+    Preconditions.checkArgument(
+        isValidCidrIp(serviceSubnet), "%s is not a valid Subnet in CIDR notation", serviceSubnet);
     this.serviceSubnet = Optional.ofNullable(serviceSubnet);
   }
 
@@ -285,11 +286,11 @@ public class ConsulFactory {
 
   private static boolean isValidCidrIp(String cidrIp) {
     boolean isValid = true;
-      try {
-         new SubnetUtils(cidrIp);
-      } catch (IllegalArgumentException e) {
-         isValid = false;
-      }
-      return isValid;
+    try {
+      new SubnetUtils(cidrIp);
+    } catch (IllegalArgumentException e) {
+      isValid = false;
+    }
+    return isValid;
   }
 }
