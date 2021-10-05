@@ -49,6 +49,7 @@ public class ConsulAdvertiserTest {
   public static final String SECOND_SUBNET_IP = "192.168.2.99";
   public static final String FIRST_SUBNET_IP = "192.168.1.53";
   public static final String THIRD_SUBNET_IP = "192.168.3.32";
+  private static final String DEFAULT_HEALTH_CHECK_PATH = "ping";
   private final Consul consul = mock(Consul.class);
   private final AgentClient agent = mock(AgentClient.class);
   private final Environment environment = mock(Environment.class);
@@ -57,6 +58,7 @@ public class ConsulAdvertiserTest {
   private final String serviceId = "test";
   private ConsulAdvertiser advertiser;
   private ConsulFactory factory;
+  private String healthCheckUrl;
 
   @Before
   public void setUp() {
@@ -68,7 +70,9 @@ public class ConsulAdvertiserTest {
     factory.setSeviceName("test");
     factory.setServiceSubnet("192.168.2.0/24");
     factory.setServiceAddressSupplier(supplierMock);
+    factory.setHealthCheckPath(DEFAULT_HEALTH_CHECK_PATH);
     advertiser = new ConsulAdvertiser(environment, factory, consul, serviceId);
+    healthCheckUrl = "http://127.0.0.1:8081/admin/" + DEFAULT_HEALTH_CHECK_PATH;
   }
 
   @Test
@@ -86,7 +90,7 @@ public class ConsulAdvertiserTest {
             .port(8080)
             .check(
                 ImmutableRegCheck.builder()
-                    .http("http://127.0.0.1:8081/admin/healthcheck")
+                    .http(healthCheckUrl)
                     .interval("1s")
                     .deregisterCriticalServiceAfter("1m")
                     .build())
@@ -104,12 +108,13 @@ public class ConsulAdvertiserTest {
     advertiser.register(
         "http", 8080, 8081, Arrays.asList(FIRST_SUBNET_IP, SECOND_SUBNET_IP, THIRD_SUBNET_IP));
 
-    final ImmutableRegistration registration =
+      String healthCheckUrlWithCorrectSubnet = "http://192.168.2.99:8081/admin/" + DEFAULT_HEALTH_CHECK_PATH;
+      final ImmutableRegistration registration =
         ImmutableRegistration.builder()
             .port(8080)
             .check(
                 ImmutableRegCheck.builder()
-                    .http("http://192.168.2.99:8081/admin/healthcheck")
+                    .http(healthCheckUrlWithCorrectSubnet)
                     .interval("1s")
                     .deregisterCriticalServiceAfter("1m")
                     .build())
@@ -133,7 +138,7 @@ public class ConsulAdvertiserTest {
             .port(8080)
             .check(
                 ImmutableRegCheck.builder()
-                    .http("http://127.0.0.1:8081/admin/healthcheck")
+                    .http(healthCheckUrl)
                     .interval("1s")
                     .deregisterCriticalServiceAfter("1m")
                     .build())
@@ -152,12 +157,13 @@ public class ConsulAdvertiserTest {
     advertiser.register(
         "http", 8080, 8081, Arrays.asList(FIRST_SUBNET_IP, "192.168.7.23", THIRD_SUBNET_IP));
 
-    final ImmutableRegistration registration =
+      String healthCheckUrlWithCorrectSubnet = "http://192.168.8.99:8081/admin/ping";
+      final ImmutableRegistration registration =
         ImmutableRegistration.builder()
             .port(8080)
             .check(
                 ImmutableRegCheck.builder()
-                    .http("http://192.168.8.99:8081/admin/healthcheck")
+                    .http(healthCheckUrlWithCorrectSubnet)
                     .interval("1s")
                     .deregisterCriticalServiceAfter("1m")
                     .build())
@@ -182,7 +188,7 @@ public class ConsulAdvertiserTest {
             .port(8080)
             .check(
                 ImmutableRegCheck.builder()
-                    .http("http://127.0.0.1:8081/admin/healthcheck")
+                    .http(healthCheckUrl)
                     .interval("1s")
                     .deregisterCriticalServiceAfter("1m")
                     .build())
@@ -199,12 +205,13 @@ public class ConsulAdvertiserTest {
     when(agent.isRegistered(serviceId)).thenReturn(false);
     advertiser.register("https", 8080, 8081);
 
+    String httpsHealthCheckUrl = "https://127.0.0.1:8081/admin/ping";
     final ImmutableRegistration registration =
         ImmutableRegistration.builder()
             .port(8080)
             .check(
                 ImmutableRegCheck.builder()
-                    .http("https://127.0.0.1:8081/admin/healthcheck")
+                    .http(httpsHealthCheckUrl)
                     .interval("1s")
                     .deregisterCriticalServiceAfter("1m")
                     .build())
@@ -241,7 +248,7 @@ public class ConsulAdvertiserTest {
             .address("127.0.0.1")
             .check(
                 ImmutableRegCheck.builder()
-                    .http("http://127.0.0.1:8081/admin/healthcheck")
+                    .http(healthCheckUrl)
                     .interval("1s")
                     .deregisterCriticalServiceAfter("1m")
                     .build())
@@ -262,12 +269,12 @@ public class ConsulAdvertiserTest {
         new ConsulAdvertiser(environment, factory, consul, serviceId);
     advertiser.register("http", 8080, 8081);
 
-    final ImmutableRegistration registration =
+      final ImmutableRegistration registration =
         ImmutableRegistration.builder()
             .tags(tags)
             .check(
                 ImmutableRegCheck.builder()
-                    .http("http://127.0.0.1:8081/admin/healthcheck")
+                    .http(healthCheckUrl)
                     .interval("1s")
                     .deregisterCriticalServiceAfter("1m")
                     .build())
@@ -295,7 +302,7 @@ public class ConsulAdvertiserTest {
             .id(serviceId)
             .check(
                 ImmutableRegCheck.builder()
-                    .http("http://127.0.0.1:8081/admin/healthcheck")
+                    .http(healthCheckUrl)
                     .interval("1s")
                     .deregisterCriticalServiceAfter("1m")
                     .build())
@@ -326,7 +333,7 @@ public class ConsulAdvertiserTest {
             .putMeta("scheme", "http")
             .check(
                 ImmutableRegCheck.builder()
-                    .http("http://127.0.0.1:8081/admin/healthcheck")
+                    .http(healthCheckUrl)
                     .interval("1s")
                     .deregisterCriticalServiceAfter("1m")
                     .build())
