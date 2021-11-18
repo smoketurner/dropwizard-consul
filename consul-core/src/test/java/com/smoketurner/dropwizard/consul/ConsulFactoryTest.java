@@ -67,6 +67,14 @@ public class ConsulFactoryTest {
     assertThat(actual.hashCode()).isNotEqualTo(expected.hashCode());
   }
 
+  @Test
+  public void testSetServiceName() {
+    ConsulFactory consulFactory = new ConsulFactory();
+    String serviceName = "test-service";
+    consulFactory.setServiceName(serviceName);
+    assertThat(consulFactory.getServiceName()).isEqualTo(serviceName);
+  }
+
   private ConsulFactory createFullyPopulatedConsulFactory() {
     final ConsulFactory consulFactory = new ConsulFactory();
     consulFactory.setSeviceName("serviceName");

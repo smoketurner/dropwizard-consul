@@ -102,6 +102,12 @@ public class ConsulFactory {
   }
 
   @JsonProperty
+  public void setServiceName(@Nullable String serviceName) {
+    this.serviceName = serviceName;
+  }
+
+  @Deprecated
+  @JsonProperty
   public void setSeviceName(@Nullable String serviceName) {
     this.serviceName = serviceName;
   }
