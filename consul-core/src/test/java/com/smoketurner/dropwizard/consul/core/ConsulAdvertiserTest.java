@@ -49,7 +49,7 @@ public class ConsulAdvertiserTest {
   public static final String SECOND_SUBNET_IP = "192.168.2.99";
   public static final String FIRST_SUBNET_IP = "192.168.1.53";
   public static final String THIRD_SUBNET_IP = "192.168.3.32";
-  private static final String DEFAULT_HEALTH_CHECK_PATH = "ping";
+  private static final String DEFAULT_HEALTH_CHECK_PATH = "healthcheck";
   private final Consul consul = mock(Consul.class);
   private final AgentClient agent = mock(AgentClient.class);
   private final Environment environment = mock(Environment.class);
@@ -157,7 +157,7 @@ public class ConsulAdvertiserTest {
     advertiser.register(
         "http", 8080, 8081, Arrays.asList(FIRST_SUBNET_IP, "192.168.7.23", THIRD_SUBNET_IP));
 
-      String healthCheckUrlWithCorrectSubnet = "http://192.168.8.99:8081/admin/ping";
+      String healthCheckUrlWithCorrectSubnet = "http://192.168.8.99:8081/admin/healthcheck";
       final ImmutableRegistration registration =
         ImmutableRegistration.builder()
             .port(8080)
@@ -205,7 +205,7 @@ public class ConsulAdvertiserTest {
     when(agent.isRegistered(serviceId)).thenReturn(false);
     advertiser.register("https", 8080, 8081);
 
-    String httpsHealthCheckUrl = "https://127.0.0.1:8081/admin/ping";
+    String httpsHealthCheckUrl = "https://127.0.0.1:8081/admin/healthcheck";
     final ImmutableRegistration registration =
         ImmutableRegistration.builder()
             .port(8080)
@@ -344,6 +344,36 @@ public class ConsulAdvertiserTest {
 
     verify(agent).register(registration);
   }
+
+    @Test
+    public void testHealthCheckUrlFromConfig() {
+        factory.setServicePort(8888);
+        factory.setServiceAddress("127.0.0.1");
+        factory.setHealthCheckPath("ping");
+        String configuredHealthCheckUrl = "http://127.0.0.1:8081/admin/ping";
+
+        when(agent.isRegistered(anyString())).thenReturn(false);
+        final ConsulAdvertiser advertiser =
+            new ConsulAdvertiser(environment, factory, consul, serviceId);
+        advertiser.register("http", 8080, 8081);
+
+        final ImmutableRegistration registration =
+            ImmutableRegistration.builder()
+                .id(serviceId)
+                .port(8888)
+                .address("127.0.0.1")
+                .check(
+                    ImmutableRegCheck.builder()
+                        .http(configuredHealthCheckUrl)
+                        .interval("1s")
+                        .deregisterCriticalServiceAfter("1m")
+                        .build())
+                .name("test")
+                .meta(ImmutableMap.of("scheme", "http"))
+                .build();
+
+        verify(agent).register(registration);
+    }
 
   @Test
   public void testDeregister() {

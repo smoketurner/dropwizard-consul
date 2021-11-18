@@ -40,7 +40,7 @@ public class ConsulAdvertiser {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ConsulAdvertiser.class);
   private static final String LOCALHOST = "127.0.0.1";
-  private static final String DEFAULT_HEALTH_CHECK_PATH = "ping";
+  private static final String DEFAULT_HEALTH_CHECK_PATH = "healthcheck";
 
   private final AtomicReference<Integer> servicePort = new AtomicReference<>();
   private final AtomicReference<Integer> serviceAdminPort = new AtomicReference<>();
