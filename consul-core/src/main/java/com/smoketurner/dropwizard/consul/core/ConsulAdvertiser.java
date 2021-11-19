@@ -39,6 +39,9 @@ import org.slf4j.LoggerFactory;
 public class ConsulAdvertiser {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ConsulAdvertiser.class);
+  private static final String LOCALHOST = "127.0.0.1";
+  private static final String DEFAULT_HEALTH_CHECK_PATH = "healthcheck";
+
   private final AtomicReference<Integer> servicePort = new AtomicReference<>();
   private final AtomicReference<Integer> serviceAdminPort = new AtomicReference<>();
   private final AtomicReference<String> serviceAddress = new AtomicReference<>();
@@ -51,6 +54,7 @@ public class ConsulAdvertiser {
   private final ConsulFactory configuration;
   private final Consul consul;
   private final String serviceId;
+  private final AtomicReference<String> healthCheckPath = new AtomicReference<>();
 
   /**
    * Constructor
@@ -135,6 +139,15 @@ public class ConsulAdvertiser {
                   "Using \"{}\" as serviceMeta from the configuration file", newServiceMeta);
               serviceMeta.set(newServiceMeta);
             });
+
+      configuration
+          .getHealthCheckPath()
+          .ifPresent(
+              newHealthCheckPath -> {
+                  LOGGER.info(
+                      "Using \"{}\" as health check path from the configuration file", newHealthCheckPath);
+                  healthCheckPath.set(newHealthCheckPath);
+              });
   }
 
   /**
@@ -177,13 +190,15 @@ public class ConsulAdvertiser {
     // set it from the listening applicationPort.
     servicePort.compareAndSet(null, applicationPort);
     serviceAdminPort.compareAndSet(null, adminPort);
+    healthCheckPath.compareAndSet(null, DEFAULT_HEALTH_CHECK_PATH);
 
     LOGGER.info(
-        "Registering service ({}) [{}] on port {} (admin port {}) with a health check of {}s",
+        "Registering service ({}) [{}] on port {} (admin port {}) with a health check at {} with interval of {}s",
         configuration.getServiceName(),
         serviceId,
         servicePort.get(),
         serviceAdminPort.get(),
+        healthCheckPath.get(),
         configuration.getCheckInterval().toSeconds());
 
     final Registration.RegCheck check =
@@ -295,9 +310,9 @@ public class ConsulAdvertiser {
   protected String getHealthCheckUrl(String applicationScheme, Collection<String> hosts) {
     final UriBuilder builder = UriBuilder.fromPath(environment.getAdminContext().getContextPath());
     builder
-        .path("healthcheck")
+        .path(healthCheckPath.get())
         .scheme(applicationScheme)
-        .host(getServiceAddress(hosts).orElse("127.0.0.1"))
+        .host(getServiceAddress(hosts).orElse(LOCALHOST))
         .port(serviceAdminPort.get());
     return builder.build().toString();
   }
