@@ -64,7 +64,8 @@ public class ConsulFactory {
   @NotNull
   @MinDuration(value = 1, unit = TimeUnit.MINUTES)
   private Duration deregisterInterval = Duration.minutes(1);
-  private Optional<String> healthCheckPath;
+
+  private Optional<String> healthCheckPath = Optional.empty();
 
   @JsonProperty
   public boolean isEnabled() {
