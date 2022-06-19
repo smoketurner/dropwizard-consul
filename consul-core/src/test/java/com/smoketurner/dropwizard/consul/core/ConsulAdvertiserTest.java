@@ -102,6 +102,38 @@ public class ConsulAdvertiserTest {
     verify(agent).register(registration);
   }
 
+  /**
+   * Added to verify that NullPointerException is not thrown when a healthCheckPath
+   * is not specified on ConsulFactory.
+   */
+  @Test
+  public void testRegisterWhenHealthCheckPathNotSpecifiedOnFactory() {
+    factory = new ConsulFactory();
+    factory.setServiceName("test");
+    factory.setServiceSubnet("192.168.2.0/24");
+    factory.setServiceAddressSupplier(supplierMock);
+    advertiser = new ConsulAdvertiser(environment, factory, consul, serviceId);
+
+    when(agent.isRegistered(serviceId)).thenReturn(false);
+    advertiser.register("http", 8080, 8081);
+
+    final ImmutableRegistration registration =
+        ImmutableRegistration.builder()
+            .port(8080)
+            .check(
+                ImmutableRegCheck.builder()
+                    .http(healthCheckUrl)
+                    .interval("1s")
+                    .deregisterCriticalServiceAfter("1m")
+                    .build())
+            .name("test")
+            .meta(ImmutableMap.of("scheme", "http"))
+            .id(serviceId)
+            .build();
+
+    verify(agent).register(registration);
+  }
+
   @Test
   public void testRegisterWithSubnet() {
     when(agent.isRegistered(serviceId)).thenReturn(false);
